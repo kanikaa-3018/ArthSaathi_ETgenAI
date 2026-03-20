@@ -1,22 +1,47 @@
 import { useState, useRef, DragEvent } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
 
+type UploadErrorCode = "INVALID_FILE_TYPE" | "FILE_TOO_LARGE" | "PASSWORD_REQUIRED";
+
 interface HeroUploadProps {
-  onAnalyze: () => void;
+  onAnalyze: (payload: { file: File; password: string }) => void;
   onSampleData: () => void;
+  onValidationError?: (errorCode: UploadErrorCode) => void;
 }
 
-export function HeroUpload({ onAnalyze, onSampleData }: HeroUploadProps) {
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+export function HeroUpload({ onAnalyze, onSampleData, onValidationError }: HeroUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState('');
   const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const setValidationError = (message: string, code: UploadErrorCode) => {
+    setError(message);
+    onValidationError?.(code);
+  };
+
+  const validateAndSetFile = (candidate: File) => {
+    const isPdf = candidate.type === "application/pdf" || candidate.name.toLowerCase().endsWith(".pdf");
+    if (!isPdf) {
+      setValidationError("Please upload a PDF CAS statement only.", "INVALID_FILE_TYPE");
+      return;
+    }
+    if (candidate.size > MAX_FILE_SIZE_BYTES) {
+      setValidationError("File exceeds 10 MB limit. Please upload a smaller CAS PDF.", "FILE_TOO_LARGE");
+      return;
+    }
+    setError(null);
+    setFile(candidate);
+  };
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
     const f = e.dataTransfer.files[0];
-    if (f?.type === 'application/pdf') setFile(f);
+    if (f) validateAndSetFile(f);
   };
 
   return (
@@ -67,7 +92,10 @@ export function HeroUpload({ onAnalyze, onSampleData }: HeroUploadProps) {
                 type="file"
                 accept=".pdf"
                 className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) setFile(f); }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) validateAndSetFile(f);
+                }}
               />
             </div>
           ) : (
@@ -79,7 +107,13 @@ export function HeroUpload({ onAnalyze, onSampleData }: HeroUploadProps) {
                   {(file.size / 1024).toFixed(0)} KB
                 </p>
               </div>
-              <button onClick={() => setFile(null)} className="p-1 rounded hover:bg-elevated-dark transition-colors">
+              <button
+                onClick={() => {
+                  setFile(null);
+                  setError(null);
+                }}
+                className="p-1 rounded hover:bg-elevated-dark transition-colors"
+              >
                 <X size={16} style={{ color: 'hsl(var(--text-tertiary))' }} />
               </button>
             </div>
@@ -103,9 +137,23 @@ export function HeroUpload({ onAnalyze, onSampleData }: HeroUploadProps) {
             Your CAS password is typically your PAN number (e.g., ABCDE1234F)
           </p>
 
+          {error && (
+            <p className="font-body text-xs mt-3" style={{ color: 'hsl(var(--negative))' }}>
+              {error}
+            </p>
+          )}
+
           {/* Analyze Button */}
           <button
-            onClick={onAnalyze}
+            onClick={() => {
+              if (!file) return;
+              if (!password.trim()) {
+                setValidationError("Please enter your CAS password (usually PAN).", "PASSWORD_REQUIRED");
+                return;
+              }
+              setError(null);
+              onAnalyze({ file, password: password.trim() });
+            }}
             disabled={!file}
             className="w-full mt-5 py-3 rounded-lg font-body text-[15px] font-semibold text-white bg-accent-btn transition-all duration-200 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
             style={{

@@ -1,23 +1,18 @@
-import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
+import { useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Landing from "./pages/Landing.tsx";
-import AnalyzeUpload from "./pages/AnalyzeUpload.tsx";
-import AnalyzeProcessing from "./pages/AnalyzeProcessing.tsx";
-import AnalyzeReport from "./pages/AnalyzeReport.tsx";
-import AnalyzeError from "./pages/AnalyzeError.tsx";
-import Demo from "./pages/Demo.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import Landing from "./pages/Landing";
+import AnalyzeUpload from "./pages/AnalyzeUpload";
+import AnalyzeProcessing from "./pages/AnalyzeProcessing";
+import AnalyzeReport from "./pages/AnalyzeReport";
+import AnalyzeError from "./pages/AnalyzeError";
+import Demo from "./pages/Demo";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-gsap.registerPlugin(ScrollTrigger);
 
 function ScrollToTop() {
   const location = useLocation();
@@ -29,21 +24,7 @@ function ScrollToTop() {
   return null;
 }
 
-const App = () => {
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    return () => {
-      lenis.destroy();
-      gsap.ticker.remove(raf);
-    };
-  }, []);
-
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -58,13 +39,10 @@ const App = () => {
             <Route path="/analyze/report" element={<AnalyzeReport />} />
             <Route path="/analyze/error" element={<AnalyzeError />} />
             <Route path="/demo" element={<Demo />} />
-            <Route path="/app" element={<AnalyzeUpload />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
-};
-
-export default App;
+}
