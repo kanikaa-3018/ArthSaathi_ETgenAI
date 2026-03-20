@@ -28,7 +28,6 @@ export default function AnalyzeProcessing() {
               (अर्थसाथी)
             </p>
           </div>
-
           <AgentPanel active={true} onComplete={() => navigate("/analyze/report")} />
         </div>
       </div>

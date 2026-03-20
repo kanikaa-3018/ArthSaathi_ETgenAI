@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { ReportView } from "@/components/ArthSaathi/ReportView";
+import { ReportSections } from "@/components/ArthSaathi/ReportSections";
 
 export default function Demo() {
   const navigate = useNavigate();
 
   return (
-    <ReportView
-      topBar={
-        <div className="w-full">
+    <div className="min-h-screen bg-primary-dark">
+      <ReportSections
+        topSlot={
           <div
             className="card-arth px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
             style={{ background: "rgba(52, 211, 153, 0.06)" }}
@@ -30,9 +30,14 @@ export default function Demo() {
               Switch to Upload Flow
             </button>
           </div>
-        </div>
-      }
-      footerNote="ArthSaathi Demo (Sample Dataset) — UI Preview for ET AI Hackathon 2026"
-    />
+        }
+        footerLabel="ArthSaathi Demo (Sample Dataset) — UI Preview for ET AI Hackathon 2026"
+        showFallbacks={{
+          benchmarkUnavailable: true,
+          overlapUnavailable: true,
+          projectionUnavailable: false,
+        }}
+      />
+    </div>
   );
 }
