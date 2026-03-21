@@ -1,5 +1,10 @@
 import { FeeCounter } from './FeeCounter';
 
+const reportPeriodLabel = new Intl.DateTimeFormat('en-IN', {
+  month: 'short',
+  year: 'numeric',
+}).format(new Date());
+
 interface ResultsHeaderProps {
   investorName: string;
   fundCount: number;
@@ -15,7 +20,7 @@ export function ResultsHeader({ investorName, fundCount, annualDrag }: ResultsHe
       background: 'hsla(220, 20%, 10%, 0.9)',
     }}>
       <span className="font-body text-xs font-medium" style={{ color: 'hsl(var(--text-secondary))' }}>
-        {investorName} · {fundCount} funds · Mar 2026
+        {investorName} · {fundCount} funds · {reportPeriodLabel}
       </span>
       <FeeCounter annualDrag={annualDrag} />
     </div>

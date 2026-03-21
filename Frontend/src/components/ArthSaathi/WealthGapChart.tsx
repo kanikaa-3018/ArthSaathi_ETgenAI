@@ -9,6 +9,9 @@ interface WealthGapChartProps {
   assumptions: { current_xirr: number; optimized_xirr: number; ter_savings_applied: number; alpha_improvement_applied: number };
 }
 
+type GapPoint = { year: number; current: number; optimized: number };
+type TooltipPayloadEntry = { payload?: GapPoint };
+
 export function WealthGapChart({ currentPath, optimizedPath, assumptions }: WealthGapChartProps) {
   const { ref, visible } = useScrollReveal();
   const [years, setYears] = useState(10);
@@ -26,13 +29,15 @@ export function WealthGapChart({ currentPath, optimizedPath, assumptions }: Weal
   const filtered = data.filter(d => d.year <= years);
   const gap = (filtered[filtered.length - 1]?.optimized ?? 0) - (filtered[filtered.length - 1]?.current ?? 0);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadEntry[] }) => {
     if (!active || !payload?.length) return null;
+    const row = payload[0]?.payload;
+    if (!row) return null;
     return (
       <div className="card-arth p-3 text-xs" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-        <p className="font-body" style={{ color: 'hsl(var(--text-secondary))' }}>Year {payload[0]?.payload?.year}</p>
-        <p className="font-mono-dm text-positive">Optimized: {compactINR(payload[0]?.payload?.optimized)}</p>
-        <p className="font-mono-dm" style={{ color: 'hsl(var(--chart-6))' }}>Current: {compactINR(payload[0]?.payload?.current)}</p>
+        <p className="font-body" style={{ color: 'hsl(var(--text-secondary))' }}>Year {row.year}</p>
+        <p className="font-mono-dm text-positive">Optimized: {compactINR(row.optimized)}</p>
+        <p className="font-mono-dm" style={{ color: 'hsl(var(--chart-6))' }}>Current: {compactINR(row.current)}</p>
       </div>
     );
   };

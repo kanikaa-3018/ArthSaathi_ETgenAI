@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { mockData } from "@/data/mockData";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
@@ -10,7 +11,7 @@ import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
 
 interface ReportSectionsProps {
-  topSlot?: React.ReactNode;
+  topSlot?: ReactNode;
   footerLabel?: string;
   showFallbacks?: {
     benchmarkUnavailable?: boolean;
@@ -35,7 +36,7 @@ export function ReportSections({ topSlot, footerLabel, showFallbacks }: ReportSe
 
   return (
     <div className="animate-reveal">
-      <div className="max-w-[1120px] mx-auto px-4 pt-4">{topSlot}</div>
+      {topSlot ? <div className="max-w-[1120px] mx-auto px-4 pt-4">{topSlot}</div> : null}
 
       <div className="pt-6 pb-2 text-center">
         <h1 className="font-display text-2xl font-bold text-primary-light">ArthSaathi</h1>

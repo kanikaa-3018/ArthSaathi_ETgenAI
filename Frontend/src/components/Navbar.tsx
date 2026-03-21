@@ -75,7 +75,10 @@ export default function Navbar() {
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') window.location.assign('/');
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.assign('/');
+          }
         }}
       >
         ArthSaathi

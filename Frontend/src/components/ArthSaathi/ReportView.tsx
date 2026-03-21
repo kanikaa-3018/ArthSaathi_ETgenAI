@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { mockData } from "@/data/mockData";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
@@ -10,7 +11,7 @@ import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
 
 interface ReportViewProps {
-  topBar?: React.ReactNode;
+  topBar?: ReactNode;
   footerNote?: string;
 }
 
