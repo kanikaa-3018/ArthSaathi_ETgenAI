@@ -19,12 +19,15 @@ export default function DataStrip() {
     const track = trackRef.current;
     if (!track) return;
     const width = track.scrollWidth / 2;
-    gsap.to(track, {
+    const tween = gsap.to(track, {
       x: -width,
       duration: 60,
       ease: 'none',
       repeat: -1,
     });
+    return () => {
+      tween.kill();
+    };
   }, []);
 
   const items = [...fundData, ...fundData];

@@ -23,7 +23,7 @@ export default function Navbar() {
     tl.to(centerRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.45);
     tl.to(btnRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.55);
 
-    ScrollTrigger.create({
+    const trigger = ScrollTrigger.create({
       start: 'top -80px',
       onEnter: () => {
         gsap.to(nav, {
@@ -43,6 +43,11 @@ export default function Navbar() {
         });
       },
     });
+
+    return () => {
+      trigger.kill();
+      tl.kill();
+    };
   }, []);
 
   useEffect(() => {
