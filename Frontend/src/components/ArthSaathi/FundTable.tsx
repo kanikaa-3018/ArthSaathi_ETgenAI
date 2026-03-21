@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { compactINR, formatINR } from '@/lib/format';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import type { AnalysisData } from '@/data/mockData';
+import type { AnalysisData } from '@/types/analysis';
 
 interface FundTableProps {
   funds: AnalysisData['funds'];

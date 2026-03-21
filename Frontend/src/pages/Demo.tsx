@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ReportSections } from "@/components/ArthSaathi/ReportSections";
+import { mockData } from "@/data/mockData";
 
 export default function Demo() {
   const navigate = useNavigate();
@@ -7,6 +8,7 @@ export default function Demo() {
   return (
     <div className="min-h-screen bg-primary-dark">
       <ReportSections
+        data={mockData}
         topSlot={
           <div
             className="card-arth px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"

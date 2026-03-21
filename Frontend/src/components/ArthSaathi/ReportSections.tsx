@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { mockData } from "@/data/mockData";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
 import { HealthScore } from "@/components/ArthSaathi/HealthScore";
@@ -9,8 +8,12 @@ import { WealthGapChart } from "@/components/ArthSaathi/WealthGapChart";
 import { OverlapMatrix } from "@/components/ArthSaathi/OverlapMatrix";
 import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
+import type { AnalysisData } from "@/types/analysis";
+import { normalizeWealthProjectionForChart } from "@/lib/wealthProjection";
 
 interface ReportSectionsProps {
+  /** Live analysis payload or explicit demo dataset — no implicit mock fallback */
+  data: AnalysisData;
   topSlot?: ReactNode;
   footerLabel?: string;
   showFallbacks?: {
@@ -31,8 +34,8 @@ function UnavailableBlock({ title, description }: { title: string; description: 
   );
 }
 
-export function ReportSections({ topSlot, footerLabel, showFallbacks }: ReportSectionsProps) {
-  const data = mockData;
+export function ReportSections({ data, topSlot, footerLabel, showFallbacks }: ReportSectionsProps) {
+  const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
 
   return (
     <div className="animate-reveal">
@@ -72,9 +75,9 @@ export function ReportSections({ topSlot, footerLabel, showFallbacks }: ReportSe
             />
           ) : (
             <WealthGapChart
-              currentPath={data.wealth_projection.current_path}
-              optimizedPath={data.wealth_projection.optimized_path}
-              assumptions={data.wealth_projection.assumptions}
+              currentPath={wealthChart.currentPath}
+              optimizedPath={wealthChart.optimizedPath}
+              assumptions={wealthChart.assumptions}
             />
           )}
 

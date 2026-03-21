@@ -17,12 +17,22 @@ export function WealthGapChart({ currentPath, optimizedPath, assumptions }: Weal
   const [years, setYears] = useState(10);
 
   const data = useMemo(() => {
-    // Extend paths to 20 years using XIRR
-    const base = currentPath[0].value;
+    const safeCurrent = Array.isArray(currentPath) && currentPath.length > 0 ? currentPath : [{ year: 0, value: 0 }];
+    const safeOptimized =
+      Array.isArray(optimizedPath) && optimizedPath.length > 0 ? optimizedPath : safeCurrent;
+    const base = safeCurrent[0]?.value ?? 0;
+    const curRate = assumptions?.current_xirr ?? 0;
+    const optRate = assumptions?.optimized_xirr ?? curRate;
     return Array.from({ length: 21 }, (_, i) => ({
       year: i,
-      current: i <= 10 ? currentPath[i]?.value ?? base * Math.pow(1 + assumptions.current_xirr, i) : base * Math.pow(1 + assumptions.current_xirr, i),
-      optimized: i <= 10 ? optimizedPath[i]?.value ?? base * Math.pow(1 + assumptions.optimized_xirr, i) : base * Math.pow(1 + assumptions.optimized_xirr, i),
+      current:
+        i <= 10
+          ? safeCurrent[i]?.value ?? base * Math.pow(1 + curRate, i)
+          : base * Math.pow(1 + curRate, i),
+      optimized:
+        i <= 10
+          ? safeOptimized[i]?.value ?? base * Math.pow(1 + optRate, i)
+          : base * Math.pow(1 + optRate, i),
     }));
   }, [currentPath, optimizedPath, assumptions]);
 

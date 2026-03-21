@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Check, AlertTriangle, AlertCircle, Loader2 } from 'lucide-react';
+import type { AgentEvent } from '@/types/analysis';
 
 interface AgentState {
   id: string;
@@ -9,6 +10,39 @@ interface AgentState {
   time?: string;
   flash?: boolean;
 }
+
+function normalizeAgentRowStatus(ev: AgentEvent): AgentState['status'] {
+  if (ev.status === 'completed') {
+    return ev.severity === 'success' ? 'success' : ev.severity;
+  }
+  if (ev.status === 'error') return 'critical';
+  if (ev.status === 'warning') return 'warning';
+  return ev.status;
+}
+
+const backendAgentOrder = [
+  "parser_agent",
+  "nav_agent",
+  "returns_agent",
+  "overlap_agent",
+  "cost_agent",
+  "benchmark_agent",
+  "projection_agent",
+  "health_agent",
+  "advisor_agent",
+] as const;
+
+const backendAgentNameMap: Record<string, string> = {
+  parser_agent: "Parser Agent",
+  nav_agent: "NAV Agent",
+  returns_agent: "Returns Agent",
+  overlap_agent: "Overlap Agent",
+  cost_agent: "Cost Agent",
+  benchmark_agent: "Benchmark Agent",
+  projection_agent: "Projection Agent",
+  health_agent: "Health Agent",
+  advisor_agent: "Advisor Agent",
+};
 
 const agentDefs = [
   { id: 'parser', name: 'Parser Agent', delay: 0, duration: 2100, runMsg: 'Parsing CAS statement...', doneMsg: 'Found 6 funds across 2 folios', severity: 'success' as const },
@@ -24,23 +58,29 @@ const agentDefs = [
 
 interface AgentPanelProps {
   active: boolean;
-  onComplete: () => void;
+  mode: 'live' | 'demo';
+  events?: AgentEvent[];
+  onComplete?: () => void;
 }
 
-export function AgentPanel({ active, onComplete }: AgentPanelProps) {
+export function AgentPanel({ active, mode, events = [], onComplete }: AgentPanelProps) {
   const [agents, setAgents] = useState<AgentState[]>(
-    agentDefs.map(d => ({ id: d.id, name: d.name, status: 'queued', message: 'Queued...' }))
+    mode === "live"
+      ? backendAgentOrder.map((id) => ({ id, name: backendAgentNameMap[id], status: "queued", message: "Queued..." }))
+      : agentDefs.map(d => ({ id: d.id, name: d.name, status: 'queued', message: 'Queued...' }))
   );
   const [collapsed, setCollapsed] = useState(false);
   const [totalTime, setTotalTime] = useState('');
   const runIdRef = useRef(0);
+  const startTimeRef = useRef<number | null>(null);
 
   const stableOnComplete = useCallback(() => {
-    onComplete();
+    onComplete?.();
   }, [onComplete]);
 
   useEffect(() => {
     if (!active) return;
+    if (mode !== "demo") return;
 
     setAgents(agentDefs.map(d => ({ id: d.id, name: d.name, status: 'queued', message: 'Queued...' })));
     setCollapsed(false);
@@ -91,7 +131,66 @@ export function AgentPanel({ active, onComplete }: AgentPanelProps) {
       runIdRef.current += 1;
       timeoutIds.forEach(clearTimeout);
     };
-  }, [active, stableOnComplete]);
+  }, [active, mode, stableOnComplete]);
+
+  useEffect(() => {
+    if (!active) return;
+    if (mode !== "live") return;
+
+    if (events.length === 0) {
+      startTimeRef.current = null;
+      setCollapsed(false);
+      setTotalTime("");
+      setAgents(
+        backendAgentOrder.map((id) => ({
+          id,
+          name: backendAgentNameMap[id],
+          status: "queued",
+          message: "Queued...",
+        })),
+      );
+      return;
+    }
+
+    if (!startTimeRef.current) {
+      startTimeRef.current = Date.now();
+      setCollapsed(false);
+      setTotalTime("");
+    }
+
+    // Fold entire history: React 18 often batches many SSE onmessage handlers into one render.
+    const lastEventByAgentId = new Map<string, AgentEvent>();
+    for (const ev of events) {
+      if (ev?.agent) lastEventByAgentId.set(ev.agent, ev);
+    }
+
+    setAgents(
+      backendAgentOrder.map((id) => {
+        const ev = lastEventByAgentId.get(id);
+        if (!ev) {
+          return { id, name: backendAgentNameMap[id], status: "queued" as const, message: "Queued..." };
+        }
+        const normalizedStatus = normalizeAgentRowStatus(ev);
+        return {
+          id,
+          name: backendAgentNameMap[id],
+          status: normalizedStatus,
+          message: ev.message,
+          flash: normalizedStatus !== "success" && normalizedStatus !== "queued",
+        };
+      }),
+    );
+  }, [active, events, mode]);
+
+  useEffect(() => {
+    if (mode !== "live") return;
+    const allDone = agents.length > 0 && agents.every((a) => !["queued", "running"].includes(a.status));
+    if (!allDone || !startTimeRef.current) return;
+
+    setTotalTime(((Date.now() - startTimeRef.current) / 1000).toFixed(1));
+    setCollapsed(true);
+    stableOnComplete();
+  }, [agents, mode, stableOnComplete]);
 
   const completed = agents.filter(a => !['queued', 'running'].includes(a.status)).length;
   const progress = (completed / agents.length) * 100;
@@ -118,7 +217,7 @@ export function AgentPanel({ active, onComplete }: AgentPanelProps) {
     }
   };
 
-  if (collapsed) {
+  if (collapsed && mode === "demo") {
     return (
       <div className="card-arth px-6 py-3 flex items-center justify-between animate-reveal">
         <span className="font-body text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>

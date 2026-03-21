@@ -61,7 +61,7 @@ const Index = () => {
               <h1 className="font-display text-3xl font-bold text-primary-light">ArthSaathi</h1>
               <p className="font-body text-sm mt-1" style={{ color: 'hsl(var(--text-tertiary))' }}>(अर्थसाथी)</p>
             </div>
-            <AgentPanel active={true} onComplete={handleAgentsComplete} />
+            <AgentPanel active={true} mode="demo" onComplete={handleAgentsComplete} />
           </div>
         </div>
       )}

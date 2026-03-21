@@ -146,6 +146,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Backend: NAV diskcache (diskcache stores *.val blobs + SQLite cache.db* — never commit)
+backend/cache/
+
 # Spyder project settings
 .spyderproject
 .spyproject

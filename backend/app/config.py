@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     ENV: str = "development"
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:80"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:8080,http://localhost:3000,http://localhost:80"
 
     # LLM providers (first set key wins)
     ANTHROPIC_API_KEY: Optional[str] = None

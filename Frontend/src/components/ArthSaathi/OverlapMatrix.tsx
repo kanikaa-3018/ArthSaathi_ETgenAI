@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { shortFundName } from '@/lib/format';
-import type { AnalysisData } from '@/data/mockData';
+import type { AnalysisData } from '@/types/analysis';
 
 interface OverlapMatrixProps {
   data: AnalysisData['overlap_analysis'];

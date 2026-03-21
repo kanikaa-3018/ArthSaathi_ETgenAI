@@ -1,11 +1,32 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HeroUpload } from "@/components/ArthSaathi/HeroUpload";
+import { useAnalysis } from "@/context/analysis-context";
+
+type UploadLocationState = { reportHint?: string };
 
 export default function AnalyzeUpload() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setUpload, setSampleMode } = useAnalysis();
+  const reportHint = (location.state as UploadLocationState | null)?.reportHint;
 
   return (
     <div className="min-h-screen bg-primary-dark">
+      {reportHint ? (
+        <div className="max-w-[1120px] mx-auto px-4 pt-3">
+          <div
+            className="rounded-md px-4 py-3 font-body text-sm"
+            style={{
+              color: "hsl(var(--text-secondary))",
+              background: "rgba(74, 144, 217, 0.1)",
+              border: "1px solid rgba(74, 144, 217, 0.25)",
+            }}
+            role="status"
+          >
+            {reportHint}
+          </div>
+        </div>
+      ) : null}
       <div className="max-w-[1120px] mx-auto px-4 pt-4">
         <button
           onClick={() => navigate("/")}
@@ -21,8 +42,14 @@ export default function AnalyzeUpload() {
       </div>
 
       <HeroUpload
-        onAnalyze={() => navigate("/analyze/processing")}
-        onSampleData={() => navigate("/demo")}
+        onAnalyze={({ file, password }) => {
+          setUpload(file, password);
+          navigate("/analyze/processing");
+        }}
+        onSampleData={() => {
+          setSampleMode();
+          navigate("/analyze/processing");
+        }}
         onValidationError={(code) => navigate(`/analyze/error?code=${code}`)}
       />
     </div>
