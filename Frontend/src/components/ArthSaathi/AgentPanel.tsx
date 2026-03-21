@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Check, AlertTriangle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface AgentState {
@@ -33,44 +33,65 @@ export function AgentPanel({ active, onComplete }: AgentPanelProps) {
   );
   const [collapsed, setCollapsed] = useState(false);
   const [totalTime, setTotalTime] = useState('');
+  const runIdRef = useRef(0);
 
-  const startAgents = useCallback(() => {
+  const stableOnComplete = useCallback(() => {
+    onComplete();
+  }, [onComplete]);
+
+  useEffect(() => {
+    if (!active) return;
+
+    setAgents(agentDefs.map(d => ({ id: d.id, name: d.name, status: 'queued', message: 'Queued...' })));
+    setCollapsed(false);
+    setTotalTime('');
+
+    runIdRef.current += 1;
+    const runId = runIdRef.current;
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
+    const schedule = (fn: () => void, ms: number) => {
+      timeoutIds.push(setTimeout(fn, ms));
+    };
+
     const startTime = Date.now();
+
     agentDefs.forEach(def => {
-      // Start running
-      setTimeout(() => {
+      schedule(() => {
+        if (runId !== runIdRef.current) return;
         setAgents(prev => prev.map(a =>
           a.id === def.id ? { ...a, status: 'running', message: def.runMsg } : a
         ));
       }, def.delay);
 
-      // Complete
-      setTimeout(() => {
+      schedule(() => {
+        if (runId !== runIdRef.current) return;
         const elapsed = ((Date.now() - startTime - def.delay) / 1000).toFixed(1);
         setAgents(prev => prev.map(a =>
           a.id === def.id ? { ...a, status: def.severity, message: def.doneMsg, time: elapsed + 's', flash: def.severity !== 'success' } : a
         ));
-        // Remove flash
-        setTimeout(() => {
+        schedule(() => {
+          if (runId !== runIdRef.current) return;
           setAgents(prev => prev.map(a => a.id === def.id ? { ...a, flash: false } : a));
         }, 600);
       }, def.delay + def.duration);
     });
 
-    // All done
     const maxEnd = Math.max(...agentDefs.map(d => d.delay + d.duration));
-    setTimeout(() => {
+    schedule(() => {
+      if (runId !== runIdRef.current) return;
       setTotalTime(((Date.now() - startTime) / 1000).toFixed(1));
-      setTimeout(() => {
+      schedule(() => {
+        if (runId !== runIdRef.current) return;
         setCollapsed(true);
-        onComplete();
+        stableOnComplete();
       }, 800);
     }, maxEnd + 100);
-  }, [onComplete]);
 
-  useEffect(() => {
-    if (active) startAgents();
-  }, [active, startAgents]);
+    return () => {
+      runIdRef.current += 1;
+      timeoutIds.forEach(clearTimeout);
+    };
+  }, [active, stableOnComplete]);
 
   const completed = agents.filter(a => !['queued', 'running'].includes(a.status)).length;
   const progress = (completed / agents.length) * 100;
@@ -159,7 +180,6 @@ export function AgentPanel({ active, onComplete }: AgentPanelProps) {
         ))}
       </div>
 
-      {/* Progress bar */}
       <div className="mt-5 h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(var(--bg-tertiary))' }}>
         <div
           className="h-full rounded-full transition-all duration-500 ease-out"

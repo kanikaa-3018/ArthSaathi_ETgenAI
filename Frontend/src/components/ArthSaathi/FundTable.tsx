@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { compactINR, formatINR } from '@/lib/format';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -43,9 +43,8 @@ export function FundTable({ funds }: FundTableProps) {
             {funds.map((fund, i) => {
               const isExpanded = expanded === fund.amfi_code;
               return (
-                <>
+                <Fragment key={fund.amfi_code}>
                   <tr
-                    key={fund.amfi_code}
                     className="cursor-pointer transition-colors duration-150"
                     style={{
                       borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -140,7 +139,7 @@ export function FundTable({ funds }: FundTableProps) {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
           </tbody>

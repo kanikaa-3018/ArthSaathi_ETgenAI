@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { shortFundName } from '@/lib/format';
 import type { AnalysisData } from '@/data/mockData';
@@ -51,8 +52,8 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
 
           {/* Rows */}
           {names.map((rowName, ri) => (
-            <>
-              <div key={'label-' + ri} className="font-body text-[11px] font-medium text-primary-light flex items-center pr-2 truncate">
+            <Fragment key={rowName}>
+              <div className="font-body text-[11px] font-medium text-primary-light flex items-center pr-2 truncate">
                 {rowName.split(' ').slice(0, 2).join(' ')}
               </div>
               {names.map((colName, ci) => {
@@ -69,7 +70,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
                   </div>
                 );
               })}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>
