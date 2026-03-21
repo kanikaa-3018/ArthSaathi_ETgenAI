@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 export default function CredibilitySection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -37,7 +37,7 @@ export default function CredibilitySection() {
 
         <div className="mt-8 inline-flex items-center gap-6 rounded-[7px] px-[18px] py-3" style={{ background: 'hsl(220 20% 10%)', border: '1px solid hsl(220 10% 20%)' }}>
           <span className="font-syne text-[12px] text-text-tertiary">Open source · MIT</span>
-          <a href="/analyze" className="font-syne font-medium text-[12px] text-accent hover:underline">Open Product Demo →</a>
+          <Link to="/analyze" className="font-syne font-medium text-[12px] text-accent hover:underline">Open Product Demo →</Link>
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
+const INTERACTIVE_SELECTOR = 'a, button, [data-cursor]';
+
 export default function CursorReticle() {
   const reticleRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +22,11 @@ export default function CursorReticle() {
 
     const onEnterInteractive = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      const interactive = target.closest(INTERACTIVE_SELECTOR);
+      if (!interactive) return;
+      const rel = e.relatedTarget as Node | null;
+      if (rel && interactive.contains(rel)) return;
+
       const cursorType = target.closest('[data-cursor]')?.getAttribute('data-cursor');
 
       if (cursorType === 'loss') {
@@ -28,7 +35,6 @@ export default function CursorReticle() {
       } else if (cursorType === 'gain') {
         gsap.to(corners, { borderColor: 'hsl(160 67% 52%)', duration: 0.15 });
       } else if (target.closest('a, button')) {
-        // Lock on — shrink
         gsap.to(corners[0], { x: 6, y: 6, borderColor: 'hsl(213 60% 56%)', duration: 0.15 });
         gsap.to(corners[1], { x: -6, y: 6, borderColor: 'hsl(213 60% 56%)', duration: 0.15 });
         gsap.to(corners[2], { x: 6, y: -6, borderColor: 'hsl(213 60% 56%)', duration: 0.15 });
@@ -36,7 +42,14 @@ export default function CursorReticle() {
       }
     };
 
-    const onLeaveInteractive = () => {
+    const onLeaveInteractive = (e: MouseEvent) => {
+      const from = e.target as Element | null;
+      if (!from?.closest?.(INTERACTIVE_SELECTOR)) return;
+      const interactive = from.closest(INTERACTIVE_SELECTOR);
+      if (!interactive) return;
+      const rel = e.relatedTarget as Node | null;
+      if (rel && interactive.contains(rel)) return;
+
       gsap.to(corners, { x: 0, y: 0, borderColor: 'hsl(220 6% 40%)', rotation: 0, duration: 0.15 });
       gsap.to(el, { rotation: 0, duration: 0.15 });
     };

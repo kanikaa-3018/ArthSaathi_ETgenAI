@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
-describe("example", () => {
-  it("should pass", () => {
+describe("frontend scaffold", () => {
+  it("runs tests", () => {
     expect(true).toBe(true);
   });
 });
