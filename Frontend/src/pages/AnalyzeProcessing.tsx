@@ -103,7 +103,37 @@ export default function AnalyzeProcessing() {
             }
 
             if (event.event === "error") {
-              const errorPayload = JSON.parse(event.data) as ApiErrorPayload;
+              let parsed: unknown;
+              try {
+                parsed = JSON.parse(event.data);
+              } catch {
+                const fallbackError: ApiErrorPayload = {
+                  status: "error",
+                  error_code: "INTERNAL_ERROR",
+                  message: "An unexpected error occurred while processing the analysis.",
+                };
+                errorHandled = true;
+                onErrorEvent(fallbackError);
+                return;
+              }
+
+              const raw: any = parsed ?? {};
+              const errorCode =
+                typeof raw.error_code === "string" && raw.error_code.length > 0
+                  ? raw.error_code
+                  : "INTERNAL_ERROR";
+              const message =
+                (typeof raw.message === "string" && raw.message.length > 0 && raw.message) ||
+                (typeof raw.error === "string" && raw.error.length > 0 && raw.error) ||
+                "An unexpected error occurred while processing the analysis.";
+
+              const errorPayload: ApiErrorPayload = {
+                status: "error",
+                error_code: errorCode,
+                message,
+              };
+
+              errorHandled = true;
               onErrorEvent(errorPayload);
             }
           },
