@@ -6,13 +6,13 @@ import Lenis from "lenis";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Landing from "./pages/Landing.tsx";
-import AnalyzeUpload from "./pages/AnalyzeUpload.tsx";
-import AnalyzeProcessing from "./pages/AnalyzeProcessing.tsx";
-import AnalyzeReport from "./pages/AnalyzeReport.tsx";
-import AnalyzeError from "./pages/AnalyzeError.tsx";
-import Demo from "./pages/Demo.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import Landing from "./pages/Landing";
+import AnalyzeUpload from "./pages/AnalyzeUpload";
+import AnalyzeProcessing from "./pages/AnalyzeProcessing";
+import AnalyzeReport from "./pages/AnalyzeReport";
+import AnalyzeError from "./pages/AnalyzeError";
+import Demo from "./pages/Demo";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 

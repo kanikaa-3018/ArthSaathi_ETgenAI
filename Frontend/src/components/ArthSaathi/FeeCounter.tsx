@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { formatINR } from '@/lib/format';
 
 interface FeeCounterProps {
   annualDrag: number;
