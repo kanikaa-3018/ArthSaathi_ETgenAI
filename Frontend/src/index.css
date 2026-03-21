@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,800&family=Syne:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: 220 25% 6%;
+    --bg-secondary: 220 20% 10%;
+    --bg-tertiary: 220 15% 14%;
+    --bg-elevated: 220 13% 17%;
+    --bg-raised: 220 18% 12%;
+
+    --text-primary: 220 10% 95%;
+    --text-secondary: 220 5% 57%;
+    --text-tertiary: 220 6% 37%;
+    --text-muted: 220 6% 26%;
+
+    --accent: 213 60% 56%;
+    --accent-hover: 213 65% 66%;
+    --accent-glow: 213 60% 56%;
+
+    --positive: 160 67% 52%;
+    --positive-bg: 160 67% 52%;
+    --negative: 0 92% 72%;
+    --negative-bg: 0 92% 72%;
+    --warning: 44 96% 56%;
+    --warning-bg: 44 96% 56%;
+
+    --grade-a: 160 67% 52%;
+    --grade-b: 160 60% 67%;
+    --grade-c: 44 96% 56%;
+    --grade-d: 27 96% 61%;
+    --grade-f: 0 92% 72%;
+
+    --chart-1: 213 60% 56%;
+    --chart-2: 253 96% 68%;
+    --chart-3: 160 67% 52%;
+    --chart-4: 44 96% 56%;
+    --chart-5: 0 92% 72%;
+    --chart-6: 220 5% 57%;
+
+    --border-subtle: 0 0% 100%;
+    --border-default: 0 0% 100%;
+    --border-strong: 0 0% 100%;
+    --border-faint: 220 10% 14%;
+
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
+    --card: var(--bg-secondary);
+    --card-foreground: var(--text-primary);
+    --popover: var(--bg-secondary);
+    --popover-foreground: var(--text-primary);
+    --primary: var(--accent);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--bg-tertiary);
+    --secondary-foreground: var(--text-primary);
+    --muted: var(--bg-tertiary);
+    --muted-foreground: var(--text-secondary);
+    --destructive: var(--negative);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--border-subtle);
+    --input: var(--border-subtle);
+    --ring: var(--accent);
+    --radius: 0.75rem;
+
+    --sidebar-background: var(--bg-secondary);
+    --sidebar-foreground: var(--text-primary);
+    --sidebar-primary: var(--accent);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--bg-tertiary);
+    --sidebar-accent-foreground: var(--text-primary);
+    --sidebar-border: var(--border-subtle);
+    --sidebar-ring: var(--accent);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  html {
+    cursor: crosshair;
+  }
+
+  @media (hover: none) {
+    html {
+      cursor: default;
+    }
+  }
+
+  body {
+    background-color: hsl(var(--bg-primary));
+    color: hsl(var(--text-primary));
+    font-family: 'Syne', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.028;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Fraunces', serif;
+  }
+
+  .font-fraunces {
+    font-family: 'Fraunces', serif;
+  }
+
+  .font-syne {
+    font-family: 'Syne', sans-serif;
+  }
+
+  .font-mono-dm {
+    font-family: 'DM Mono', monospace;
+  }
+
+  .font-mono {
+    font-family: 'DM Mono', monospace;
+  }
+
+  .font-body {
+    font-family: 'Syne', sans-serif;
+  }
+
+  .bg-primary-dark {
+    background-color: hsl(var(--bg-primary));
+  }
+  .bg-secondary-dark {
+    background-color: hsl(var(--bg-secondary));
+  }
+  .bg-tertiary-dark {
+    background-color: hsl(var(--bg-tertiary));
+  }
+  .bg-elevated-dark {
+    background-color: hsl(var(--bg-elevated));
+  }
+
+  .text-primary-light {
+    color: hsl(var(--text-primary));
+  }
+  .text-secondary-light {
+    color: hsl(var(--text-secondary));
+  }
+  .text-tertiary-light {
+    color: hsl(var(--text-tertiary));
+  }
+
+  .text-accent {
+    color: hsl(var(--accent));
+  }
+  .text-positive {
+    color: hsl(var(--positive));
+  }
+  .text-negative {
+    color: hsl(var(--negative));
+  }
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+
+  .bg-accent-btn {
+    background-color: hsl(var(--accent));
+  }
+  .bg-accent-btn:hover {
+    background-color: hsl(var(--accent-hover));
+  }
+
+  .border-subtle {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  .border-default-custom {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .border-strong-custom {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .pill-regular {
+    background-color: rgba(251, 191, 36, 0.08);
+    color: hsl(var(--warning));
+  }
+  .pill-direct {
+    background-color: rgba(52, 211, 153, 0.1);
+    color: hsl(var(--positive));
+  }
+
+  .card-arth {
+    background-color: hsl(var(--bg-raised));
+    border: 1px solid hsl(220 10% 20%);
+    border-radius: 9px;
+  }
+  .card-arth:hover {
+    border-color: hsl(220 10% 28%);
+  }
+
+  .accent-glow {
+    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+  }
+
+  .negative-glow {
+    text-shadow: 0 0 40px rgba(248, 113, 113, 0.3);
+  }
+
+  .positive-glow {
+    text-shadow: 0 0 40px rgba(52, 211, 153, 0.3);
+  }
+
+  .section-label {
+    @apply font-syne text-xs font-medium uppercase;
+    color: hsl(var(--text-muted));
+    letter-spacing: 2px;
+  }
+}
+
+@layer utilities {
+  .animate-reveal {
+    animation: reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .animate-count-up {
+    animation: countUp 1.2s ease-out both;
+  }
+
+  .animate-draw-line {
+    animation: drawLine 1.5s ease-out both;
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  .agent-flash {
+    animation: agentFlash 0.6s ease-out;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74, 144, 217, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(74, 144, 217, 0);
+  }
+}
+
+@keyframes agentFlash {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(255, 255, 255, 0.05); }
+  100% { background-color: transparent; }
+}
+
+@keyframes drawArc {
+  from { stroke-dashoffset: 283; }
+}
+
+@keyframes barFill {
+  from { width: 0; }
+}
