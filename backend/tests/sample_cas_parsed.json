@@ -1,0 +1,304 @@
+{
+  "investor_info": {
+    "name": "Rajesh Kumar Sharma",
+    "email": "rajesh.sharma@gmail.com",
+    "mobile": "9876543210",
+    "pan": "BKPSR1234M"
+  },
+  "statement_period": {
+    "from": "2023-03-22",
+    "to": "2026-03-21"
+  },
+  "folios": [
+    {
+      "folio": "12345678/89",
+      "amc": "HDFC Asset Management Company Ltd",
+      "schemes": [
+        {
+          "scheme": "HDFC Top 100 Fund - Regular Plan - Growth",
+          "amfi": "118989",
+          "advisor": "ARN-12345",
+          "close": 152.5,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 945.23,
+            "value": 144147.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2023-03-22",
+              "amount": 5000.0,
+              "units": 7.2,
+              "nav": 694.4,
+              "balance": 7.2
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2023-04-21",
+              "amount": 5000.0,
+              "units": 6.9,
+              "nav": 724.6,
+              "balance": 14.1
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2023-05-21",
+              "amount": 5000.0,
+              "units": 6.8,
+              "nav": 735.3,
+              "balance": 20.9
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-03-21",
+              "amount": 5000.0,
+              "units": 6.5,
+              "nav": 769.2,
+              "balance": 50.0
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-04-20",
+              "amount": 5000.0,
+              "units": 6.2,
+              "nav": 806.5,
+              "balance": 56.2
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 5000.0,
+              "units": 5.8,
+              "nav": 862.1,
+              "balance": 100.0
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-09-22",
+              "amount": 5000.0,
+              "units": 5.4,
+              "nav": 925.9,
+              "balance": 152.5
+            }
+          ]
+        },
+        {
+          "scheme": "ICICI Prudential Bluechip Fund - Regular Plan - Growth",
+          "amfi": "100033",
+          "advisor": "ARN-12345",
+          "close": 95.3,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 98.34,
+            "value": 9372.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2023-03-22",
+              "amount": 3000.0,
+              "units": 33.2,
+              "nav": 90.4,
+              "balance": 33.2
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-03-21",
+              "amount": 3000.0,
+              "units": 31.1,
+              "nav": 96.5,
+              "balance": 64.3
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 3000.0,
+              "units": 30.2,
+              "nav": 99.3,
+              "balance": 95.3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "folio": "98765432/21",
+      "amc": "Axis Asset Management Co. Ltd.",
+      "schemes": [
+        {
+          "scheme": "Axis Midcap Fund - Regular Plan - Growth",
+          "amfi": "120503",
+          "advisor": "ARN-55555",
+          "close": 42.1,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 112.45,
+            "value": 4734.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-03-21",
+              "amount": 2000.0,
+              "units": 22.1,
+              "nav": 90.5,
+              "balance": 22.1
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 2000.0,
+              "units": 18.4,
+              "nav": 108.7,
+              "balance": 40.5
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-09-22",
+              "amount": 2000.0,
+              "units": 4.6,
+              "nav": 110.9,
+              "balance": 42.1
+            }
+          ]
+        },
+        {
+          "scheme": "Axis Long Term Equity Fund - Regular Plan - Growth",
+          "amfi": "119598",
+          "advisor": "ARN-55555",
+          "close": 62.871,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 88.92,
+            "value": 5590.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2023-03-22",
+              "amount": 1500.0,
+              "units": 19.8,
+              "nav": 75.8,
+              "balance": 19.8
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-03-21",
+              "amount": 1500.0,
+              "units": 18.3,
+              "nav": 82.0,
+              "balance": 38.1
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 1500.0,
+              "units": 17.4,
+              "nav": 86.2,
+              "balance": 55.5
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-09-22",
+              "amount": 1000.0,
+              "units": 7.4,
+              "nav": 86.9,
+              "balance": 62.9
+            }
+          ]
+        },
+        {
+          "scheme": "Mirae Asset Large & Midcap Fund - Direct Plan - Growth",
+          "amfi": "118278",
+          "advisor": "DIRECT",
+          "close": 88.234,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 145.67,
+            "value": 12851.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE",
+              "date": "2024-03-21",
+              "amount": 50000.0,
+              "units": 45.6,
+              "nav": 109.6,
+              "balance": 45.6
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 5000.0,
+              "units": 35.5,
+              "nav": 140.8,
+              "balance": 81.1
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-09-22",
+              "amount": 5000.0,
+              "units": 35.0,
+              "nav": 142.9,
+              "balance": 88.2
+            },
+            {
+              "type": "DIVIDEND_PAYOUT",
+              "date": "2025-10-07",
+              "amount": 500.0,
+              "units": 0,
+              "nav": 0,
+              "balance": 88.2
+            }
+          ]
+        },
+        {
+          "scheme": "UTI Nifty 50 Index Fund - Direct Plan - Growth",
+          "amfi": "120716",
+          "advisor": "DIRECT",
+          "close": 110.5,
+          "valuation": {
+            "date": "2026-03-21",
+            "nav": 138.92,
+            "value": 15350.0
+          },
+          "transactions": [
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2024-03-21",
+              "amount": 3000.0,
+              "units": 28.1,
+              "nav": 106.8,
+              "balance": 28.1
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-03-21",
+              "amount": 3000.0,
+              "units": 22.3,
+              "nav": 134.5,
+              "balance": 50.4
+            },
+            {
+              "type": "PURCHASE_SIP",
+              "date": "2025-09-22",
+              "amount": 3000.0,
+              "units": 21.9,
+              "nav": 137.0,
+              "balance": 72.3
+            },
+            {
+              "type": "SWITCH_IN",
+              "date": "2025-09-27",
+              "amount": 10000.0,
+              "units": 28.9,
+              "nav": 137.2,
+              "balance": 110.5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "Large Cap": {
+    "name": "Nifty 50 TRI",
+    "amfi_code": "120716",
+    "proxy_fund": "UTI Nifty 50 Index Fund Direct Growth"
+  },
+  "Mid Cap": {
+    "name": "Nifty Midcap 150 TRI",
+    "amfi_code": "147622",
+    "proxy_fund": "Motilal Oswal Nifty Midcap 150 Index Fund Direct Growth"
+  },
+  "Small Cap": {
+    "name": "Nifty Smallcap 250 TRI",
+    "amfi_code": "147623",
+    "proxy_fund": "Motilal Oswal Nifty Smallcap 250 Index Fund Direct Growth"
+  },
+  "Flexi Cap": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "Multi Cap": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "ELSS": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "Value": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "Contra": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "Focused": {
+    "name": "Nifty 500 TRI",
+    "amfi_code": "147625",
+    "proxy_fund": "Motilal Oswal Nifty 500 Index Fund Direct Growth"
+  },
+  "Large & Mid Cap": {
+    "name": "Nifty LargeMidcap 250 TRI",
+    "amfi_code": "150490",
+    "proxy_fund": "HDFC NIFTY LargeMidcap 250 Index Fund Direct Growth"
+  },
+  "Large & Mid": {
+    "name": "Nifty LargeMidcap 250 TRI",
+    "amfi_code": "150490",
+    "proxy_fund": "HDFC NIFTY LargeMidcap 250 Index Fund Direct Growth"
+  }
+}

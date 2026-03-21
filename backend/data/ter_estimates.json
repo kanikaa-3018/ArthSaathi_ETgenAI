@@ -1,0 +1,37 @@
+{
+  "Large Cap": {
+    "direct_ter": 0.007,
+    "regular_ter": 0.018,
+    "difference": 0.011
+  },
+  "Mid Cap": {
+    "direct_ter": 0.0065,
+    "regular_ter": 0.020,
+    "difference": 0.0135
+  },
+  "Small Cap": {
+    "direct_ter": 0.0072,
+    "regular_ter": 0.0208,
+    "difference": 0.0136
+  },
+  "Flexi Cap": {
+    "direct_ter": 0.0075,
+    "regular_ter": 0.0185,
+    "difference": 0.011
+  },
+  "ELSS": {
+    "direct_ter": 0.0074,
+    "regular_ter": 0.019,
+    "difference": 0.0116
+  },
+  "Index Fund": {
+    "direct_ter": 0.002,
+    "regular_ter": 0.005,
+    "difference": 0.003
+  },
+  "Debt Short": {
+    "direct_ter": 0.0038,
+    "regular_ter": 0.012,
+    "difference": 0.0082
+  }
+}
