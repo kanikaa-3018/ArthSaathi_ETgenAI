@@ -3,6 +3,10 @@ FastAPI application entry point for ArthSaathi backend.
 
 Endpoints:
   POST /api/analyze     — Upload CAS PDF, stream SSE agent events, return final JSON
+  GET  /api/analyze/test — Full pipeline on fixture JSON (SSE, dev/demo)
+  POST /api/chat        — AI mentor chat (SSE token stream)
+  POST /api/goals/calculate — Goal planner (pure math JSON)
+  POST /api/tax/insights — Tax harvesting / LTCG hints from analysis JSON
   GET  /api/sample      — Return pre-computed sample analysis
   GET  /api/health      — Health check
   GET  /                — Ping
@@ -11,15 +15,19 @@ import asyncio
 import json
 import os
 import time
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Literal
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Body, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
 from app.config import settings
+from app.chat_service import stream_chat_events
+from app.goals import compute_goal
 from app.orchestrator import run_pipeline
+from app.tax_insights import compute_tax_insights
 from app.agents.overlap import _load_holdings   # for health endpoint
 
 # ---------------------------------------------------------------------------
@@ -58,6 +66,73 @@ def _llm_provider() -> str:
 @app.get("/")
 def root():
     return {"message": "ArthSaathi Backend Running 🚀", "version": settings.APP_VERSION}
+
+
+# ---------------------------------------------------------------------------
+# Mentor chat, goals, tax (EXECUTION_PLAN Part 9)
+# ---------------------------------------------------------------------------
+
+
+class GoalsCalculateBody(BaseModel):
+    goal_type: Literal["retirement", "child_education", "house", "emergency_fund", "custom"] = Field(
+        ...,
+        description="Goal preset used by compute_goal",
+    )
+    target_amount: float | None = None
+    target_year: int
+    current_age: int
+    monthly_income: float = 0
+    monthly_sip_possible: float = 0
+    portfolio_value: float
+    portfolio_xirr: float
+    inflation_rate: float = 0.06
+
+
+@app.post("/api/goals/calculate")
+def goals_calculate(body: GoalsCalculateBody):
+    """Goal planner — pure math."""
+    result = compute_goal(
+        goal_type=body.goal_type,
+        target_amount=body.target_amount,
+        target_year=body.target_year,
+        current_age=body.current_age,
+        monthly_income=body.monthly_income,
+        monthly_sip_possible=body.monthly_sip_possible,
+        portfolio_value=body.portfolio_value,
+        portfolio_xirr=body.portfolio_xirr,
+        inflation_rate=body.inflation_rate,
+    )
+    return JSONResponse(content=result)
+
+
+@app.post("/api/tax/insights")
+def tax_insights_endpoint(payload: dict = Body(...)):
+    """Rough tax harvesting / LTCG context from analysis JSON."""
+    analysis = payload.get("analysis") if "analysis" in payload else payload
+    return JSONResponse(content=compute_tax_insights(analysis))
+
+
+@app.post("/api/chat")
+async def chat_endpoint(request: Request):
+    """
+    AI Mentor chat. POST JSON body; response is text/event-stream (SSE).
+    Events: token (partial text), done (full message).
+    """
+    body = await request.json()
+    message = (body.get("message") or "").strip()
+    portfolio_context = body.get("portfolio_context") or {}
+    history = body.get("conversation_history") or []
+
+    if not message:
+        raise HTTPException(status_code=400, detail="message is required")
+    if len(message) > 8000:
+        raise HTTPException(status_code=400, detail="message too long (max 8000 chars)")
+
+    async def _gen():
+        async for ev_name, data_str in stream_chat_events(message, portfolio_context, history):
+            yield {"event": ev_name, "data": data_str}
+
+    return EventSourceResponse(_gen())
 
 
 @app.get("/api/health")

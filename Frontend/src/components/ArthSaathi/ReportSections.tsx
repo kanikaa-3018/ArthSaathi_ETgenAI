@@ -8,12 +8,16 @@ import { WealthGapChart } from "@/components/ArthSaathi/WealthGapChart";
 import { OverlapMatrix } from "@/components/ArthSaathi/OverlapMatrix";
 import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
+import { GoalPlanner } from "@/components/ArthSaathi/GoalPlanner";
+import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
 import type { AnalysisData } from "@/types/analysis";
 import { normalizeWealthProjectionForChart } from "@/lib/wealthProjection";
 
 interface ReportSectionsProps {
   /** Live analysis payload or explicit demo dataset — no implicit mock fallback */
   data: AnalysisData;
+  /** When false, hide mentor-era sections (goal + tax) — e.g. static marketing pages */
+  showPlannerAndTax?: boolean;
   topSlot?: ReactNode;
   footerLabel?: string;
   showFallbacks?: {
@@ -34,7 +38,13 @@ function UnavailableBlock({ title, description }: { title: string; description: 
   );
 }
 
-export function ReportSections({ data, topSlot, footerLabel, showFallbacks }: ReportSectionsProps) {
+export function ReportSections({
+  data,
+  showPlannerAndTax = true,
+  topSlot,
+  footerLabel,
+  showFallbacks,
+}: ReportSectionsProps) {
   const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
 
   return (
@@ -106,6 +116,13 @@ export function ReportSections({ data, topSlot, footerLabel, showFallbacks }: Re
             content={data.rebalancing_plan.content}
             aiGenerated={data.rebalancing_plan.ai_generated}
           />
+
+          {showPlannerAndTax ? (
+            <>
+              <GoalPlanner data={data} />
+              <TaxInsights data={data} />
+            </>
+          ) : null}
 
           <footer className="text-center py-16">
             <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>

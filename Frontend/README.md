@@ -5,7 +5,9 @@
 Unified frontend for ArthSaathi with:
 
 - Landing experience at `/`
-- Product analysis flow at `/analyze`
+- Product analysis flow at `/analyze` → processing → **report** with **goal planner**, **tax insights**, and **AI mentor** sidebar
+
+Set **`VITE_API_URL`** to your API origin if not using `http://localhost:8000` (e.g. in `.env.development`).
 
 ## Scripts
 

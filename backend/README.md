@@ -59,6 +59,8 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - Health: `http://localhost:8000/api/health`
 - Docs: `http://localhost:8000/docs`
 
+**Mentor & planning APIs:** `POST /api/chat` (SSE), `POST /api/goals/calculate`, `POST /api/tax/insights` — see OpenAPI docs.
+
 ---
 
 ## Local NAV cache (gitignored)
@@ -72,7 +74,10 @@ The NAV agent uses [diskcache](https://pypi.org/project/diskcache/) under **`bac
 Create `backend/.env` if you need to override defaults (see `app/config.py`):
 
 - `CORS_ORIGINS` — comma-separated frontend origins (e.g. `http://localhost:8080`)
-- LLM keys — optional for advisor/chat features
+- LLM keys — optional for advisor/chat features (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`)
+- `ANTHROPIC_MODEL`, `OPENAI_CHAT_MODEL`, `GEMINI_CHAT_MODEL` — optional; defaults match `app/config.py` (change if your API account uses different model IDs)
+
+**Note:** Mentor chat uses the `google-generativeai` PyPI package (`import google.generativeai`). Google has announced deprecation in favour of `google-genai`; upgrade paths should be tracked from [Google’s Gemini API docs](https://ai.google.dev/gemini-api/docs) when you migrate.
 
 ---
 

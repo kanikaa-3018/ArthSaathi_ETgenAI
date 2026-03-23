@@ -110,7 +110,7 @@ class AdvisorAgent(BaseAgent):
             client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
             self.emit_progress("Using Claude for analysis…", step=2, total_steps=2)
             response = client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model=settings.ANTHROPIC_MODEL,
                 max_tokens=1500,
                 temperature=0.3,
                 system=SYSTEM_PROMPT,

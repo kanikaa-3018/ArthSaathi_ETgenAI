@@ -133,3 +133,55 @@ export interface AnalysisData {
     content: string;
   };
 }
+
+/** POST /api/goals/calculate */
+export interface GoalCalculateResponse {
+  goal: {
+    type: string;
+    target_amount: number;
+    target_amount_display: string;
+    target_year: number;
+    years_remaining: number;
+    inflation_adjusted_target: number;
+    inflation_adjusted_display: string;
+  };
+  current_trajectory: {
+    projected_corpus: number;
+    projected_display: string;
+    monthly_income_in_retirement: number;
+    on_track: boolean;
+  };
+  methodology: {
+    forward_rate: string;
+    retirement_target: string;
+    sip_future_value: string;
+  };
+  gap_analysis: {
+    shortfall: number;
+    shortfall_display: string;
+    additional_monthly_sip_needed: number;
+    additional_sip_display: string;
+    alternative: string;
+  };
+  recommendations: string[];
+}
+
+/** POST /api/tax/insights */
+export interface TaxInsightsResponse {
+  summary: string;
+  estimates: {
+    total_unrealized_gains: number;
+    equity_style_unrealized_gains: number;
+    debt_unrealized_gains: number;
+    rough_ltcg_tax_if_realized_long_term_equity: number;
+    rough_stcg_tax_if_realized_short_term_equity: number;
+    ltcg_exemption_annual: number;
+  };
+  harvesting: Array<{ title: string; detail: string }>;
+  methodology: {
+    gain_proxy: string;
+    holding_proxy: string;
+    rates: string;
+  };
+  disclaimer: string;
+}

@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     GOOGLE_API_KEY: Optional[str] = None
+    # Model IDs are vendor-specific strings — override if your API account uses different names.
+    ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
+    OPENAI_CHAT_MODEL: str = "gpt-4o"
+    GEMINI_CHAT_MODEL: str = "gemini-2.0-flash"
 
     # NAV cache
     NAV_CACHE_TTL_HOURS: int = 6
