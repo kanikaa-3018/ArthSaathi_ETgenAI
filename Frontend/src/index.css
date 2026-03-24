@@ -281,6 +281,19 @@
   100% { background-color: transparent; }
 }
 
+@keyframes shimmer-green {
+  0%, 100% {
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+  50% {
+    border-color: rgba(52, 211, 153, 0.6);
+  }
+}
+
+.what-if-shimmer {
+  animation: shimmer-green 2.5s ease-in-out infinite;
+}
+
 @keyframes drawArc {
   from { stroke-dashoffset: 283; }
 }

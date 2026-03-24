@@ -30,7 +30,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
   };
 
   return (
-    <div ref={ref} className="card-arth p-8" style={{
+    <div ref={ref} className="card-arth p-6 border border-white/[0.06]" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',

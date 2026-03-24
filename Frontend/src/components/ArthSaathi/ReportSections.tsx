@@ -69,6 +69,13 @@ export function ReportSections({
   const data = useWhatIfDirect(originalData, whatIfEnabled);
   const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
 
+  const whatIfSavingsAnnual = originalData.expense_summary.total_potential_annual_savings;
+  const healthScoreDelta = data.health_score.score - originalData.health_score.score;
+  const whatIfSummary =
+    whatIfEnabled && whatIfSavingsAnnual > 0
+      ? `Saving ₹${whatIfSavingsAnnual.toLocaleString("en-IN")}/year · Health score ${healthScoreDelta >= 0 ? "+" : ""}${healthScoreDelta} pts`
+      : undefined;
+
   const handleExportPdf = useCallback(async () => {
     const el = reportRef.current;
     if (!el || pdfBusy) return;
@@ -202,6 +209,7 @@ export function ReportSections({
             onToggle={setWhatIfEnabled}
             regularCount={originalData.portfolio_summary.regular_plan_count}
             savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
+            savingsSummary={whatIfSummary}
           />
 
           <div className="mt-8 space-y-8 pb-16">

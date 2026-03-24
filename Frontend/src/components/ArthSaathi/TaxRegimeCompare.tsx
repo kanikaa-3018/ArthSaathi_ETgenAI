@@ -1,16 +1,18 @@
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Calculator, ChevronDown, ChevronUp } from "lucide-react";
+import { Calculator, ChevronDown, ChevronUp, Lightbulb } from "lucide-react";
 import { api } from "@/lib/api";
 import type { AnalysisData, TaxRegimeCompareResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 function elssFromPortfolio(funds: AnalysisData["funds"]): number {
-  return funds
+  const raw = funds
     .filter((f) => (f.category || "").toLowerCase().includes("elss"))
     .reduce((s, f) => s + (f.invested_value || 0), 0);
+  return Math.min(raw, 150000);
 }
 
 interface TaxRegimeCompareProps {
@@ -72,7 +74,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
       : [];
 
   return (
-    <div className="card-arth p-6 border border-white/10">
+    <div className="card-arth p-6 border border-white/[0.06]">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -92,66 +94,120 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
 
       {open ? (
         <div className="mt-6 grid lg:grid-cols-2 gap-6">
-          <div className="space-y-3">
+          <div className="space-y-3 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0 lg:block lg:space-y-3">
             {elss > 0 ? (
-              <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
-                ELSS in portfolio (toward 80C cap): ₹{(elss / 100000).toFixed(2)}L auto-included
+              <p className="font-body text-xs sm:col-span-2" style={{ color: "hsl(var(--text-secondary))" }}>
+                ELSS in portfolio (capped at ₹1.5L toward 80C): ₹{(elss / 100000).toFixed(2)}L auto-included
               </p>
             ) : null}
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Annual gross salary (₹)</span>
-              <Input value={grossSalary} onChange={(e) => setGrossSalary(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                Annual gross salary (₹)
+              </span>
+              <Input value={grossSalary} onChange={(e) => setGrossSalary(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>HRA received (annual ₹)</span>
-              <Input value={hraAnnual} onChange={(e) => setHraAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                HRA received (annual ₹)
+              </span>
+              <Input value={hraAnnual} onChange={(e) => setHraAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Rent paid (annual ₹)</span>
-              <Input value={rentAnnual} onChange={(e) => setRentAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                Rent paid (annual ₹)
+              </span>
+              <Input value={rentAnnual} onChange={(e) => setRentAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:col-span-2">
               <Switch checked={isMetro} onCheckedChange={setIsMetro} id="metro" />
-              <label htmlFor="metro" className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
+              <label htmlFor="metro" className="font-body text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
                 Metro city (50% HRA rule)
               </label>
             </div>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80C (excl. ELSS field — ELSS from CAS added)</span>
-              <Input value={s80c} onChange={(e) => setS80c(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                80C (excl. ELSS — ELSS from CAS added)
+              </span>
+              <Input value={s80c} onChange={(e) => setS80c(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80D</span>
-              <Input value={s80d} onChange={(e) => setS80d(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                80D
+              </span>
+              <Input value={s80d} onChange={(e) => setS80d(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80CCD(1B) NPS</span>
-              <Input value={ccd1b} onChange={(e) => setCcd1b(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                80CCD(1B) NPS
+              </span>
+              <Input value={ccd1b} onChange={(e) => setCcd1b(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Home loan interest (24b)</span>
-              <Input value={homeLoan} onChange={(e) => setHomeLoan(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
+            <label className="font-body block space-y-1">
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--text-secondary))" }}>
+                Home loan interest (24b)
+              </span>
+              <Input value={homeLoan} onChange={(e) => setHomeLoan(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/[0.06]" />
             </label>
-            <Button type="button" onClick={() => void compare()} disabled={loading}>
-              {loading ? "Calculating…" : "Compare regimes"}
-            </Button>
-            {err ? <p className="text-xs text-red-400">{err}</p> : null}
+            <div className="sm:col-span-2">
+              <Button type="button" onClick={() => void compare()} disabled={loading} className="w-full sm:w-auto">
+                {loading ? "Calculating…" : "Calculate"}
+              </Button>
+            </div>
+            {err ? <p className="text-xs text-red-400 sm:col-span-2">{err}</p> : null}
           </div>
 
           <div className="space-y-4">
             {result ? (
               <>
-                <div
-                  className="rounded-lg px-3 py-2 border border-white/10 inline-block"
-                  style={{
-                    background:
-                      result.recommendation === "new" ? "rgba(52,211,153,0.12)" : "rgba(74,144,217,0.12)",
-                  }}
-                >
-                  <span className="font-body text-xs font-medium text-primary-light">
-                    Lower tax: {result.recommendation === "new" ? "New regime" : "Old regime"} · Save{" "}
-                    {result.savings_display}
+                <p className="text-2xl font-bold text-positive font-body">
+                  Save {result.savings_display}
+                  <span className="block text-sm font-normal text-secondary-light mt-1">
+                    vs the other regime (illustrative)
                   </span>
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div
+                    className={cn(
+                      "rounded-xl p-6 border-2 transition-opacity",
+                      result.recommendation === "old"
+                        ? "border-emerald-500/70 bg-emerald-500/5"
+                        : "border-white/[0.06] opacity-60",
+                    )}
+                  >
+                    {result.recommendation === "old" ? (
+                      <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
+                        Recommended
+                      </span>
+                    ) : null}
+                    <p className="font-body text-sm font-medium text-secondary-light">Old Regime</p>
+                    <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
+                      ₹{result.old_regime.total_tax.toLocaleString("en-IN")}
+                    </p>
+                    <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                      Total tax (incl. cess)
+                    </p>
+                  </div>
+                  <div
+                    className={cn(
+                      "rounded-xl p-6 border-2 transition-opacity",
+                      result.recommendation === "new"
+                        ? "border-emerald-500/70 bg-emerald-500/5"
+                        : "border-white/[0.06] opacity-60",
+                    )}
+                  >
+                    {result.recommendation === "new" ? (
+                      <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
+                        Recommended
+                      </span>
+                    ) : null}
+                    <p className="font-body text-sm font-medium text-secondary-light">New Regime</p>
+                    <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
+                      ₹{result.new_regime.total_tax.toLocaleString("en-IN")}
+                    </p>
+                    <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                      Total tax (incl. cess)
+                    </p>
+                  </div>
                 </div>
                 <div className="h-48 w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -162,7 +218,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                       <Tooltip
                         contentStyle={{
                           background: "hsl(var(--bg-secondary))",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          border: "1px solid rgba(255,255,255,0.06)",
                           fontSize: 12,
                         }}
                       />
@@ -170,9 +226,12 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                <ul className="space-y-2 font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
                   {result.tips.map((t) => (
-                    <li key={t.slice(0, 48)}>{t}</li>
+                    <li key={t.slice(0, 48)} className="flex gap-2 items-start">
+                      <Lightbulb className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+                      <span>{t}</span>
+                    </li>
                   ))}
                 </ul>
               </>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Target } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, Target } from "lucide-react";
 import {
   Line,
   LineChart,
@@ -9,9 +9,11 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const GOAL_TYPES = [
   { id: "retirement", label: "Retirement" },
@@ -88,6 +90,22 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     : 0;
 
   const yearlyRoadmap = result?.yearly_roadmap ?? result?.monthly_roadmap;
+
+  const liquidValue = useMemo(
+    () =>
+      data.funds
+        .filter((f) => {
+          const cat = (f.category || "").toLowerCase();
+          return (
+            cat.includes("liquid") ||
+            cat.includes("overnight") ||
+            cat.includes("money market") ||
+            cat.includes("debt")
+          );
+        })
+        .reduce((s, f) => s + f.current_value, 0),
+    [data.funds],
+  );
 
   return (
     <div className="card-arth p-6 border border-white/10">
@@ -186,10 +204,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
           {err ? <p className="text-xs text-red-400">{err}</p> : null}
 
           {result ? (
-            <div
-              className="rounded-lg p-4 space-y-3 border border-white/10"
-              style={{ background: "rgba(0,0,0,0.2)" }}
-            >
+            <div className="rounded-xl p-6 space-y-3 border border-white/[0.06] bg-black/20">
               <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
                 Goal ({result.goal.type}): <strong>{result.goal.inflation_adjusted_display}</strong> by{" "}
                 {result.goal.target_year}. You project <strong>{result.current_trajectory.projected_display}</strong>{" "}
@@ -231,16 +246,17 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                     Illustrative corpus path (yearly)
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearlyRoadmap} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                      <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
+                    <LineChart data={yearlyRoadmap} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                      <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} stroke="rgba(255,255,255,0.08)" />
                       <YAxis
-                        tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }}
+                        tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }}
+                        stroke="rgba(255,255,255,0.08)"
                         tickFormatter={(v) => `${(v / 1e5).toFixed(1)}L`}
                       />
                       <Tooltip
                         contentStyle={{
                           background: "hsl(var(--bg-secondary))",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          border: "1px solid rgba(255,255,255,0.06)",
                           fontSize: 12,
                         }}
                         formatter={(value: number) => [value.toLocaleString("en-IN"), "Corpus"]}
@@ -253,8 +269,16 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
 
               {result.emergency_fund_check ? (
                 <div
-                  className="mt-4 rounded-lg p-3 border border-white/10"
-                  style={{ background: "rgba(0,0,0,0.15)" }}
+                  className={cn(
+                    "mt-4 rounded-lg p-3 border border-white/[0.06] bg-black/15 border-l-4",
+                    (() => {
+                      const t = result.emergency_fund_check.target;
+                      const cov = t > 0 ? liquidValue / t : 0;
+                      if (cov >= 1) return "border-l-emerald-500";
+                      if (cov >= 0.5) return "border-l-amber-500";
+                      return "border-l-red-500";
+                    })(),
+                  )}
                 >
                   <p className="font-body text-xs font-medium text-primary-light">Emergency fund (from income)</p>
                   <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-secondary))" }}>
@@ -275,12 +299,12 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                   </p>
                   <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "hsl(var(--bg-tertiary))" }}>
                     <div
-                      className="h-full"
-                      style={{ width: `${result.asset_allocation.equity_pct}%`, background: "hsl(var(--accent))" }}
+                      className="h-full transition-all"
+                      style={{ width: `${result.asset_allocation.equity_pct}%`, background: "hsl(var(--positive))" }}
                     />
                     <div
-                      className="h-full"
-                      style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--positive))" }}
+                      className="h-full transition-all"
+                      style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--chart-1))" }}
                     />
                   </div>
                   <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
@@ -290,15 +314,17 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                 </div>
               ) : null}
 
-              <div
-                className="mt-3 pt-3 border-t border-white/10 font-body text-sm space-y-1"
-                style={{ color: "hsl(var(--text-tertiary))" }}
-              >
-                <p className="font-medium text-primary-light text-xs">Methodology</p>
-                <p>{result.methodology.forward_rate}</p>
-                <p>{result.methodology.retirement_target}</p>
-                <p>{result.methodology.sip_future_value}</p>
-              </div>
+              <Collapsible className="mt-3 pt-3 border-t border-white/[0.06]">
+                <CollapsibleTrigger className="group flex items-center gap-1 font-body text-xs text-secondary-light hover:text-primary-light transition-colors">
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-90" />
+                  Methodology
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 space-y-1 font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <p>{result.methodology.forward_rate}</p>
+                  <p>{result.methodology.retirement_target}</p>
+                  <p>{result.methodology.sip_future_value}</p>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           ) : null}
         </div>

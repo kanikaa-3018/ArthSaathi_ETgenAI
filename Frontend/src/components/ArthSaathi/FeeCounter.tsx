@@ -17,17 +17,17 @@ export function FeeCounter({ annualDrag, variant = 'compact' }: FeeCounterProps)
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startRef.current) / 1000;
       setAmount(elapsed * perSecond);
-    }, 100);
+    }, 250);
     return () => clearInterval(interval);
   }, [perSecond]);
 
   if (variant === 'banner') {
     return (
       <div
-        className="card-arth p-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-4"
+        className="card-arth p-6 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-white/[0.06]"
         style={{ borderLeft: '3px solid hsl(var(--negative))' }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center sm:justify-start gap-2 text-center sm:text-left">
           <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
@@ -42,7 +42,7 @@ export function FeeCounter({ annualDrag, variant = 'compact' }: FeeCounterProps)
         >
           ₹{amount.toFixed(2)}
         </span>
-        <span className="font-body text-sm" style={{ color: 'hsl(var(--text-secondary))' }}>
+        <span className="font-body text-sm text-center sm:text-right" style={{ color: 'hsl(var(--text-secondary))' }}>
           to fund expenses
         </span>
       </div>
