@@ -42,24 +42,13 @@ export default function AnalyzeReport() {
             data={state.result}
             topSlot={
               <div className="flex items-center gap-3">
-                <span
-                  className="font-body text-xs px-3 py-1.5 rounded-md"
-                  style={{
-                    color: "hsl(var(--accent))",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(74, 144, 217, 0.08)",
-                  }}
-                >
+                <span className="font-body text-xs px-3 py-1.5 rounded-md border border-white/10 text-[hsl(var(--accent))] bg-[rgba(74,144,217,0.08)]">
                   Your Analysis Report
                 </span>
                 <button
+                  type="button"
                   onClick={() => navigate("/analyze")}
-                  className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
-                  style={{
-                    color: "hsl(var(--text-secondary))",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "transparent",
-                  }}
+                  className="font-body text-xs px-3 py-1.5 rounded-md transition-colors border border-white/10 text-[hsl(var(--text-secondary))] bg-transparent hover:bg-white/5"
                 >
                   New Analysis
                 </button>

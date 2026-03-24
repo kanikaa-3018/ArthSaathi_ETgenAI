@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, ChevronUp, Target } from "lucide-react";
 import {
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 import { api } from "@/lib/api";
+import { compactINR } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,30 @@ const GOAL_TYPES = [
   { id: "custom", label: "Custom" },
 ] as const;
 
+type RoadmapTipRow = { year: number; corpus: number };
+
+function RoadmapTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: RoadmapTipRow }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload;
+  if (!row) return null;
+  return (
+    <div className="card-arth p-3 text-xs border border-white/[0.06]">
+      <p className="font-body" style={{ color: "hsl(var(--text-secondary))" }}>
+        Year {row.year}
+      </p>
+      <p className="font-mono-dm mt-1" style={{ color: "hsl(213 60% 56%)" }}>
+        {compactINR(row.corpus)}
+      </p>
+    </div>
+  );
+}
+
 interface GoalPlannerProps {
   data: AnalysisData;
   /** PDF capture: omit form; show results only if present */
@@ -30,6 +55,7 @@ interface GoalPlannerProps {
 }
 
 export function GoalPlanner({ data, exportCaptureMode }: GoalPlannerProps) {
+  const roadmapFillId = useId().replace(/:/g, "");
   const [open, setOpen] = useState(false);
   const [goalType, setGoalType] = useState<string>("retirement");
   const [targetYear, setTargetYear] = useState(2045);
@@ -147,23 +173,37 @@ export function GoalPlanner({ data, exportCaptureMode }: GoalPlannerProps) {
               Illustrative corpus path (yearly)
             </p>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={yearlyRoadmap} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
-                <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} stroke="rgba(255,255,255,0.08)" />
+              <AreaChart data={yearlyRoadmap} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                <defs>
+                  <linearGradient id={`goalRoadmapFill-${roadmapFillId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(213 60% 56%)" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="hsl(213 60% 56%)" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="year"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fontFamily: "DM Mono", fill: "hsl(220 5% 57%)" }}
+                />
                 <YAxis
-                  tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }}
-                  stroke="rgba(255,255,255,0.08)"
-                  tickFormatter={(v) => `${(v / 1e5).toFixed(1)}L`}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fontFamily: "DM Mono", fill: "hsl(220 5% 57%)" }}
+                  tickFormatter={(v) => compactINR(v)}
+                  width={70}
                 />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--bg-secondary))",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    fontSize: 12,
-                  }}
-                  formatter={(value: number) => [value.toLocaleString("en-IN"), "Corpus"]}
+                <Tooltip content={<RoadmapTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="corpus"
+                  stroke="hsl(213 60% 56%)"
+                  strokeWidth={2}
+                  fill={`url(#goalRoadmapFill-${roadmapFillId})`}
+                  dot={false}
+                  animationDuration={1500}
                 />
-                <Line type="monotone" dataKey="corpus" stroke="hsl(var(--accent))" dot={false} strokeWidth={2} />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         ) : null}
@@ -237,7 +277,7 @@ export function GoalPlanner({ data, exportCaptureMode }: GoalPlannerProps) {
   }
 
   return (
-    <div className="card-arth p-6 border border-white/10">
+    <div className="card-arth p-6 border border-white/[0.06]">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -263,12 +303,12 @@ export function GoalPlanner({ data, exportCaptureMode }: GoalPlannerProps) {
                 key={g.id}
                 type="button"
                 onClick={() => setGoalType(g.id)}
-                className="font-body text-xs px-3 py-1.5 rounded-full border transition-colors"
-                style={{
-                  borderColor: goalType === g.id ? "hsl(var(--accent))" : "rgba(255,255,255,0.12)",
-                  background: goalType === g.id ? "rgba(74, 144, 217, 0.15)" : "transparent",
-                  color: "hsl(var(--text-secondary))",
-                }}
+                className={cn(
+                  "font-body text-xs px-3 py-1.5 rounded-full border transition-colors text-[hsl(var(--text-secondary))]",
+                  goalType === g.id
+                    ? "border-[hsl(var(--accent))] bg-[rgba(74,144,217,0.15)]"
+                    : "border-white/12 bg-transparent",
+                )}
               >
                 {g.label}
               </button>

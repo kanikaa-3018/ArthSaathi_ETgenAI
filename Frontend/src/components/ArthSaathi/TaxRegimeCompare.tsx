@@ -128,14 +128,33 @@ export function TaxRegimeCompare({ data, exportCaptureMode }: TaxRegimeComparePr
         <div className="h-48 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-              <XAxis dataKey="name" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} />
-              <YAxis tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 10% 18%)" />
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11, fontFamily: "DM Mono", fill: "hsl(220 5% 57%)" }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11, fontFamily: "DM Mono", fill: "hsl(220 5% 57%)" }}
+                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+              />
               <Tooltip
-                contentStyle={{
-                  background: "hsl(var(--bg-secondary))",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  fontSize: 12,
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  const tax = Number(payload[0]?.value ?? 0);
+                  return (
+                    <div className="card-arth p-3 text-xs border border-white/[0.06]">
+                      <p className="font-body" style={{ color: "hsl(var(--text-secondary))" }}>
+                        {label}
+                      </p>
+                      <p className="font-mono-dm mt-1" style={{ color: "hsl(213 60% 56%)" }}>
+                        ₹{tax.toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  );
                 }}
               />
               <Bar dataKey="tax" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />

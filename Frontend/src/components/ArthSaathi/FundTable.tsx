@@ -81,7 +81,7 @@ export function FundTable({ funds }: FundTableProps) {
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <tr className="border-b border-white/[0.06]">
               {['FUND', 'VALUE', 'XIRR', 'ALPHA', 'TER', 'FEE DRAG', 'PLAN'].map(h => (
                 <th key={h} className="section-label px-6 py-3 text-left first:text-left">
                   {h}
@@ -95,13 +95,9 @@ export function FundTable({ funds }: FundTableProps) {
               return (
                 <Fragment key={fund.amfi_code}>
                   <tr
-                    className="cursor-pointer transition-colors duration-150"
-                    style={{
-                      borderBottom: '1px solid rgba(255,255,255,0.06)',
-                      background: i % 2 === 1 ? 'rgba(255,255,255,0.015)' : 'transparent',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'hsl(var(--bg-tertiary))'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = i % 2 === 1 ? 'rgba(255,255,255,0.015)' : 'transparent'; }}
+                    className={`cursor-pointer transition-colors duration-150 border-b border-white/[0.06] hover:bg-[hsl(var(--bg-tertiary))] ${
+                      i % 2 === 1 ? "bg-white/[0.015]" : ""
+                    }`}
                     onClick={() => setExpanded(isExpanded ? null : fund.amfi_code)}
                   >
                     <td className="px-6 py-4">

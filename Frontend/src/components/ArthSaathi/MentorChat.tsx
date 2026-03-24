@@ -196,12 +196,9 @@ export function MentorChat({ analysis, variant = "default" }: MentorChatProps) {
           {messages.map((m, i) => (
             <div
               key={`${i}-${m.role}-${m.content.slice(0, 12)}`}
-              className={`rounded-lg px-3 py-2 max-w-[95%] ${m.role === "user" ? "ml-auto text-right" : "mr-auto"}`}
-              style={{
-                background: m.role === "user" ? "rgba(74, 144, 217, 0.25)" : "hsl(var(--bg-tertiary))",
-                color: "hsl(var(--text-secondary))",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
+              className={`rounded-lg px-3 py-2 max-w-[95%] border border-white/[0.06] text-[hsl(var(--text-secondary))] ${
+                m.role === "user" ? "ml-auto text-right bg-[rgba(74,144,217,0.25)]" : "mr-auto bg-[hsl(var(--bg-tertiary))]"
+              }`}
             >
               <span className="inline-flex items-center gap-1.5">
                 {m.content}
@@ -212,14 +209,7 @@ export function MentorChat({ analysis, variant = "default" }: MentorChatProps) {
             </div>
           ))}
           {streaming && loading ? (
-            <div
-              className="mr-auto rounded-lg px-3 py-2 max-w-[95%]"
-              style={{
-                background: "hsl(var(--bg-tertiary))",
-                color: "hsl(var(--text-secondary))",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
+            <div className="mr-auto rounded-lg px-3 py-2 max-w-[95%] border border-white/[0.06] bg-[hsl(var(--bg-tertiary))] text-[hsl(var(--text-secondary))]">
               {streaming}
             </div>
           ) : null}
