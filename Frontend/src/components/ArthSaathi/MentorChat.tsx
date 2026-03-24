@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { Send, Sparkles } from "lucide-react";
+import { Mic, MicOff, Send, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { api } from "@/lib/api";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 
 type Role = "user" | "assistant";
 
@@ -30,9 +32,14 @@ export function MentorChat({ analysis }: MentorChatProps) {
   const [streaming, setStreaming] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoSpeak, setAutoSpeak] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const accRef = useRef("");
   const portfolioContext = analysis as unknown as Record<string, unknown>;
+
+  const { isListening, transcript, isSupported: micSupported, startListening, stopListening } =
+    useSpeechRecognition();
+  const { speak, stop: stopSpeaking, isSupported: ttsSupported } = useSpeechSynthesis();
 
   const analysisKey = `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`;
 
@@ -43,11 +50,18 @@ export function MentorChat({ analysis }: MentorChatProps) {
     setMessages([{ role: "assistant", content: greeting }]);
     setStreaming("");
     setError(null);
-  }, [analysisKey, analysis.portfolio_summary.total_funds, analysis.portfolio_summary.total_current_value]);
+    stopSpeaking();
+  }, [analysisKey, analysis.portfolio_summary.total_funds, analysis.portfolio_summary.total_current_value, stopSpeaking]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streaming]);
+
+  useEffect(() => {
+    if (!isListening && transcript) {
+      setInput(transcript);
+    }
+  }, [isListening, transcript]);
 
   const send = useCallback(
     async (text: string) => {
@@ -108,6 +122,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
         const finalText = accRef.current.trim() || "(No response)";
         setMessages((prev) => [...prev, { role: "assistant", content: finalText }]);
         setStreaming("");
+        if (autoSpeak && ttsSupported) speak(finalText);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Could not reach mentor chat.");
         setStreaming("");
@@ -115,7 +130,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
         setLoading(false);
       }
     },
-    [loading, messages, portfolioContext],
+    [autoSpeak, loading, messages, portfolioContext, speak, ttsSupported],
   );
 
   return (
@@ -124,16 +139,29 @@ export function MentorChat({ analysis }: MentorChatProps) {
       style={{ minHeight: 420, maxHeight: "min(720px, calc(100vh - 3rem))" }}
     >
       <div
-        className="flex items-center gap-2 px-4 py-3 border-b border-white/10"
+        className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/10"
         style={{ background: "rgba(74, 144, 217, 0.08)" }}
       >
-        <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
-        <div>
-          <p className="font-display text-sm font-semibold text-primary-light">AI Mentor</p>
-          <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-            Answers use your portfolio context
-          </p>
+        <div className="flex items-center gap-2 min-w-0">
+          <Sparkles className="h-4 w-4 text-[hsl(var(--accent))] shrink-0" />
+          <div className="min-w-0">
+            <p className="font-display text-sm font-semibold text-primary-light">AI Mentor</p>
+            <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Answers use your portfolio context
+            </p>
+          </div>
         </div>
+        {ttsSupported ? (
+          <button
+            type="button"
+            onClick={() => setAutoSpeak((a) => !a)}
+            className="p-1.5 rounded-md border border-white/10 shrink-0"
+            style={{ color: "hsl(var(--text-secondary))" }}
+            aria-label={autoSpeak ? "Disable spoken replies" : "Enable spoken replies"}
+          >
+            {autoSpeak ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+        ) : null}
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 font-body text-sm">
@@ -190,17 +218,32 @@ export function MentorChat({ analysis }: MentorChatProps) {
         className="p-3 pt-0 flex gap-2 border-t border-white/10"
         onSubmit={(e) => {
           e.preventDefault();
-          void send(input);
+          void send(isListening ? transcript : input);
         }}
       >
         <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          value={isListening ? transcript : input}
+          onChange={(e) => {
+            if (!isListening) setInput(e.target.value);
+          }}
           placeholder="Ask ArthSaathi anything…"
           disabled={loading}
-          className="font-body text-sm bg-[hsl(var(--bg-tertiary))] border-white/10"
+          className={`font-body text-sm bg-[hsl(var(--bg-tertiary))] border-white/10 ${isListening ? "ring-1 ring-red-400/50 animate-pulse" : ""}`}
         />
-        <Button type="submit" size="icon" disabled={loading || !input.trim()} className="shrink-0">
+        {micSupported ? (
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            disabled={loading}
+            onClick={() => (isListening ? stopListening() : startListening())}
+            className={`shrink-0 border-white/10 ${isListening ? "bg-red-500/20 text-red-400" : ""}`}
+            aria-label={isListening ? "Stop listening" : "Speak"}
+          >
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        ) : null}
+        <Button type="submit" size="icon" disabled={loading || !(isListening ? transcript : input).trim()} className="shrink-0">
           <Send className="h-4 w-4" />
         </Button>
       </form>

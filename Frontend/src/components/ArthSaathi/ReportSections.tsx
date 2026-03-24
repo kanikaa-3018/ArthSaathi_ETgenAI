@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
+import { useCallback, useRef, useState } from "react";
+import { ChevronDown, Download } from "lucide-react";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
+import { FeeCounter } from "@/components/ArthSaathi/FeeCounter";
+import { EmergencyFundCheck } from "@/components/ArthSaathi/EmergencyFundCheck";
+import { WhatIfToggle } from "@/components/ArthSaathi/WhatIfToggle";
 import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
 import { HealthScore } from "@/components/ArthSaathi/HealthScore";
 import { FundTable } from "@/components/ArthSaathi/FundTable";
@@ -10,8 +15,13 @@ import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
 import { GoalPlanner } from "@/components/ArthSaathi/GoalPlanner";
 import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
+import { TaxRegimeCompare } from "@/components/ArthSaathi/TaxRegimeCompare";
+import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { AnalysisData } from "@/types/analysis";
 import { normalizeWealthProjectionForChart } from "@/lib/wealthProjection";
+import { useWhatIfDirect } from "@/hooks/useWhatIfDirect";
+import { exportReportPdf } from "@/lib/exportPdf";
 
 interface ReportSectionsProps {
   /** Live analysis payload or explicit demo dataset — no implicit mock fallback */
@@ -39,13 +49,28 @@ function UnavailableBlock({ title, description }: { title: string; description: 
 }
 
 export function ReportSections({
-  data,
+  data: originalData,
   showPlannerAndTax = true,
   topSlot,
   footerLabel,
   showFallbacks,
 }: ReportSectionsProps) {
+  const [whatIfEnabled, setWhatIfEnabled] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+  const data = useWhatIfDirect(originalData, whatIfEnabled);
   const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
+
+  const handleExportPdf = useCallback(async () => {
+    const el = reportRef.current;
+    if (!el || pdfBusy) return;
+    setPdfBusy(true);
+    try {
+      await exportReportPdf(el, data.investor.name);
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [data.investor.name, pdfBusy]);
 
   return (
     <div className="animate-reveal">
@@ -59,19 +84,41 @@ export function ReportSections({
       </div>
 
       <div className="max-w-[1120px] mx-auto px-4">
-        <ResultsHeader
-          investorName={data.investor.name}
-          fundCount={data.portfolio_summary.total_funds}
-          annualDrag={data.expense_summary.total_annual_drag}
-        />
+        <div className="flex justify-end pb-2">
+          <button
+            type="button"
+            disabled={pdfBusy}
+            onClick={() => void handleExportPdf()}
+            className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/10 transition-colors disabled:opacity-50"
+            style={{ color: "hsl(var(--text-secondary))", background: "rgba(74, 144, 217, 0.08)" }}
+          >
+            <Download className="h-3.5 w-3.5" />
+            {pdfBusy ? "PDF…" : "Download PDF"}
+          </button>
+        </div>
 
-        <div className="space-y-12 mt-8 pb-16">
+        <div ref={reportRef}>
+          <ResultsHeader
+            investorName={data.investor.name}
+            fundCount={data.portfolio_summary.total_funds}
+            annualDrag={data.expense_summary.total_annual_drag}
+          />
+
+          <WhatIfToggle
+            enabled={whatIfEnabled}
+            onToggle={setWhatIfEnabled}
+            regularCount={originalData.portfolio_summary.regular_plan_count}
+            savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
+          />
+
+          <div className="space-y-12 mt-8 pb-16">
           <SummaryCards
             summary={data.portfolio_summary}
             xirr={data.portfolio_xirr}
             annualDrag={data.expense_summary.total_annual_drag}
             projected10yr={data.expense_summary.total_projected_10yr_drag}
           />
+          <FeeCounter annualDrag={data.expense_summary.total_annual_drag} variant="banner" />
           <HealthScore data={data.health_score} />
           <FundTable funds={data.funds} />
           <ExpenseCallout
@@ -117,10 +164,33 @@ export function ReportSections({
             aiGenerated={data.rebalancing_plan.ai_generated}
           />
 
+          <Collapsible defaultOpen={false} className="group card-arth border border-white/10 overflow-hidden">
+            <CollapsibleTrigger
+              type="button"
+              className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
+            >
+              <div>
+                <p className="section-label mb-0">Analysis pipeline</p>
+                <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  How your CAS moved through the 9 agents (completed run)
+                </p>
+              </div>
+              <ChevronDown className="h-5 w-5 shrink-0 text-[hsl(var(--text-tertiary))] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="border-t border-white/10 px-2 pb-4 pt-2">
+                <AgentDAG mode="static" events={[]} className="h-[480px] rounded-lg" />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <EmergencyFundCheck funds={originalData.funds} />
+
           {showPlannerAndTax ? (
             <>
               <GoalPlanner data={data} />
               <TaxInsights data={data} />
+              <TaxRegimeCompare data={originalData} />
             </>
           ) : null}
 
@@ -129,6 +199,7 @@ export function ReportSections({
               {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
             </p>
           </footer>
+          </div>
         </div>
       </div>
     </div>

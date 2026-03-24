@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { CheckCircle2 } from "lucide-react";
+import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
 import { useAnalysis } from "@/context/analysis-context";
 import { api } from "@/lib/api";
@@ -15,6 +16,7 @@ const REVIEW_SECONDS_BEFORE_DIALOG = 5;
 export default function AnalyzeProcessing() {
   const navigate = useNavigate();
   const { state, startAnalysis, pushEvent, setResult, setError } = useAnalysis();
+  const [viewMode, setViewMode] = useState<"list" | "dag">("list");
   const [showCompletion, setShowCompletion] = useState(false);
   const [completionMeta, setCompletionMeta] = useState<{ processingMs: number } | null>(null);
   /** Countdown while you review the agent list (before overlay dialog) */
@@ -117,7 +119,12 @@ export default function AnalyzeProcessing() {
                 return;
               }
 
-              const raw: any = parsed ?? {};
+              const raw: Record<string, unknown> =
+                parsed !== null &&
+                typeof parsed === "object" &&
+                !Array.isArray(parsed)
+                  ? (parsed as Record<string, unknown>)
+                  : {};
               const errorCode =
                 typeof raw.error_code === "string" && raw.error_code.length > 0
                   ? raw.error_code
@@ -256,7 +263,37 @@ export default function AnalyzeProcessing() {
               (अर्थसाथी)
             </p>
           </div>
-          <AgentPanel active={true} mode="live" events={state.agentEvents} />
+          <div className="flex justify-center gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className="font-body text-xs px-4 py-2 rounded-full border transition-colors"
+              style={{
+                borderColor: viewMode === "list" ? "hsl(var(--accent))" : "rgba(255,255,255,0.12)",
+                background: viewMode === "list" ? "rgba(74, 144, 217, 0.15)" : "transparent",
+                color: "hsl(var(--text-secondary))",
+              }}
+            >
+              List view
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("dag")}
+              className="font-body text-xs px-4 py-2 rounded-full border transition-colors"
+              style={{
+                borderColor: viewMode === "dag" ? "hsl(var(--accent))" : "rgba(255,255,255,0.12)",
+                background: viewMode === "dag" ? "rgba(74, 144, 217, 0.15)" : "transparent",
+                color: "hsl(var(--text-secondary))",
+              }}
+            >
+              Pipeline view
+            </button>
+          </div>
+          {viewMode === "list" ? (
+            <AgentPanel active={true} mode="live" events={state.agentEvents} />
+          ) : (
+            <AgentDAG events={state.agentEvents} />
+          )}
         </div>
 
         {reviewSecondsLeft !== null && !showCompletion ? (

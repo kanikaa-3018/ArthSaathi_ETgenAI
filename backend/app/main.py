@@ -7,6 +7,7 @@ Endpoints:
   POST /api/chat        — AI mentor chat (SSE token stream)
   POST /api/goals/calculate — Goal planner (pure math JSON)
   POST /api/tax/insights — Tax harvesting / LTCG hints from analysis JSON
+  POST /api/tax/regime-compare — Old vs new regime (salary inputs, pure math)
   GET  /api/sample      — Return pre-computed sample analysis
   GET  /api/health      — Health check
   GET  /                — Ping
@@ -28,6 +29,7 @@ from app.chat_service import stream_chat_events
 from app.goals import compute_goal
 from app.orchestrator import run_pipeline
 from app.tax_insights import compute_tax_insights
+from app.tax_regime import compare_regimes
 from app.agents.overlap import _load_holdings   # for health endpoint
 
 # ---------------------------------------------------------------------------
@@ -110,6 +112,35 @@ def tax_insights_endpoint(payload: dict = Body(...)):
     """Rough tax harvesting / LTCG context from analysis JSON."""
     analysis = payload.get("analysis") if "analysis" in payload else payload
     return JSONResponse(content=compute_tax_insights(analysis))
+
+
+class TaxRegimeBody(BaseModel):
+    gross_salary: float
+    hra_received_annual: float = 0
+    rent_paid_annual: float = 0
+    is_metro: bool = True
+    section_80c: float = 0
+    section_80d: float = 0
+    section_80ccd1b: float = 0
+    home_loan_interest: float = 0
+    elss_from_portfolio: float = 0
+
+
+@app.post("/api/tax/regime-compare")
+def tax_regime_compare(body: TaxRegimeBody):
+    """Old vs new tax regime — pure math."""
+    result = compare_regimes(
+        gross_salary=body.gross_salary,
+        hra_received_annual=body.hra_received_annual,
+        rent_paid_annual=body.rent_paid_annual,
+        is_metro=body.is_metro,
+        section_80c=body.section_80c,
+        section_80d=body.section_80d,
+        section_80ccd1b=body.section_80ccd1b,
+        home_loan_interest=body.home_loan_interest,
+        elss_from_portfolio=body.elss_from_portfolio,
+    )
+    return JSONResponse(content=result)
 
 
 @app.post("/api/chat")

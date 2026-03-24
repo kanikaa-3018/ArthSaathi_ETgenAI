@@ -8,4 +8,5 @@ export const api = {
   chat: `${API_BASE}/api/chat`,
   goalsCalculate: `${API_BASE}/api/goals/calculate`,
   taxInsights: `${API_BASE}/api/tax/insights`,
+  taxRegimeCompare: `${API_BASE}/api/tax/regime-compare`,
 };

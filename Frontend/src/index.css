@@ -285,3 +285,16 @@
 @keyframes barFill {
   from { width: 0; }
 }
+
+/* @xyflow/react — FEATURES_BUILD_SPEC.md §F8 */
+.react-flow__background {
+  background: transparent !important;
+}
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+.react-flow__controls button {
+  background: hsl(220 20% 15%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
