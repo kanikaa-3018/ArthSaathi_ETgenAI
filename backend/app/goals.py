@@ -108,7 +108,7 @@ def compute_goal(
         )
 
     forward_rate = r
-    monthly_growth_rate = ((1 + forward_rate) ** (1 / 12)) - 1
+    monthly_growth = ((1 + forward_rate) ** (1 / 12)) - 1
     # Year-end snapshots (monthly compounding loop; one point per year)
     yearly_roadmap: list[dict[str, Any]] = []
     if years_remaining > 0:
@@ -116,7 +116,7 @@ def compute_goal(
         monthly_sip = monthly_sip_possible
         for month in range(1, years_remaining * 12 + 1):
             running_corpus += monthly_sip
-            running_corpus *= 1 + monthly_growth_rate
+            running_corpus *= 1 + monthly_growth
             if month % 12 == 0:
                 year = month // 12
                 yearly_roadmap.append(
@@ -129,14 +129,17 @@ def compute_goal(
                     }
                 )
 
-    income_for_emergency = monthly_income if monthly_income > 0 else 50000.0
-    monthly_expenses_ef = income_for_emergency * 0.50
+    base_income = monthly_income if monthly_income > 0 else 50000.0
+    monthly_expenses_ef = base_income * 0.50
     emergency_target = monthly_expenses_ef * 6
+    _ef_rec = f"Maintain {format_inr(round(emergency_target))} in liquid funds before aggressive investing"
+    if monthly_income <= 0:
+        _ef_rec += " (assuming ₹50,000 monthly income; update for personalised target)"
     emergency_fund_check = {
         "target": round(emergency_target),
         "target_display": format_inr(round(emergency_target)),
         "monthly_expenses_estimate": round(monthly_expenses_ef),
-        "recommendation": f"Maintain {format_inr(round(emergency_target))} in liquid funds before aggressive investing",
+        "recommendation": _ef_rec,
     }
 
     equity_pct = max(20, min(80, 100 - current_age))

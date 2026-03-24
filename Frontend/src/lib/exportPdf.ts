@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas-pro';
 
-/** Multi-page PDF from the report DOM. Callers should expand any Radix collapsibles before capture if needed. */
+/** Renders a DOM subtree to JPEG tiles and builds a multi-page A4 PDF download. */
 export async function exportReportPdf(element: HTMLElement, investorName: string): Promise<void> {
   const canvas = await html2canvas(element, {
     scale: 2,

@@ -1,6 +1,5 @@
 """
-Tax regime comparison — Old vs New regime calculator (FY 2025-26 style slabs).
-See repo root hackathon docs / ArthSaathi ARCHITECTURE for API context.
+Old vs New income-tax regime comparison (FY 2025–26 style slabs) and helper calculators.
 """
 from __future__ import annotations
 
@@ -21,7 +20,7 @@ def _old_regime_tax(taxable: float) -> float:
         tax += (taxable - 1000000) * 0.30
     # Rebate u/s 87A (old regime): nil tax if taxable income ≤ ₹5L (illustrative)
     if taxable <= 500000:
-        return 0.0
+        tax = 0.0
     return tax
 
 
@@ -52,8 +51,9 @@ def _hra_exemption(basic: float, hra_received: float, rent_paid: float, is_metro
     if rent_paid <= 0 or hra_received <= 0:
         return 0.0
     metro_pct = 0.50 if is_metro else 0.40
-    rent_excess = max(0.0, rent_paid - 0.10 * basic)
-    return float(max(0.0, min(hra_received, rent_excess, metro_pct * basic)))
+    return float(
+        max(0.0, min(hra_received, rent_paid - 0.10 * basic, metro_pct * basic))
+    )
 
 
 def compare_regimes(
