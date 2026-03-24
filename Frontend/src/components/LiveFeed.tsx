@@ -40,7 +40,7 @@ export default function LiveFeed() {
     <div className="fixed bottom-6 right-6 z-50 pointer-events-none max-w-[240px] hidden md:block">
       <div ref={elRef} className="rounded-md px-3 py-2" style={{ background: 'hsl(220 18% 12%)', border: '1px solid hsl(220 10% 20%)' }}>
         <p className="font-syne font-medium text-[8px] text-text-muted uppercase tracking-[2px] mb-1">LIVE ANALYSIS</p>
-        <p className="font-mono text-[10px] text-text-secondary">
+        <p className="font-mono text-xs text-text-secondary">
           {entry.split(/(₹[\d,]+\/yr|Score \d+)/g).map((part, i) =>
             /₹|Score/.test(part)
               ? <span key={i} className="text-negative">{part}</span>

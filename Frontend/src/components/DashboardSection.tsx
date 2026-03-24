@@ -51,7 +51,7 @@ export default function DashboardSection() {
             <div className="w-[9px] h-[9px] rounded-full" style={{ background: 'hsla(160,67%,52%,0.9)' }} />
           </div>
           <span className="font-syne text-[12px] text-text-muted">ArthSaathi — Portfolio Report</span>
-          <span className="font-syne text-[11px] text-text-muted">Analyzed: Just now</span>
+          <span className="font-syne text-xs text-text-muted">Analyzed: Just now</span>
         </div>
 
         {/* Metrics grid */}
@@ -65,21 +65,21 @@ export default function DashboardSection() {
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="font-mono font-bold text-[28px] text-warning">41</span>
                 <span className="font-mono text-[13px] text-text-muted">/ 100</span>
-                <span className="font-syne font-semibold text-[11px] text-warning tracking-wider mt-1">C</span>
+                <span className="font-syne font-semibold text-xs text-warning tracking-wider mt-1">C</span>
               </div>
             </div>
           </div>
 
           {/* Fee cell */}
           <div>
-            <p className="font-syne text-[10px] text-text-muted tracking-[2px] uppercase">ANNUAL FEE DRAIN</p>
+            <p className="font-syne text-xs text-text-muted tracking-[2px] uppercase">ANNUAL FEE DRAIN</p>
             <p className="font-mono font-semibold text-[24px] text-negative mt-1">₹40,697</p>
             <p className="font-syne text-[12px] text-text-muted">1.82% of portfolio</p>
           </div>
 
           {/* Overlap cell */}
           <div>
-            <p className="font-syne text-[10px] text-text-muted tracking-[2px] uppercase">PORTFOLIO OVERLAP</p>
+            <p className="font-syne text-xs text-text-muted tracking-[2px] uppercase">PORTFOLIO OVERLAP</p>
             <p className="font-mono font-semibold text-[24px] text-warning mt-1">45.2%</p>
             <p className="font-syne text-[12px] text-text-muted">High redundancy</p>
           </div>
@@ -97,11 +97,11 @@ export default function DashboardSection() {
           <div className="flex items-center gap-5 mt-2 justify-center">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: 'hsl(0 90% 68%)' }} />
-              <span className="font-syne text-[11px] text-text-muted">Current</span>
+              <span className="font-syne text-xs text-text-muted">Current</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: 'hsl(160 67% 52%)' }} />
-              <span className="font-syne text-[11px] text-text-muted">Optimised</span>
+              <span className="font-syne text-xs text-text-muted">Optimised</span>
             </span>
           </div>
         </div>

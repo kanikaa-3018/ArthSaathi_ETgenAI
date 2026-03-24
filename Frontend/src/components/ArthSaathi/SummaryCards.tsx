@@ -67,29 +67,29 @@ export function SummaryCards({ summary, xirr, annualDrag, projected10yr }: Summa
             transitionDelay: `${i * 100}ms`,
           }}
         >
-          <p className="section-label text-[11px]">{card.label}</p>
+          <p className="section-label">{card.label}</p>
           <div className="flex items-center gap-2 mt-2">
             {card.icon}
-            <span className="font-mono-dm text-[32px] font-medium" style={{ color: card.valueColor || 'hsl(var(--text-primary))' }}>
+            <span className="font-mono-dm text-2xl sm:text-[32px] font-medium" style={{ color: card.valueColor || 'hsl(var(--text-primary))' }}>
               {card.value}
             </span>
           </div>
           {card.sub1 && (
-            <p className="font-body text-[13px] mt-1" style={{ color: card.sub1Color || 'hsl(var(--text-secondary))' }}>
+            <p className="font-body text-sm mt-1" style={{ color: card.sub1Color || 'hsl(var(--text-secondary))' }}>
               {card.sub1}
             </p>
           )}
           {card.sub2 && (
-            <p className="font-mono-dm text-[13px] mt-0.5" style={{ color: card.sub2Color }}>
+            <p className="font-mono-dm text-sm mt-0.5" style={{ color: card.sub2Color }}>
               {card.sub2}
             </p>
           )}
           {card.pills && (
             <div className="flex gap-2 mt-2">
-              <span className="pill-regular text-[11px] font-medium font-body px-2 py-0.5 rounded">
+              <span className="pill-regular text-xs font-medium font-body px-2 py-0.5 rounded">
                 {summary.regular_plan_count} Regular
               </span>
-              <span className="pill-direct text-[11px] font-medium font-body px-2 py-0.5 rounded">
+              <span className="pill-direct text-xs font-medium font-body px-2 py-0.5 rounded">
                 {summary.direct_plan_count} Direct
               </span>
             </div>

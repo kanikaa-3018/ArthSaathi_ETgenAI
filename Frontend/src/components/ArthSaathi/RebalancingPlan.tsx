@@ -65,14 +65,14 @@ export function RebalancingPlan({ content, aiGenerated }: RebalancingPlanProps) 
         <div className="flex items-center gap-3 mb-6">
           <h2 className="font-display text-[22px] font-semibold text-primary-light">Rebalancing Plan</h2>
           {aiGenerated ? (
-            <span className="flex items-center gap-1 text-[11px] font-medium font-body px-2.5 py-1 rounded" style={{
+            <span className="flex items-center gap-1 text-xs font-medium font-body px-2.5 py-1 rounded" style={{
               background: 'rgba(74,144,217,0.15)',
               color: 'hsl(var(--accent))',
             }}>
               <Sparkles size={12} /> AI Generated
             </span>
           ) : (
-            <span className="text-[11px] font-body" style={{ color: 'hsl(var(--text-tertiary))' }}>
+            <span className="text-xs font-body" style={{ color: 'hsl(var(--text-tertiary))' }}>
               Generated using rules-based analysis
             </span>
           )}

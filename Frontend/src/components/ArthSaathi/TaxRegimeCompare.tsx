@@ -94,7 +94,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
         <div className="mt-6 grid lg:grid-cols-2 gap-6">
           <div className="space-y-3">
             {elss > 0 ? (
-              <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-secondary))" }}>
+              <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
                 ELSS in portfolio (toward 80C cap): ₹{(elss / 100000).toFixed(2)}L auto-included
               </p>
             ) : null}
@@ -170,7 +170,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <ul className="list-disc pl-5 space-y-1 font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+                <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
                   {result.tips.map((t) => (
                     <li key={t.slice(0, 48)}>{t}</li>
                   ))}

@@ -79,7 +79,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
             </div>
           </div>
           <div
-            className="rounded-lg p-3 border border-white/10 font-body text-[11px] space-y-2"
+            className="rounded-lg p-3 border border-white/10 font-body text-xs space-y-2"
             style={{ color: "hsl(var(--text-tertiary))" }}
           >
             <p className="font-medium text-primary-light text-xs">Methodology</p>
@@ -97,7 +97,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
               </div>
             ))}
           </div>
-          <p className="font-body text-[11px] leading-relaxed" style={{ color: "hsl(var(--text-tertiary))" }}>
+          <p className="font-body text-xs leading-relaxed" style={{ color: "hsl(var(--text-tertiary))" }}>
             {tax.disclaimer}
           </p>
         </div>

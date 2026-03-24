@@ -22,7 +22,7 @@ export default function CredibilitySection() {
   return (
     <section ref={sectionRef} className="py-14 md:py-20">
       <div className="max-w-[480px] mx-auto px-6 text-center">
-        <p className="font-syne font-medium text-[11px] text-text-muted uppercase tracking-[3px]">
+        <p className="font-syne font-medium text-xs text-text-muted uppercase tracking-[3px]">
           ET AI HACKATHON · 2026
         </p>
         <h2 className="font-fraunces text-text-primary text-[24px] md:text-[28px] mt-3 leading-snug" style={{ fontVariationSettings: "'opsz' 72, 'wght' 600" }}>

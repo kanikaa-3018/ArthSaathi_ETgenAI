@@ -146,7 +146,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
           <Sparkles className="h-4 w-4 text-[hsl(var(--accent))] shrink-0" />
           <div className="min-w-0">
             <p className="font-display text-sm font-semibold text-primary-light">AI Mentor</p>
-            <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+            <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
               Answers use your portfolio context
             </p>
           </div>
@@ -206,7 +206,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
             type="button"
             disabled={loading}
             onClick={() => void send(q)}
-            className="font-body text-[11px] px-2 py-1 rounded-full border border-white/10 hover:bg-white/5 transition-colors"
+            className="font-body text-xs px-2 py-1 rounded-full border border-white/10 hover:bg-white/5 transition-colors"
             style={{ color: "hsl(var(--text-secondary))" }}
           >
             {q}
@@ -247,7 +247,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
           <Send className="h-4 w-4" />
         </Button>
       </form>
-      <p className="px-3 pb-3 font-body text-[10px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+      <p className="px-3 pb-3 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
         Not SEBI-registered advice. Educational use only.
       </p>
     </div>

@@ -140,7 +140,7 @@ const AgentNode = memo(function AgentNode({ data }: NodeProps<AgentDAGData>) {
           {data.message}
         </p>
       ) : (
-        <p className="font-body text-[11px] mt-1 line-clamp-2" style={{ color: "hsl(var(--text-tertiary))" }}>
+        <p className="font-body text-xs mt-1 line-clamp-2" style={{ color: "hsl(var(--text-tertiary))" }}>
           {data.description}
         </p>
       )}

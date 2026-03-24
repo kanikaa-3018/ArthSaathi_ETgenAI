@@ -196,7 +196,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                 at current pace.
               </p>
               <div>
-                <div className="flex justify-between text-[11px] mb-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                <div className="flex justify-between text-xs mb-1" style={{ color: "hsl(var(--text-tertiary))" }}>
                   <span>Progress vs inflation-adjusted target</span>
                   <span>{onTrackPct}%</span>
                 </div>
@@ -227,7 +227,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
 
               {yearlyRoadmap && yearlyRoadmap.length > 0 ? (
                 <div className="mt-4 h-56 w-full">
-                  <p className="font-body text-[11px] mb-2" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <p className="font-body text-xs mb-2" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Illustrative corpus path (yearly)
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
@@ -261,7 +261,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                     Target {result.emergency_fund_check.target_display} (
                     {result.emergency_fund_check.monthly_expenses_estimate.toLocaleString("en-IN")}/mo estimate)
                   </p>
-                  <p className="font-body text-[11px] mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
                     {result.emergency_fund_check.recommendation}
                   </p>
                 </div>
@@ -270,7 +270,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
               {result.asset_allocation ? (
                 <div className="mt-4 space-y-2">
                   <p className="font-body text-xs font-medium text-primary-light">Illustrative allocation</p>
-                  <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
                     {result.asset_allocation.note}
                   </p>
                   <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "hsl(var(--bg-tertiary))" }}>
@@ -283,7 +283,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                       style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--positive))" }}
                     />
                   </div>
-                  <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-secondary))" }}>
+                  <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
                     {result.asset_allocation.equity_pct}% equity · {result.asset_allocation.debt_pct}% debt ·{" "}
                     {result.asset_allocation.rule}
                   </p>
@@ -291,7 +291,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
               ) : null}
 
               <div
-                className="mt-3 pt-3 border-t border-white/10 font-body text-[11px] space-y-1"
+                className="mt-3 pt-3 border-t border-white/10 font-body text-sm space-y-1"
                 style={{ color: "hsl(var(--text-tertiary))" }}
               >
                 <p className="font-medium text-primary-light text-xs">Methodology</p>
