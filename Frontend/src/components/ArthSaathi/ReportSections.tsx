@@ -18,6 +18,7 @@ import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
 import { TaxRegimeCompare } from "@/components/ArthSaathi/TaxRegimeCompare";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AnalysisData } from "@/types/analysis";
 import { normalizeWealthProjectionForChart } from "@/lib/wealthProjection";
 import { useWhatIfDirect } from "@/hooks/useWhatIfDirect";
@@ -39,7 +40,7 @@ interface ReportSectionsProps {
 
 function UnavailableBlock({ title, description }: { title: string; description: string }) {
   return (
-    <div className="card-arth p-6">
+    <div className="card-arth p-6 border border-white/[0.06]">
       <p className="section-label">{title}</p>
       <p className="font-body text-sm mt-2" style={{ color: "hsl(var(--text-secondary))" }}>
         {description}
@@ -47,6 +48,11 @@ function UnavailableBlock({ title, description }: { title: string; description: 
     </div>
   );
 }
+
+const tabsListClass = (cols: 3 | 4) =>
+  `grid w-full ${cols === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"} mb-6 h-auto gap-1 rounded-lg p-1 border border-white/[0.06]`;
+const tabsTriggerClass =
+  "rounded-md py-2.5 text-sm font-medium transition-colors border-b-2 border-transparent data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:text-[hsl(var(--accent))] data-[state=inactive]:text-[hsl(var(--text-tertiary))] data-[state=active]:shadow-none data-[state=active]:bg-transparent";
 
 export function ReportSections({
   data: originalData,
@@ -58,7 +64,6 @@ export function ReportSections({
   const [whatIfEnabled, setWhatIfEnabled] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pipelineOpen, setPipelineOpen] = useState(false);
-  /** Radix Collapsible unmounts closed content; expand during PDF capture so html2canvas sees it. */
   const [pdfExpandCollapsibles, setPdfExpandCollapsibles] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const data = useWhatIfDirect(originalData, whatIfEnabled);
@@ -78,6 +83,86 @@ export function ReportSections({
     }
   }, [data.investor.name, pdfBusy]);
 
+  const analysisBlocks = (
+    <>
+      <FundTable funds={data.funds} />
+      <ExpenseCallout
+        projected10yr={data.expense_summary.total_projected_10yr_drag}
+        potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
+      />
+      {showFallbacks?.projectionUnavailable ? (
+        <UnavailableBlock
+          title="Wealth Projection Unavailable"
+          description="Projection data is currently unavailable for this report. Other analysis sections remain available."
+        />
+      ) : (
+        <WealthGapChart
+          currentPath={wealthChart.currentPath}
+          optimizedPath={wealthChart.optimizedPath}
+          assumptions={wealthChart.assumptions}
+        />
+      )}
+      {showFallbacks?.overlapUnavailable ? (
+        <UnavailableBlock
+          title="Overlap Analysis Unavailable"
+          description="Holdings data is not available for one or more selected funds."
+        />
+      ) : (
+        <OverlapMatrix data={data.overlap_analysis} funds={data.funds} />
+      )}
+      {showFallbacks?.benchmarkUnavailable ? (
+        <UnavailableBlock
+          title="Benchmark Comparison Unavailable"
+          description="Benchmark comparison is currently available for equity categories only."
+        />
+      ) : null}
+      <AssetAllocation
+        equityPct={data.portfolio_summary.equity_allocation_pct}
+        debtPct={data.portfolio_summary.debt_allocation_pct}
+        regularCount={data.portfolio_summary.regular_plan_count}
+        directCount={data.portfolio_summary.direct_plan_count}
+      />
+    </>
+  );
+
+  const toolsBlocks =
+    showPlannerAndTax ? (
+      <>
+        <GoalPlanner data={data} />
+        <EmergencyFundCheck funds={originalData.funds} />
+        <TaxInsights data={data} />
+        <TaxRegimeCompare data={originalData} />
+      </>
+    ) : null;
+
+  const pipelineSection = (
+    <Collapsible
+      open={pdfExpandCollapsibles || pipelineOpen}
+      onOpenChange={(o) => {
+        if (!pdfExpandCollapsibles) setPipelineOpen(o);
+      }}
+      className="group card-arth border border-white/[0.06] overflow-hidden"
+    >
+      <CollapsibleTrigger
+        type="button"
+        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
+      >
+        <div>
+          <p className="section-label mb-0">Analysis pipeline</p>
+          <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+            How your CAS moved through the 9 agents (completed run)
+          </p>
+        </div>
+        <ChevronDown className="h-5 w-5 shrink-0 text-[hsl(var(--text-tertiary))] transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="border-t border-white/[0.06] px-2 pb-4 pt-2">
+          <AgentDAG mode="static" events={[]} className="h-[480px] rounded-lg" />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+
   return (
     <div className="animate-reveal">
       {topSlot ? <div className="max-w-[1120px] mx-auto px-4 pt-4">{topSlot}</div> : null}
@@ -95,7 +180,7 @@ export function ReportSections({
             type="button"
             disabled={pdfBusy}
             onClick={() => void handleExportPdf()}
-            className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/10 transition-colors disabled:opacity-50"
+            className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/[0.06] transition-colors disabled:opacity-50"
             style={{ color: "hsl(var(--text-secondary))", background: "rgba(74, 144, 217, 0.08)" }}
           >
             <Download className="h-3.5 w-3.5" />
@@ -110,6 +195,8 @@ export function ReportSections({
             annualDrag={data.expense_summary.total_annual_drag}
           />
 
+          <FeeCounter annualDrag={data.expense_summary.total_annual_drag} variant="banner" />
+
           <WhatIfToggle
             enabled={whatIfEnabled}
             onToggle={setWhatIfEnabled}
@@ -117,100 +204,63 @@ export function ReportSections({
             savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
           />
 
-          <div className="space-y-12 mt-8 pb-16">
-          <SummaryCards
-            summary={data.portfolio_summary}
-            xirr={data.portfolio_xirr}
-            annualDrag={data.expense_summary.total_annual_drag}
-            projected10yr={data.expense_summary.total_projected_10yr_drag}
-          />
-          <FeeCounter annualDrag={data.expense_summary.total_annual_drag} variant="banner" />
-          <HealthScore data={data.health_score} />
-          <FundTable funds={data.funds} />
-          <ExpenseCallout
-            projected10yr={data.expense_summary.total_projected_10yr_drag}
-            potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
-          />
-          {showFallbacks?.projectionUnavailable ? (
-            <UnavailableBlock
-              title="Wealth Projection Unavailable"
-              description="Projection data is currently unavailable for this report. Other analysis sections remain available."
-            />
-          ) : (
-            <WealthGapChart
-              currentPath={wealthChart.currentPath}
-              optimizedPath={wealthChart.optimizedPath}
-              assumptions={wealthChart.assumptions}
-            />
-          )}
+          <div className="mt-8 space-y-8 pb-16">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList
+                className={tabsListClass(showPlannerAndTax ? 4 : 3)}
+                style={{ background: "hsl(var(--bg-secondary))" }}
+              >
+                <TabsTrigger value="overview" className={tabsTriggerClass}>
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="analysis" className={tabsTriggerClass}>
+                  Analysis
+                </TabsTrigger>
+                <TabsTrigger value="recommendations" className={tabsTriggerClass}>
+                  AI Plan
+                </TabsTrigger>
+                {showPlannerAndTax ? (
+                  <TabsTrigger value="tools" className={tabsTriggerClass}>
+                    Planning Tools
+                  </TabsTrigger>
+                ) : null}
+              </TabsList>
 
-          {showFallbacks?.overlapUnavailable ? (
-            <UnavailableBlock
-              title="Overlap Analysis Unavailable"
-              description="Holdings data is not available for one or more selected funds."
-            />
-          ) : (
-            <OverlapMatrix data={data.overlap_analysis} funds={data.funds} />
-          )}
+              <TabsContent value="overview" className="space-y-8 mt-0">
+                <SummaryCards
+                  summary={data.portfolio_summary}
+                  xirr={data.portfolio_xirr}
+                  annualDrag={data.expense_summary.total_annual_drag}
+                  projected10yr={data.expense_summary.total_projected_10yr_drag}
+                />
+                <HealthScore data={data.health_score} />
+              </TabsContent>
 
-          {showFallbacks?.benchmarkUnavailable ? (
-            <UnavailableBlock
-              title="Benchmark Comparison Unavailable"
-              description="Benchmark comparison is currently available for equity categories only."
-            />
-          ) : null}
-          <AssetAllocation
-            equityPct={data.portfolio_summary.equity_allocation_pct}
-            debtPct={data.portfolio_summary.debt_allocation_pct}
-            regularCount={data.portfolio_summary.regular_plan_count}
-            directCount={data.portfolio_summary.direct_plan_count}
-          />
-          <RebalancingPlan
-            content={data.rebalancing_plan.content}
-            aiGenerated={data.rebalancing_plan.ai_generated}
-          />
+              <TabsContent value="analysis" className="space-y-8 mt-0">
+                {analysisBlocks}
+              </TabsContent>
 
-          <Collapsible
-            open={pdfExpandCollapsibles || pipelineOpen}
-            onOpenChange={(o) => {
-              if (!pdfExpandCollapsibles) setPipelineOpen(o);
-            }}
-            className="group card-arth border border-white/10 overflow-hidden"
-          >
-            <CollapsibleTrigger
-              type="button"
-              className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
-            >
-              <div>
-                <p className="section-label mb-0">Analysis pipeline</p>
-                <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                  How your CAS moved through the 9 agents (completed run)
-                </p>
-              </div>
-              <ChevronDown className="h-5 w-5 shrink-0 text-[hsl(var(--text-tertiary))] transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="border-t border-white/10 px-2 pb-4 pt-2">
-                <AgentDAG mode="static" events={[]} className="h-[480px] rounded-lg" />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+              <TabsContent value="recommendations" className="space-y-8 mt-0">
+                <RebalancingPlan
+                  content={data.rebalancing_plan.content}
+                  aiGenerated={data.rebalancing_plan.ai_generated}
+                />
+              </TabsContent>
 
-          <EmergencyFundCheck funds={originalData.funds} />
+              {showPlannerAndTax ? (
+                <TabsContent value="tools" className="space-y-8 mt-0">
+                  {toolsBlocks}
+                </TabsContent>
+              ) : null}
+            </Tabs>
 
-          {showPlannerAndTax ? (
-            <>
-              <GoalPlanner data={data} />
-              <TaxInsights data={data} />
-              <TaxRegimeCompare data={originalData} />
-            </>
-          ) : null}
+            {pipelineSection}
 
-          <footer className="text-center py-16">
-            <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-              {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
-            </p>
-          </footer>
+            <footer className="text-center py-16">
+              <p className="font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+              </p>
+            </footer>
           </div>
         </div>
       </div>
