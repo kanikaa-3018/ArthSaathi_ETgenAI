@@ -14,9 +14,33 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
+import {
+  BarChart3,
+  Bot,
+  Calculator,
+  DollarSign,
+  FileText,
+  Heart,
+  Layers,
+  LineChart,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import type { AgentEvent } from "@/types/analysis";
 import { cn } from "@/lib/utils";
 import "@xyflow/react/dist/style.css";
+
+const AGENT_ICONS: Record<string, LucideIcon> = {
+  parser: FileText,
+  nav: TrendingUp,
+  returns: Calculator,
+  overlap: Layers,
+  cost: DollarSign,
+  benchmark: BarChart3,
+  projection: LineChart,
+  health: Heart,
+  advisor: Bot,
+};
 
 const AGENT_NODES: { id: string; label: string; description: string }[] = [
   { id: "parser", label: "Parser Agent", description: "Extract portfolio from CAS PDF" },
@@ -44,6 +68,7 @@ const AGENT_EDGES: { source: string; target: string }[] = [
 ];
 
 export type AgentDAGData = {
+  agentId: string;
   label: string;
   description: string;
   status: "queued" | "running" | "completed" | "warning" | "error";
@@ -102,6 +127,7 @@ function getLayoutedElements(
 }
 
 const AgentNode = memo(function AgentNode({ data }: NodeProps<AgentDAGData>) {
+  const Icon = AGENT_ICONS[data.agentId] ?? FileText;
   const statusColors: Record<AgentDAGData["status"], string> = {
     queued: "hsl(var(--bg-tertiary))",
     running: "rgba(59, 130, 246, 0.15)",
@@ -110,24 +136,31 @@ const AgentNode = memo(function AgentNode({ data }: NodeProps<AgentDAGData>) {
     error: "rgba(248, 113, 113, 0.1)",
   };
   const borderColors: Record<AgentDAGData["status"], string> = {
-    queued: "rgba(255,255,255,0.06)",
-    running: "rgba(59, 130, 246, 0.4)",
-    completed: "rgba(52, 211, 153, 0.3)",
+    queued: "rgba(255,255,255,0.08)",
+    running: "rgba(59, 130, 246, 0.5)",
+    completed: "rgba(52, 211, 153, 0.35)",
     warning: "rgba(251, 191, 36, 0.3)",
     error: "rgba(248, 113, 113, 0.3)",
   };
 
   return (
     <div
-      className="px-4 py-3 rounded-xl min-w-[200px] max-w-[260px]"
+      className={cn(
+        "px-4 py-3 rounded-xl min-w-[200px] max-w-[260px]",
+        data.status === "running" && "animate-pulse border-2",
+      )}
       style={{
         background: statusColors[data.status],
-        border: `1px solid ${borderColors[data.status]}`,
-        transition: "all 0.3s ease",
+        borderWidth: data.status === "running" ? 2 : 1,
+        borderStyle: "solid",
+        borderColor: borderColors[data.status],
+        transition: "background 0.3s ease, border-color 0.3s ease",
+        animation: data.status === "completed" ? "dagCompleted 0.3s ease-out" : undefined,
       }}
     >
       <Handle type="target" position={Position.Top} className="!bg-neutral-600 !w-2 !h-2" />
       <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 shrink-0 opacity-80 text-primary-light" aria-hidden />
         {data.status === "running" && <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shrink-0" />}
         {data.status === "completed" && <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />}
         {data.status === "warning" && <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />}
@@ -172,9 +205,16 @@ interface AgentDAGProps {
   /** `live` = statuses from SSE; `static` = all steps shown completed (report page). */
   mode?: "live" | "static";
   className?: string;
+  /** When `mode` is `static`, disallow zoom/pan (embed in report). Default false. */
+  staticInteractive?: boolean;
 }
 
-export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
+export function AgentDAG({
+  events,
+  mode = "live",
+  className,
+  staticInteractive = false,
+}: AgentDAGProps) {
   const agentMap = useMemo(() => latestByAgent(events), [events]);
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -185,6 +225,7 @@ export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
           type: "agent",
           position: { x: 0, y: 0 },
           data: {
+            agentId: n.id,
             label: n.label,
             description: n.description,
             status: "completed" as const,
@@ -202,6 +243,7 @@ export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
         type: "agent",
         position: { x: 0, y: 0 },
         data: {
+          agentId: n.id,
           label: n.label,
           description: n.description,
           status,
@@ -217,20 +259,21 @@ export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
       statuses[no.id] = no.data.status;
     });
 
-    const edges: Edge[] = AGENT_EDGES.map((e) => ({
-      id: `${e.source}-${e.target}`,
-      source: e.source,
-      target: e.target,
-      animated:
-        mode === "live" && statuses[e.source] === "completed" && statuses[e.target] === "running",
-      style: {
-        stroke:
-          mode === "static" || statuses[e.source] === "completed"
-            ? "hsl(160 67% 52%)"
-            : "rgba(255,255,255,0.12)",
-        strokeWidth: 2,
-      },
-    }));
+    const edges: Edge[] = AGENT_EDGES.map((e) => {
+      const srcDone = statuses[e.source] === "completed";
+      const tgtRun = statuses[e.target] === "running";
+      const isGreen = mode === "static" || srcDone;
+      return {
+        id: `${e.source}-${e.target}`,
+        source: e.source,
+        target: e.target,
+        animated: mode === "live" && srcDone && tgtRun,
+        style: {
+          stroke: isGreen ? "hsl(160 67% 52%)" : "rgba(255,255,255,0.08)",
+          strokeWidth: 2,
+        },
+      };
+    });
 
     return getLayoutedElements(nodes, edges);
   }, [agentMap, mode]);
@@ -244,36 +287,41 @@ export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   const fitSignal = mode === "static" ? 1 : events.length;
+  const allowPanZoom = mode === "live" || staticInteractive;
 
   return (
-    <div
-      className={cn(
-        "h-[560px] w-full rounded-lg border border-white/10 overflow-hidden",
-        className,
-      )}
-      style={{ background: "hsla(220, 20%, 8%, 0.5)" }}
-    >
-      <ReactFlowProvider>
-        <div className="h-full w-full min-h-[400px]">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={nodeTypes}
-            minZoom={0.15}
-            maxZoom={1.5}
-            proOptions={{ hideAttribution: true }}
-            nodesDraggable={mode === "live"}
-            nodesConnectable={false}
-            elementsSelectable={false}
-          >
-            <Background gap={16} color="rgba(255,255,255,0.04)" />
-            <Controls />
-            <FitViewHelper signal={fitSignal} />
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
+    <div className={cn("flex flex-col w-full rounded-lg border border-white/[0.06] bg-transparent min-h-[400px]", className)}>
+      <div className="flex-1 min-h-[400px] overflow-hidden">
+        <ReactFlowProvider>
+          <div className="h-full w-full min-h-[400px]">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              nodeTypes={nodeTypes}
+              minZoom={0.15}
+              maxZoom={1.5}
+              proOptions={{ hideAttribution: true }}
+              nodesDraggable={mode === "live"}
+              nodesConnectable={false}
+              elementsSelectable={false}
+              zoomOnScroll={allowPanZoom}
+              panOnDrag={allowPanZoom}
+            >
+              <Background variant="dots" gap={20} size={1} color="rgba(255,255,255,0.03)" />
+              <Controls className="!bg-[hsl(var(--bg-raised))] !border-white/10 [&_button]:!fill-white" />
+              <FitViewHelper signal={fitSignal} />
+            </ReactFlow>
+          </div>
+        </ReactFlowProvider>
+      </div>
+      <p
+        className="[@media(hover:none)_and_(pointer:coarse)]:block hidden text-center text-xs py-1.5 shrink-0"
+        style={{ color: "hsl(var(--text-tertiary))" }}
+      >
+        Pinch to zoom
+      </p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
-import { ChevronDown, Download } from "lucide-react";
+import { ChevronDown, Download, Loader2, Network } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { FeeCounter } from "@/components/ArthSaathi/FeeCounter";
 import { EmergencyFundCheck } from "@/components/ArthSaathi/EmergencyFundCheck";
@@ -64,7 +65,8 @@ export function ReportSections({
   const [whatIfEnabled, setWhatIfEnabled] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pipelineOpen, setPipelineOpen] = useState(false);
-  const [pdfExpandCollapsibles, setPdfExpandCollapsibles] = useState(false);
+  /** Expand all sections for html2canvas; hides interactive chrome in-layout */
+  const [isPrinting, setIsPrinting] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const data = useWhatIfDirect(originalData, whatIfEnabled);
   const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
@@ -80,12 +82,13 @@ export function ReportSections({
     const el = reportRef.current;
     if (!el || pdfBusy) return;
     setPdfBusy(true);
-    setPdfExpandCollapsibles(true);
+    setIsPrinting(true);
     await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     try {
       await exportReportPdf(el, data.investor.name);
+      toast.success("PDF downloaded successfully");
     } finally {
-      setPdfExpandCollapsibles(false);
+      setIsPrinting(false);
       setPdfBusy(false);
     }
   }, [data.investor.name, pdfBusy]);
@@ -135,36 +138,40 @@ export function ReportSections({
   const toolsBlocks =
     showPlannerAndTax ? (
       <>
-        <GoalPlanner data={data} />
+        <GoalPlanner data={data} exportCaptureMode={isPrinting} />
         <EmergencyFundCheck funds={originalData.funds} />
         <TaxInsights data={data} />
-        <TaxRegimeCompare data={originalData} />
+        <TaxRegimeCompare data={originalData} exportCaptureMode={isPrinting} />
       </>
     ) : null;
 
   const pipelineSection = (
     <Collapsible
-      open={pdfExpandCollapsibles || pipelineOpen}
+      open={isPrinting || pipelineOpen}
       onOpenChange={(o) => {
-        if (!pdfExpandCollapsibles) setPipelineOpen(o);
+        if (!isPrinting) setPipelineOpen(o);
       }}
       className="group card-arth border border-white/[0.06] overflow-hidden"
     >
       <CollapsibleTrigger
         type="button"
-        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
+        disabled={isPrinting}
+        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03] disabled:opacity-100"
       >
-        <div>
-          <p className="section-label mb-0">Analysis pipeline</p>
-          <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-            How your CAS moved through the 9 agents (completed run)
-          </p>
+        <div className="flex items-start gap-3">
+          <Network className="h-5 w-5 shrink-0 text-[hsl(var(--accent))] mt-0.5" aria-hidden />
+          <div>
+            <p className="section-label mb-0">How we analyzed your portfolio</p>
+            <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Static view of the 9-agent pipeline (completed run)
+            </p>
+          </div>
         </div>
         <ChevronDown className="h-5 w-5 shrink-0 text-[hsl(var(--text-tertiary))] transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="border-t border-white/[0.06] px-2 pb-4 pt-2">
-          <AgentDAG mode="static" events={[]} className="h-[480px] rounded-lg" />
+          <AgentDAG mode="static" events={[]} staticInteractive={false} className="h-[300px] rounded-lg" />
         </div>
       </CollapsibleContent>
     </Collapsible>
@@ -190,12 +197,24 @@ export function ReportSections({
             className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/[0.06] transition-colors disabled:opacity-50"
             style={{ color: "hsl(var(--text-secondary))", background: "rgba(74, 144, 217, 0.08)" }}
           >
-            <Download className="h-3.5 w-3.5" />
+            {pdfBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             {pdfBusy ? "PDF…" : "Download PDF"}
           </button>
         </div>
 
         <div ref={reportRef}>
+          {isPrinting ? (
+            <header className="mb-8 pb-6 border-b border-white/[0.08]">
+              <p className="font-display text-xl font-semibold text-primary-light">ArthSaathi Portfolio Report</p>
+              <p className="font-body text-sm mt-1" style={{ color: "hsl(var(--text-secondary))" }}>
+                {new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}
+              </p>
+              <p className="font-body text-xs mt-3" style={{ color: "hsl(var(--text-tertiary))" }}>
+                Educational illustration only — not personalised financial, tax, or investment advice.
+              </p>
+            </header>
+          ) : null}
+
           <ResultsHeader
             investorName={data.investor.name}
             fundCount={data.portfolio_summary.total_funds}
@@ -204,71 +223,113 @@ export function ReportSections({
 
           <FeeCounter annualDrag={data.expense_summary.total_annual_drag} variant="banner" />
 
-          <WhatIfToggle
-            enabled={whatIfEnabled}
-            onToggle={setWhatIfEnabled}
-            regularCount={originalData.portfolio_summary.regular_plan_count}
-            savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
-            savingsSummary={whatIfSummary}
-          />
+          {!isPrinting ? (
+            <WhatIfToggle
+              enabled={whatIfEnabled}
+              onToggle={setWhatIfEnabled}
+              regularCount={originalData.portfolio_summary.regular_plan_count}
+              savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
+              savingsSummary={whatIfSummary}
+            />
+          ) : null}
 
           <div className="mt-8 space-y-8 pb-16">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList
-                className={tabsListClass(showPlannerAndTax ? 4 : 3)}
-                style={{ background: "hsl(var(--bg-secondary))" }}
-              >
-                <TabsTrigger value="overview" className={tabsTriggerClass}>
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="analysis" className={tabsTriggerClass}>
-                  Analysis
-                </TabsTrigger>
-                <TabsTrigger value="recommendations" className={tabsTriggerClass}>
-                  AI Plan
-                </TabsTrigger>
+            {isPrinting ? (
+              <div className="space-y-10">
+                <section className="space-y-8">
+                  <p className="section-label">Overview</p>
+                  <SummaryCards
+                    summary={data.portfolio_summary}
+                    xirr={data.portfolio_xirr}
+                    annualDrag={data.expense_summary.total_annual_drag}
+                    projected10yr={data.expense_summary.total_projected_10yr_drag}
+                  />
+                  <HealthScore data={data.health_score} />
+                </section>
+                <section className="space-y-8">
+                  <p className="section-label">Portfolio analysis</p>
+                  {analysisBlocks}
+                </section>
+                <section className="space-y-8">
+                  <p className="section-label">AI recommendations</p>
+                  <RebalancingPlan
+                    content={data.rebalancing_plan.content}
+                    aiGenerated={data.rebalancing_plan.ai_generated}
+                  />
+                </section>
                 {showPlannerAndTax ? (
-                  <TabsTrigger value="tools" className={tabsTriggerClass}>
-                    Planning Tools
-                  </TabsTrigger>
+                  <section className="space-y-8">
+                    <p className="section-label">Planning tools</p>
+                    {toolsBlocks}
+                  </section>
                 ) : null}
-              </TabsList>
+              </div>
+            ) : (
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList
+                  className={tabsListClass(showPlannerAndTax ? 4 : 3)}
+                  style={{ background: "hsl(var(--bg-secondary))" }}
+                >
+                  <TabsTrigger value="overview" className={tabsTriggerClass}>
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger value="analysis" className={tabsTriggerClass}>
+                    Analysis
+                  </TabsTrigger>
+                  <TabsTrigger value="recommendations" className={tabsTriggerClass}>
+                    AI Plan
+                  </TabsTrigger>
+                  {showPlannerAndTax ? (
+                    <TabsTrigger value="tools" className={tabsTriggerClass}>
+                      Planning Tools
+                    </TabsTrigger>
+                  ) : null}
+                </TabsList>
 
-              <TabsContent value="overview" className="space-y-8 mt-0">
-                <SummaryCards
-                  summary={data.portfolio_summary}
-                  xirr={data.portfolio_xirr}
-                  annualDrag={data.expense_summary.total_annual_drag}
-                  projected10yr={data.expense_summary.total_projected_10yr_drag}
-                />
-                <HealthScore data={data.health_score} />
-              </TabsContent>
-
-              <TabsContent value="analysis" className="space-y-8 mt-0">
-                {analysisBlocks}
-              </TabsContent>
-
-              <TabsContent value="recommendations" className="space-y-8 mt-0">
-                <RebalancingPlan
-                  content={data.rebalancing_plan.content}
-                  aiGenerated={data.rebalancing_plan.ai_generated}
-                />
-              </TabsContent>
-
-              {showPlannerAndTax ? (
-                <TabsContent value="tools" className="space-y-8 mt-0">
-                  {toolsBlocks}
+                <TabsContent value="overview" className="space-y-8 mt-0">
+                  <SummaryCards
+                    summary={data.portfolio_summary}
+                    xirr={data.portfolio_xirr}
+                    annualDrag={data.expense_summary.total_annual_drag}
+                    projected10yr={data.expense_summary.total_projected_10yr_drag}
+                  />
+                  <HealthScore data={data.health_score} />
                 </TabsContent>
-              ) : null}
-            </Tabs>
+
+                <TabsContent value="analysis" className="space-y-8 mt-0">
+                  {analysisBlocks}
+                </TabsContent>
+
+                <TabsContent value="recommendations" className="space-y-8 mt-0">
+                  <RebalancingPlan
+                    content={data.rebalancing_plan.content}
+                    aiGenerated={data.rebalancing_plan.ai_generated}
+                  />
+                </TabsContent>
+
+                {showPlannerAndTax ? (
+                  <TabsContent value="tools" className="space-y-8 mt-0">
+                    {toolsBlocks}
+                  </TabsContent>
+                ) : null}
+              </Tabs>
+            )}
 
             {pipelineSection}
 
-            <footer className="text-center py-16">
-              <p className="font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
-                {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
-              </p>
-            </footer>
+            {isPrinting ? (
+              <footer className="text-center pt-8 border-t border-white/[0.08]">
+                <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+                </p>
+              </footer>
+            ) : (
+              <footer className="text-center py-16">
+                <p className="font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+                </p>
+              </footer>
+            )}
           </div>
         </div>
       </div>

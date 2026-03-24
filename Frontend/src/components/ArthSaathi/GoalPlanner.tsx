@@ -25,9 +25,11 @@ const GOAL_TYPES = [
 
 interface GoalPlannerProps {
   data: AnalysisData;
+  /** PDF capture: omit form; show results only if present */
+  exportCaptureMode?: boolean;
 }
 
-export function GoalPlanner({ data }: GoalPlannerProps) {
+export function GoalPlanner({ data, exportCaptureMode }: GoalPlannerProps) {
   const [open, setOpen] = useState(false);
   const [goalType, setGoalType] = useState<string>("retirement");
   const [targetYear, setTargetYear] = useState(2045);
@@ -106,6 +108,133 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
         .reduce((s, f) => s + f.current_value, 0),
     [data.funds],
   );
+
+  const resultCard =
+    result ? (
+      <div className="rounded-xl p-6 space-y-3 border border-white/[0.06] bg-black/20">
+        <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+          Goal ({result.goal.type}): <strong>{result.goal.inflation_adjusted_display}</strong> by {result.goal.target_year}.
+          You project <strong>{result.current_trajectory.projected_display}</strong> at current pace.
+        </p>
+        <div>
+          <div className="flex justify-between text-xs mb-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+            <span>Progress vs inflation-adjusted target</span>
+            <span>{onTrackPct}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${onTrackPct}%`,
+                background:
+                  onTrackPct >= 80 ? "hsl(142 70% 45%)" : onTrackPct >= 50 ? "hsl(38 90% 55%)" : "hsl(0 70% 55%)",
+              }}
+            />
+          </div>
+        </div>
+        <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+          Gap: <strong>{result.gap_analysis.shortfall_display}</strong>. Extra SIP:{" "}
+          <strong>{result.gap_analysis.additional_sip_display}</strong>
+        </p>
+        <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+          {result.recommendations.map((r, idx) => (
+            <li key={`${idx}-${r.slice(0, 40)}`}>{r}</li>
+          ))}
+        </ul>
+        {yearlyRoadmap && yearlyRoadmap.length > 0 ? (
+          <div className="mt-4 h-56 w-full">
+            <p className="font-body text-xs mb-2" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Illustrative corpus path (yearly)
+            </p>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={yearlyRoadmap} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
+                <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} stroke="rgba(255,255,255,0.08)" />
+                <YAxis
+                  tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }}
+                  stroke="rgba(255,255,255,0.08)"
+                  tickFormatter={(v) => `${(v / 1e5).toFixed(1)}L`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--bg-secondary))",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    fontSize: 12,
+                  }}
+                  formatter={(value: number) => [value.toLocaleString("en-IN"), "Corpus"]}
+                />
+                <Line type="monotone" dataKey="corpus" stroke="hsl(var(--accent))" dot={false} strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : null}
+        {result.emergency_fund_check ? (
+          <div
+            className={cn(
+              "mt-4 rounded-lg p-3 border border-white/[0.06] bg-black/15 border-l-4",
+              (() => {
+                const t = result.emergency_fund_check.target;
+                const cov = t > 0 ? liquidValue / t : 0;
+                if (cov >= 1) return "border-l-emerald-500";
+                if (cov >= 0.5) return "border-l-amber-500";
+                return "border-l-red-500";
+              })(),
+            )}
+          >
+            <p className="font-body text-xs font-medium text-primary-light">Emergency fund (from income)</p>
+            <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-secondary))" }}>
+              Target {result.emergency_fund_check.target_display} (
+              {result.emergency_fund_check.monthly_expenses_estimate.toLocaleString("en-IN")}/mo estimate)
+            </p>
+            <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+              {result.emergency_fund_check.recommendation}
+            </p>
+          </div>
+        ) : null}
+        {result.asset_allocation ? (
+          <div className="mt-4 space-y-2">
+            <p className="font-body text-xs font-medium text-primary-light">Illustrative allocation</p>
+            <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+              {result.asset_allocation.note}
+            </p>
+            <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "hsl(var(--bg-tertiary))" }}>
+              <div
+                className="h-full transition-all"
+                style={{ width: `${result.asset_allocation.equity_pct}%`, background: "hsl(var(--positive))" }}
+              />
+              <div
+                className="h-full transition-all"
+                style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--chart-1))" }}
+              />
+            </div>
+            <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
+              {result.asset_allocation.equity_pct}% equity · {result.asset_allocation.debt_pct}% debt ·{" "}
+              {result.asset_allocation.rule}
+            </p>
+          </div>
+        ) : null}
+        <Collapsible className="mt-3 pt-3 border-t border-white/[0.06]">
+          <CollapsibleTrigger className="group flex items-center gap-1 font-body text-xs text-secondary-light hover:text-primary-light transition-colors">
+            <ChevronRight className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-90" />
+            Methodology
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-1 font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+            <p>{result.methodology.forward_rate}</p>
+            <p>{result.methodology.retirement_target}</p>
+            <p>{result.methodology.sip_future_value}</p>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    ) : null;
+
+  if (exportCaptureMode) {
+    if (!result) return null;
+    return (
+      <div className="card-arth p-6 border border-white/[0.06]">
+        <p className="section-label mb-3">Goal planner</p>
+        {resultCard}
+      </div>
+    );
+  }
 
   return (
     <div className="card-arth p-6 border border-white/10">
@@ -203,130 +332,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
 
           {err ? <p className="text-xs text-red-400">{err}</p> : null}
 
-          {result ? (
-            <div className="rounded-xl p-6 space-y-3 border border-white/[0.06] bg-black/20">
-              <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                Goal ({result.goal.type}): <strong>{result.goal.inflation_adjusted_display}</strong> by{" "}
-                {result.goal.target_year}. You project <strong>{result.current_trajectory.projected_display}</strong>{" "}
-                at current pace.
-              </p>
-              <div>
-                <div className="flex justify-between text-xs mb-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                  <span>Progress vs inflation-adjusted target</span>
-                  <span>{onTrackPct}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${onTrackPct}%`,
-                      background:
-                        onTrackPct >= 80
-                          ? "hsl(142 70% 45%)"
-                          : onTrackPct >= 50
-                            ? "hsl(38 90% 55%)"
-                            : "hsl(0 70% 55%)",
-                    }}
-                  />
-                </div>
-              </div>
-              <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                Gap: <strong>{result.gap_analysis.shortfall_display}</strong>. Extra SIP:{" "}
-                <strong>{result.gap_analysis.additional_sip_display}</strong>
-              </p>
-              <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-                {result.recommendations.map((r, idx) => (
-                  <li key={`${idx}-${r.slice(0, 40)}`}>{r}</li>
-                ))}
-              </ul>
-
-              {yearlyRoadmap && yearlyRoadmap.length > 0 ? (
-                <div className="mt-4 h-56 w-full">
-                  <p className="font-body text-xs mb-2" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    Illustrative corpus path (yearly)
-                  </p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearlyRoadmap} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
-                      <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} stroke="rgba(255,255,255,0.08)" />
-                      <YAxis
-                        tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }}
-                        stroke="rgba(255,255,255,0.08)"
-                        tickFormatter={(v) => `${(v / 1e5).toFixed(1)}L`}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--bg-secondary))",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                          fontSize: 12,
-                        }}
-                        formatter={(value: number) => [value.toLocaleString("en-IN"), "Corpus"]}
-                      />
-                      <Line type="monotone" dataKey="corpus" stroke="hsl(var(--accent))" dot={false} strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : null}
-
-              {result.emergency_fund_check ? (
-                <div
-                  className={cn(
-                    "mt-4 rounded-lg p-3 border border-white/[0.06] bg-black/15 border-l-4",
-                    (() => {
-                      const t = result.emergency_fund_check.target;
-                      const cov = t > 0 ? liquidValue / t : 0;
-                      if (cov >= 1) return "border-l-emerald-500";
-                      if (cov >= 0.5) return "border-l-amber-500";
-                      return "border-l-red-500";
-                    })(),
-                  )}
-                >
-                  <p className="font-body text-xs font-medium text-primary-light">Emergency fund (from income)</p>
-                  <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-secondary))" }}>
-                    Target {result.emergency_fund_check.target_display} (
-                    {result.emergency_fund_check.monthly_expenses_estimate.toLocaleString("en-IN")}/mo estimate)
-                  </p>
-                  <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    {result.emergency_fund_check.recommendation}
-                  </p>
-                </div>
-              ) : null}
-
-              {result.asset_allocation ? (
-                <div className="mt-4 space-y-2">
-                  <p className="font-body text-xs font-medium text-primary-light">Illustrative allocation</p>
-                  <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    {result.asset_allocation.note}
-                  </p>
-                  <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "hsl(var(--bg-tertiary))" }}>
-                    <div
-                      className="h-full transition-all"
-                      style={{ width: `${result.asset_allocation.equity_pct}%`, background: "hsl(var(--positive))" }}
-                    />
-                    <div
-                      className="h-full transition-all"
-                      style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--chart-1))" }}
-                    />
-                  </div>
-                  <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
-                    {result.asset_allocation.equity_pct}% equity · {result.asset_allocation.debt_pct}% debt ·{" "}
-                    {result.asset_allocation.rule}
-                  </p>
-                </div>
-              ) : null}
-
-              <Collapsible className="mt-3 pt-3 border-t border-white/[0.06]">
-                <CollapsibleTrigger className="group flex items-center gap-1 font-body text-xs text-secondary-light hover:text-primary-light transition-colors">
-                  <ChevronRight className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-90" />
-                  Methodology
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2 space-y-1 font-body text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
-                  <p>{result.methodology.forward_rate}</p>
-                  <p>{result.methodology.retirement_target}</p>
-                  <p>{result.methodology.sip_future_value}</p>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          ) : null}
+          {resultCard}
         </div>
       ) : null}
     </div>

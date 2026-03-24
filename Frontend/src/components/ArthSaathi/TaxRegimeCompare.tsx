@@ -17,9 +17,10 @@ function elssFromPortfolio(funds: AnalysisData["funds"]): number {
 
 interface TaxRegimeCompareProps {
   data: AnalysisData;
+  exportCaptureMode?: boolean;
 }
 
-export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
+export function TaxRegimeCompare({ data, exportCaptureMode }: TaxRegimeCompareProps) {
   const [open, setOpen] = useState(false);
   const [grossSalary, setGrossSalary] = useState("1800000");
   const [hraAnnual, setHraAnnual] = useState("240000");
@@ -68,10 +69,99 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
   const chartData =
     result != null
       ? [
-          { name: "Old regime", tax: result.old_regime.total_tax as number },
-          { name: "New regime", tax: result.new_regime.total_tax as number },
+          { name: "Old regime", tax: Number(result.old_regime.total_tax) },
+          { name: "New regime", tax: Number(result.new_regime.total_tax) },
         ]
       : [];
+
+  const taxResultsBody =
+    result != null ? (
+      <>
+        <p className="text-2xl font-bold text-positive font-body">
+          Save {result.savings_display}
+          <span className="block text-sm font-normal text-secondary-light mt-1">vs the other regime (illustrative)</span>
+        </p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div
+            className={cn(
+              "rounded-xl p-6 border-2 transition-opacity",
+              result.recommendation === "old"
+                ? "border-emerald-500/70 bg-emerald-500/5"
+                : "border-white/[0.06] opacity-60",
+            )}
+          >
+            {result.recommendation === "old" ? (
+              <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
+                Recommended
+              </span>
+            ) : null}
+            <p className="font-body text-sm font-medium text-secondary-light">Old Regime</p>
+            <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
+              ₹{Number(result.old_regime.total_tax).toLocaleString("en-IN")}
+            </p>
+            <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Total tax (incl. cess)
+            </p>
+          </div>
+          <div
+            className={cn(
+              "rounded-xl p-6 border-2 transition-opacity",
+              result.recommendation === "new"
+                ? "border-emerald-500/70 bg-emerald-500/5"
+                : "border-white/[0.06] opacity-60",
+            )}
+          >
+            {result.recommendation === "new" ? (
+              <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
+                Recommended
+              </span>
+            ) : null}
+            <p className="font-body text-sm font-medium text-secondary-light">New Regime</p>
+            <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
+              ₹{Number(result.new_regime.total_tax).toLocaleString("en-IN")}
+            </p>
+            <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
+              Total tax (incl. cess)
+            </p>
+          </div>
+        </div>
+        <div className="h-48 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+              <XAxis dataKey="name" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} />
+              <YAxis tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsl(var(--bg-secondary))",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  fontSize: 12,
+                }}
+              />
+              <Bar dataKey="tax" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <ul className="space-y-2 font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+          {result.tips.map((t) => (
+            <li key={t.slice(0, 48)} className="flex gap-2 items-start">
+              <Lightbulb className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : null;
+
+  if (exportCaptureMode) {
+    if (!result) return null;
+    return (
+      <div className="card-arth p-6 border border-white/[0.06]">
+        <p className="section-label mb-3">Old vs new tax regime</p>
+        <div className="space-y-4">{taxResultsBody}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="card-arth p-6 border border-white/[0.06]">
@@ -157,85 +247,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
           </div>
 
           <div className="space-y-4">
-            {result ? (
-              <>
-                <p className="text-2xl font-bold text-positive font-body">
-                  Save {result.savings_display}
-                  <span className="block text-sm font-normal text-secondary-light mt-1">
-                    vs the other regime (illustrative)
-                  </span>
-                </p>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div
-                    className={cn(
-                      "rounded-xl p-6 border-2 transition-opacity",
-                      result.recommendation === "old"
-                        ? "border-emerald-500/70 bg-emerald-500/5"
-                        : "border-white/[0.06] opacity-60",
-                    )}
-                  >
-                    {result.recommendation === "old" ? (
-                      <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
-                        Recommended
-                      </span>
-                    ) : null}
-                    <p className="font-body text-sm font-medium text-secondary-light">Old Regime</p>
-                    <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
-                      ₹{result.old_regime.total_tax.toLocaleString("en-IN")}
-                    </p>
-                    <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                      Total tax (incl. cess)
-                    </p>
-                  </div>
-                  <div
-                    className={cn(
-                      "rounded-xl p-6 border-2 transition-opacity",
-                      result.recommendation === "new"
-                        ? "border-emerald-500/70 bg-emerald-500/5"
-                        : "border-white/[0.06] opacity-60",
-                    )}
-                  >
-                    {result.recommendation === "new" ? (
-                      <span className="inline-block font-body text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-positive mb-2">
-                        Recommended
-                      </span>
-                    ) : null}
-                    <p className="font-body text-sm font-medium text-secondary-light">New Regime</p>
-                    <p className="font-mono-dm text-3xl font-bold text-primary-light mt-2">
-                      ₹{result.new_regime.total_tax.toLocaleString("en-IN")}
-                    </p>
-                    <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                      Total tax (incl. cess)
-                    </p>
-                  </div>
-                </div>
-                <div className="h-48 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                      <XAxis dataKey="name" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} />
-                      <YAxis tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--bg-secondary))",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                          fontSize: 12,
-                        }}
-                      />
-                      <Bar dataKey="tax" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <ul className="space-y-2 font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                  {result.tips.map((t) => (
-                    <li key={t.slice(0, 48)} className="flex gap-2 items-start">
-                      <Lightbulb className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
+            {taxResultsBody ?? (
               <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
                 Enter salary and deductions, then compare.
               </p>

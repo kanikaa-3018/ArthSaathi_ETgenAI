@@ -1,12 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 import { ReportSections } from "@/components/ArthSaathi/ReportSections";
 import { MentorChat } from "@/components/ArthSaathi/MentorChat";
 import { useAnalysis } from "@/context/analysis-context";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function AnalyzeReport() {
   const navigate = useNavigate();
   const { state } = useAnalysis();
+  const [mentorOpen, setMentorOpen] = useState(false);
 
   useEffect(() => {
     if (!state.result) {
@@ -64,10 +67,31 @@ export default function AnalyzeReport() {
             }
           />
         </div>
-        <aside className="w-full xl:w-[420px] shrink-0 xl:sticky xl:top-4 xl:self-start">
+        <aside className="hidden xl:block w-full xl:w-[420px] shrink-0 xl:sticky xl:top-4 xl:self-start">
           <MentorChat analysis={state.result} />
         </aside>
       </div>
+
+      <Sheet open={mentorOpen} onOpenChange={setMentorOpen}>
+        <SheetTrigger asChild>
+          <button
+            type="button"
+            className="xl:hidden fixed bottom-4 right-4 z-40 h-14 w-14 rounded-full flex items-center justify-center border border-white/15 shadow-lg"
+            style={{
+              background: "hsl(var(--bg-elevated))",
+              color: "hsl(var(--accent))",
+            }}
+            aria-label="Open AI mentor chat"
+          >
+            <MessageCircle className="h-6 w-6" />
+          </button>
+        </SheetTrigger>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col gap-0 border-white/10 bg-[hsl(var(--bg-primary))]">
+          <div className="flex-1 min-h-0 flex flex-col p-3 overflow-hidden">
+            <MentorChat analysis={state.result} variant="sheet" />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

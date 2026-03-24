@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
 import { useAnalysis } from "@/context/analysis-context";
@@ -263,32 +264,31 @@ export default function AnalyzeProcessing() {
               (अर्थसाथी)
             </p>
           </div>
-          <div className="flex justify-center gap-2 mb-6">
+          <div
+            className="inline-flex rounded-lg p-1 mx-auto mb-6"
+            style={{ background: "hsl(var(--bg-tertiary))" }}
+          >
             <button
               type="button"
               onClick={() => setViewMode("list")}
               aria-pressed={viewMode === "list"}
-              className="font-body text-xs px-4 py-2 rounded-full border transition-colors"
-              style={{
-                borderColor: viewMode === "list" ? "hsl(var(--accent))" : "rgba(255,255,255,0.12)",
-                background: viewMode === "list" ? "rgba(74, 144, 217, 0.15)" : "transparent",
-                color: "hsl(var(--text-secondary))",
-              }}
+              className={cn(
+                "px-4 py-1.5 rounded-md text-sm font-medium transition-colors",
+                viewMode === "list" ? "bg-white/10 text-primary-light" : "text-secondary-light",
+              )}
             >
-              List view
+              List View
             </button>
             <button
               type="button"
               onClick={() => setViewMode("dag")}
               aria-pressed={viewMode === "dag"}
-              className="font-body text-xs px-4 py-2 rounded-full border transition-colors"
-              style={{
-                borderColor: viewMode === "dag" ? "hsl(var(--accent))" : "rgba(255,255,255,0.12)",
-                background: viewMode === "dag" ? "rgba(74, 144, 217, 0.15)" : "transparent",
-                color: "hsl(var(--text-secondary))",
-              }}
+              className={cn(
+                "px-4 py-1.5 rounded-md text-sm font-medium transition-colors",
+                viewMode === "dag" ? "bg-white/10 text-primary-light" : "text-secondary-light",
+              )}
             >
-              Pipeline view
+              Pipeline View
             </button>
           </div>
           {viewMode === "list" ? (
