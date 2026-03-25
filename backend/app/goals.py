@@ -107,6 +107,50 @@ def compute_goal(
             "You appear broadly on track versus this goal — revisit yearly as markets and income change."
         )
 
+    forward_rate = r
+    monthly_growth = ((1 + forward_rate) ** (1 / 12)) - 1
+    # Year-end snapshots (monthly compounding loop; one point per year)
+    yearly_roadmap: list[dict[str, Any]] = []
+    if years_remaining > 0:
+        running_corpus = portfolio_value
+        monthly_sip = monthly_sip_possible
+        for month in range(1, years_remaining * 12 + 1):
+            running_corpus += monthly_sip
+            running_corpus *= 1 + monthly_growth
+            if month % 12 == 0:
+                year = month // 12
+                yearly_roadmap.append(
+                    {
+                        "year": year,
+                        "age": current_age + year,
+                        "corpus": round(running_corpus),
+                        "corpus_display": format_inr(round(running_corpus)),
+                        "cumulative_invested": round(portfolio_value + monthly_sip * month),
+                    }
+                )
+
+    base_income = monthly_income if monthly_income > 0 else 50000.0
+    monthly_expenses_ef = base_income * 0.50
+    emergency_target = monthly_expenses_ef * 6
+    _ef_rec = f"Maintain {format_inr(round(emergency_target))} in liquid funds before aggressive investing"
+    if monthly_income <= 0:
+        _ef_rec += " (assuming ₹50,000 monthly income; update for personalised target)"
+    emergency_fund_check = {
+        "target": round(emergency_target),
+        "target_display": format_inr(round(emergency_target)),
+        "monthly_expenses_estimate": round(monthly_expenses_ef),
+        "recommendation": _ef_rec,
+    }
+
+    equity_pct = max(20, min(80, 100 - current_age))
+    debt_pct = 100 - equity_pct
+    asset_allocation = {
+        "equity_pct": equity_pct,
+        "debt_pct": debt_pct,
+        "rule": "100 minus age (bounded 20–80% equity)",
+        "note": f"At age {current_age}, suggested {equity_pct}% equity / {debt_pct}% debt (illustrative)",
+    }
+
     return {
         "goal": {
             "type": goal_type,
@@ -144,4 +188,7 @@ def compute_goal(
             ),
         },
         "recommendations": recommendations,
+        "yearly_roadmap": yearly_roadmap,
+        "emergency_fund_check": emergency_fund_check,
+        "asset_allocation": asset_allocation,
     }

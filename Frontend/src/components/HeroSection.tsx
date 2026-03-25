@@ -165,7 +165,7 @@ export default function HeroSection() {
         <div className="relative w-[1px] h-[48px] bg-text-muted">
           <div className="scroll-dot absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-text-secondary" />
         </div>
-        <span className="font-syne text-[10px] text-text-muted uppercase tracking-[3px] mt-2">scroll</span>
+        <span className="font-syne text-xs text-text-muted uppercase tracking-[3px] mt-2">scroll</span>
       </div>
     </section>
   );

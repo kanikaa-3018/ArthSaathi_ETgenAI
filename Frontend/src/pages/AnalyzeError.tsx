@@ -44,10 +44,7 @@ export default function AnalyzeError() {
           {view.description}
         </p>
 
-        <div
-          className="mt-6 p-4 rounded-md"
-          style={{ background: "hsl(var(--bg-tertiary))", border: "1px solid rgba(255,255,255,0.1)" }}
-        >
+        <div className="mt-6 p-4 rounded-md bg-[hsl(var(--bg-tertiary))] border border-white/10">
           <p className="font-mono text-xs" style={{ color: "hsl(var(--warning))" }}>
             error_code: {code}
           </p>
@@ -55,24 +52,16 @@ export default function AnalyzeError() {
 
         <div className="mt-7 flex gap-3">
           <button
+            type="button"
             onClick={() => navigate("/analyze")}
-            className="font-body text-sm px-4 py-2 rounded-md"
-            style={{
-              color: "white",
-              background: "hsl(var(--accent))",
-              border: "1px solid hsla(213,60%,56%,0.35)",
-            }}
+            className="font-body text-sm px-4 py-2 rounded-md text-white bg-[hsl(var(--accent))] border border-[hsla(213,60%,56%,0.35)] hover:opacity-95"
           >
             Try Again
           </button>
           <button
+            type="button"
             onClick={() => navigate("/demo")}
-            className="font-body text-sm px-4 py-2 rounded-md"
-            style={{
-              color: "hsl(var(--text-secondary))",
-              border: "1px solid rgba(255,255,255,0.1)",
-              background: "transparent",
-            }}
+            className="font-body text-sm px-4 py-2 rounded-md text-[hsl(var(--text-secondary))] border border-white/10 bg-transparent hover:bg-white/5"
           >
             Open Demo Data
           </button>

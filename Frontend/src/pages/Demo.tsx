@@ -24,13 +24,9 @@ export default function Demo() {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => navigate("/analyze")}
-                  className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
-                  style={{
-                    color: "hsl(var(--text-secondary))",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "transparent",
-                  }}
+                  className="font-body text-xs px-3 py-1.5 rounded-md transition-colors text-[hsl(var(--text-secondary))] border border-white/10 bg-transparent hover:bg-white/5"
                 >
                   Switch to Upload Flow
                 </button>

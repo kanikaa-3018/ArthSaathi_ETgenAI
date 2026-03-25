@@ -22,14 +22,14 @@ export function AssetAllocation({ equityPct, debtPct, regularCount, directCount 
   ];
 
   return (
-    <div ref={ref} className="card-arth p-8" style={{
+    <div ref={ref} className="card-arth p-6" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
     }}>
       <h2 className="font-display text-[22px] font-semibold text-primary-light mb-6">Asset Allocation</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Equity vs Debt */}
         <div className="flex flex-col items-center">
           <div className="relative w-48 h-48">

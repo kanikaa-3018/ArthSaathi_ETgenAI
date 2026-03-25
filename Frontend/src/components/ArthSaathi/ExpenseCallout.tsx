@@ -13,13 +13,16 @@ export function ExpenseCallout({ projected10yr, potentialSavings10yr }: ExpenseC
   const saveVal = useCountUp(potentialSavings10yr, 2000, visible);
 
   return (
-    <div ref={ref} className="text-center p-12 rounded-2xl" style={{
-      background: 'linear-gradient(135deg, rgba(248,113,113,0.08), rgba(248,113,113,0.03))',
-      border: '1px solid rgba(248,113,113,0.2)',
-      opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-    }}>
+    <div
+      ref={ref}
+      className="card-arth p-6 text-center border border-red-500/20"
+      style={{
+        background: 'linear-gradient(135deg, rgba(248,113,113,0.08), rgba(248,113,113,0.03))',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+    >
       <p className="font-body text-lg font-medium" style={{ color: 'hsl(var(--text-secondary))' }}>
         Your portfolio is losing
       </p>
@@ -30,7 +33,7 @@ export function ExpenseCallout({ projected10yr, potentialSavings10yr }: ExpenseC
         to expense fees over the next 10 years
       </p>
 
-      <div className="mx-auto max-w-[200px] h-px my-6" style={{ background: 'rgba(255,255,255,0.06)' }} />
+      <div className="mx-auto max-w-[200px] h-px my-6 border-t border-white/[0.06]" />
 
       <p className="font-body text-base" style={{ color: 'hsl(var(--text-secondary))' }}>
         Switching to direct plans saves

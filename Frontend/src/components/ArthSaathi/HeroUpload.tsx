@@ -1,5 +1,6 @@
 import { useState, useRef, DragEvent } from 'react';
 import { Upload, X, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type UploadErrorCode = "INVALID_FILE_TYPE" | "FILE_TOO_LARGE" | "PASSWORD_REQUIRED";
 
@@ -69,15 +70,14 @@ export function HeroUpload({ onAnalyze, onSampleData, onValidationError }: HeroU
         </p>
 
         {/* Upload Card */}
-        <div className="card-arth mt-10 p-8 max-w-[500px] mx-auto text-left" style={{ borderRadius: '16px' }}>
+        <div className="card-arth mt-10 p-6 max-w-[500px] mx-auto text-left">
           {/* Dropzone */}
           {!file ? (
             <div
-              className="rounded-lg p-8 flex flex-col items-center cursor-pointer transition-all duration-200"
-              style={{
-                border: dragging ? '2px dashed hsl(var(--accent))' : '2px dashed rgba(255,255,255,0.1)',
-                background: dragging ? 'rgba(74,144,217,0.15)' : 'transparent',
-              }}
+              className={cn(
+                'rounded-lg p-8 flex flex-col items-center cursor-pointer transition-all duration-200 border-2 border-dashed',
+                dragging ? 'border-[hsl(var(--accent))] bg-[rgba(74,144,217,0.15)]' : 'border-white/10 bg-transparent',
+              )}
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
@@ -125,13 +125,7 @@ export function HeroUpload({ onAnalyze, onSampleData, onValidationError }: HeroU
             placeholder="Enter password (usually your PAN)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full mt-4 px-4 py-3 rounded-lg font-body text-sm text-primary-light placeholder:text-tertiary-light outline-none transition-all duration-200 focus:accent-glow"
-            style={{
-              background: 'hsl(var(--bg-tertiary))',
-              border: '1px solid rgba(255,255,255,0.06)',
-            }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'hsl(var(--accent))'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+            className="w-full mt-4 px-4 py-3 rounded-lg font-body text-sm text-primary-light placeholder:text-tertiary-light outline-none transition-all duration-200 focus-visible:accent-glow bg-[hsl(var(--bg-tertiary))] border border-white/[0.06] focus-visible:border-[hsl(var(--accent))] focus-visible:ring-1 focus-visible:ring-[hsl(var(--accent))]"
           />
           <p className="font-body text-xs mt-2" style={{ color: 'hsl(var(--text-tertiary))' }}>
             Your CAS password is typically your PAN number (e.g., ABCDE1234F)
@@ -175,15 +169,9 @@ export function HeroUpload({ onAnalyze, onSampleData, onValidationError }: HeroU
 
           {/* Sample Data */}
           <button
+            type="button"
             onClick={onSampleData}
-            className="w-full mt-5 py-2.5 rounded-lg font-body text-sm font-medium transition-all duration-200 active:scale-[0.98]"
-            style={{
-              color: 'hsl(var(--text-secondary))',
-              border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'hsl(var(--bg-tertiary))'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            className="w-full mt-5 py-2.5 rounded-lg font-body text-sm font-medium transition-all duration-200 active:scale-[0.98] text-[hsl(var(--text-secondary))] border border-white/10 bg-transparent hover:bg-[hsl(var(--bg-tertiary))]"
           >
             Try with sample data
           </button>

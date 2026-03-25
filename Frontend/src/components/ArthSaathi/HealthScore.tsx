@@ -23,14 +23,31 @@ function gradeColor(score: number, max: number) {
   return 'hsl(var(--negative))';
 }
 
+function gradeColorVar(grade: string): string {
+  switch (grade) {
+    case 'A':
+      return 'hsl(var(--positive))';
+    case 'B':
+      return 'hsl(var(--chart-2))';
+    case 'C':
+      return 'hsl(var(--warning))';
+    case 'D':
+    case 'F':
+      return 'hsl(var(--negative))';
+    default:
+      return 'hsl(var(--text-secondary))';
+  }
+}
+
 export function HealthScore({ data }: HealthScoreProps) {
   const { ref, visible } = useScrollReveal();
   const circumference = 2 * Math.PI * 56;
   const offset = circumference - (data.score / 100) * circumference;
 
+  const ringColor = gradeColorVar(data.grade);
+
   return (
-    <div ref={ref} className="card-arth p-10" style={{
-      borderRadius: '16px',
+    <div ref={ref} className="card-arth p-6 border border-white/[0.06]" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -43,7 +60,7 @@ export function HealthScore({ data }: HealthScoreProps) {
               <circle cx="70" cy="70" r="56" fill="none" stroke="hsl(var(--bg-tertiary))" strokeWidth="8" />
               <circle
                 cx="70" cy="70" r="56" fill="none"
-                stroke="hsl(var(--grade-c))"
+                stroke={ringColor}
                 strokeWidth="8"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -52,11 +69,11 @@ export function HealthScore({ data }: HealthScoreProps) {
                 style={{ transition: 'stroke-dashoffset 1.5s ease-out' }}
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center font-mono-dm text-6xl font-bold" style={{ color: 'hsl(var(--grade-c))' }}>
+            <span className="absolute inset-0 flex items-center justify-center font-mono-dm text-6xl font-bold" style={{ color: ringColor }}>
               {visible ? data.score : 0}
             </span>
           </div>
-          <p className="font-body text-lg font-semibold mt-4" style={{ color: 'hsl(var(--grade-c))' }}>
+          <p className="font-body text-lg font-semibold mt-4" style={{ color: ringColor }}>
             {data.grade} — {data.label}
           </p>
           <p className="font-body text-[13px]" style={{ color: 'hsl(var(--text-tertiary))' }}>out of 100</p>

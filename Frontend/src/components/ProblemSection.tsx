@@ -64,7 +64,7 @@ export default function ProblemSection() {
     <div ref={sectionRef} className="overflow-hidden relative">
       {/* Header above pinned zone */}
       <div className="max-w-[1080px] mx-auto px-6 md:px-10 pt-20 pb-6">
-        <p className="font-syne font-medium text-[11px] text-text-tertiary uppercase tracking-[3px] mb-3">THE PROBLEM</p>
+        <p className="font-syne font-medium text-xs text-text-tertiary uppercase tracking-[3px] mb-3">THE PROBLEM</p>
         <h2 className="font-fraunces text-text-primary text-[30px] leading-tight" style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}>
           Three findings. All damaging.
         </h2>
@@ -74,7 +74,7 @@ export default function ProblemSection() {
         {/* Panel 1 */}
         <div className="problem-panel w-screen h-screen flex items-center px-[5vw]">
           <div className="max-w-[420px]">
-            <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-4">Finding 01</p>
+            <p className="font-mono text-xs text-text-muted tracking-[2px] mb-4">Finding 01</p>
             <p className="p1-num font-mono font-bold text-[108px] text-negative leading-none" data-cursor="loss">0.00%</p>
             <p className="font-syne text-sm text-text-secondary mt-3">Average TER on regular plan mutual funds</p>
             <div className="w-12 h-px bg-border-subtle my-5" />
@@ -88,14 +88,14 @@ export default function ProblemSection() {
               <p className="font-mono text-[13px] text-text-muted">████████████████</p>
               <p className="font-mono text-[13px] text-text-muted">████████████████</p>
             </div>
-            <p className="font-syne text-[10px] text-text-muted mt-2">[Fee disclosure. Redacted by default.]</p>
+            <p className="font-syne text-xs text-text-muted mt-2">[Fee disclosure. Redacted by default.]</p>
           </div>
         </div>
 
         {/* Panel 2 */}
         <div className="problem-panel w-screen h-screen flex items-center justify-center">
           <div className="text-center">
-            <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-6">Finding 02</p>
+            <p className="font-mono text-xs text-text-muted tracking-[2px] mb-6">Finding 02</p>
             <svg viewBox="0 0 280 180" width="240" className="mx-auto">
               <defs>
                 <clipPath id="overlap">
@@ -119,7 +119,7 @@ export default function ProblemSection() {
         {/* Panel 3 */}
         <div className="problem-panel w-screen h-screen flex items-center justify-end px-[5vw]">
           <div className="text-right max-w-[400px]">
-            <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-4">Finding 03</p>
+            <p className="font-mono text-xs text-text-muted tracking-[2px] mb-4">Finding 03</p>
             <p className="font-mono font-bold text-[72px] text-negative leading-none" data-cursor="loss">₹6.45L</p>
             <p className="font-syne text-xs text-text-muted mt-1 tracking-wide">lost to fees over 10 years</p>
             <div className="mb-7" />
@@ -146,25 +146,25 @@ export default function ProblemSection() {
 function MobileProblem() {
   return (
     <div className="py-14 px-6">
-      <p className="font-syne font-medium text-[11px] text-text-tertiary uppercase tracking-[3px] mb-3">THE PROBLEM</p>
+      <p className="font-syne font-medium text-xs text-text-tertiary uppercase tracking-[3px] mb-3">THE PROBLEM</p>
       <h2 className="font-fraunces text-text-primary text-[26px] leading-tight mb-10" style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}>
         Three findings. All damaging.
       </h2>
 
       <div className="space-y-14">
         <div>
-          <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-3">Finding 01</p>
+          <p className="font-mono text-xs text-text-muted tracking-[2px] mb-3">Finding 01</p>
           <p className="font-mono font-bold text-[56px] text-negative leading-none" data-cursor="loss">1.82%</p>
           <p className="font-syne text-sm text-text-secondary mt-3">Average TER on regular plan mutual funds</p>
           <p className="font-syne font-medium text-base text-text-primary mt-4">That's ₹18,200 gone per year on every ₹10 lakh.</p>
         </div>
         <div>
-          <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-3">Finding 02</p>
+          <p className="font-mono text-xs text-text-muted tracking-[2px] mb-3">Finding 02</p>
           <p className="font-mono font-semibold text-[56px] text-warning leading-none" data-cursor="loss">45.2%</p>
           <p className="font-syne text-sm text-text-secondary mt-3">Portfolio overlap — you own the same 15 stocks twice.</p>
         </div>
         <div>
-          <p className="font-mono text-[11px] text-text-muted tracking-[2px] mb-3">Finding 03</p>
+          <p className="font-mono text-xs text-text-muted tracking-[2px] mb-3">Finding 03</p>
           <p className="font-mono font-bold text-[56px] text-negative leading-none" data-cursor="loss">₹22.6L</p>
           <p className="font-syne text-sm text-text-secondary mt-3">Wealth gap vs optimised portfolio over 10 years.</p>
         </div>

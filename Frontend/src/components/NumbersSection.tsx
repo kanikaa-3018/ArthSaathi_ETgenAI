@@ -59,14 +59,14 @@ export default function NumbersSection() {
   return (
     <section ref={sectionRef} className="py-14 md:py-20" style={{ background: 'hsl(220 20% 10%)', borderTop: '1px solid hsl(220 10% 14%)', borderBottom: '1px solid hsl(220 10% 14%)' }}>
       <div className="max-w-[1080px] mx-auto px-6 md:px-10">
-        <p className="font-syne font-medium text-[11px] text-text-muted uppercase tracking-[3px] text-center mb-10">BY THE NUMBERS</p>
+        <p className="font-syne font-medium text-xs text-text-muted uppercase tracking-[3px] text-center mb-10">BY THE NUMBERS</p>
 
         <div className="grid grid-cols-1 md:grid-cols-[1.7fr_1fr_1fr] md:grid-rows-2">
           {/* Cell 1 — large, spans 2 rows */}
           <div className="md:row-span-2 p-7 border-b md:border-b-0 md:border-r border-border-faint">
             <p className={`stat-num font-mono font-bold text-[36px] md:text-[48px] ${stats[0].color}`} data-cursor="loss">₹0</p>
             <p className="font-syne text-[13px] text-text-tertiary mt-2">{stats[0].label}</p>
-            <p className="font-syne text-[11px] text-text-muted mt-1">{stats[0].context}</p>
+            <p className="font-syne text-xs text-text-muted mt-1">{stats[0].context}</p>
           </div>
 
           {/* Cell 2 */}

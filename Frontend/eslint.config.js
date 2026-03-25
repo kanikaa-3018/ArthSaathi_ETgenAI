@@ -23,4 +23,11 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  // shadcn/ui + context: export variants/hooks beside components — not a fast-refresh issue in practice
+  {
+    files: ["src/components/ui/**/*.{ts,tsx}", "src/context/analysis-context.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );

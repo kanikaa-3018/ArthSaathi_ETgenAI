@@ -28,12 +28,62 @@ export function FundTable({ funds }: FundTableProps) {
         <h2 className="font-display text-[22px] font-semibold text-primary-light">Fund Performance</h2>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="md:hidden px-4 pb-6 space-y-3">
+        {funds.map((fund) => {
+          const title = fund.scheme_name.replace(/ - (Regular|Direct) Plan - Growth/, "");
+          const alpha = fund.benchmark?.alpha_display ?? "—";
+          return (
+            <div
+              key={fund.amfi_code}
+              className="rounded-lg border border-white/[0.06] p-6"
+              style={{ background: "hsl(var(--bg-tertiary))" }}
+            >
+              <p className="font-body text-sm font-medium text-primary-light">{title}</p>
+              <p className="font-body text-xs mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
+                {fund.is_direct ? "Direct" : "Regular"} · {fund.category}
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                <div>
+                  <p style={{ color: "hsl(var(--text-tertiary))" }}>Value</p>
+                  <p className="font-mono-dm text-sm text-primary-light">{compactINR(fund.current_value)}</p>
+                </div>
+                <div>
+                  <p style={{ color: "hsl(var(--text-tertiary))" }}>XIRR</p>
+                  <p
+                    className="font-mono-dm text-sm font-medium"
+                    style={{ color: fund.xirr.rate >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))" }}
+                  >
+                    {fund.xirr.display}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ color: "hsl(var(--text-tertiary))" }}>TER</p>
+                  <p className="font-mono-dm text-sm" style={{ color: terColor(fund.expense.estimated_ter) }}>
+                    {fund.expense.estimated_ter}%
+                  </p>
+                </div>
+                <div>
+                  <p style={{ color: "hsl(var(--text-tertiary))" }}>Alpha</p>
+                  <p className="font-mono-dm text-sm">{alpha}</p>
+                </div>
+                <div className="col-span-2">
+                  <p style={{ color: "hsl(var(--text-tertiary))" }}>Fee drag</p>
+                  <p className="font-mono-dm text-sm text-negative">
+                    {formatINR(fund.expense.annual_drag_rupees)}/yr
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <tr className="border-b border-white/[0.06]">
               {['FUND', 'VALUE', 'XIRR', 'ALPHA', 'TER', 'FEE DRAG', 'PLAN'].map(h => (
-                <th key={h} className="section-label text-[11px] px-6 py-3 text-left first:text-left">
+                <th key={h} className="section-label px-6 py-3 text-left first:text-left">
                   {h}
                 </th>
               ))}
@@ -45,13 +95,9 @@ export function FundTable({ funds }: FundTableProps) {
               return (
                 <Fragment key={fund.amfi_code}>
                   <tr
-                    className="cursor-pointer transition-colors duration-150"
-                    style={{
-                      borderBottom: '1px solid rgba(255,255,255,0.06)',
-                      background: i % 2 === 1 ? 'rgba(255,255,255,0.015)' : 'transparent',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'hsl(var(--bg-tertiary))'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = i % 2 === 1 ? 'rgba(255,255,255,0.015)' : 'transparent'; }}
+                    className={`cursor-pointer transition-colors duration-150 border-b border-white/[0.06] hover:bg-[hsl(var(--bg-tertiary))] ${
+                      i % 2 === 1 ? "bg-white/[0.015]" : ""
+                    }`}
                     onClick={() => setExpanded(isExpanded ? null : fund.amfi_code)}
                   >
                     <td className="px-6 py-4">
@@ -82,7 +128,7 @@ export function FundTable({ funds }: FundTableProps) {
                           }}>
                             {fund.benchmark.alpha_display}
                           </span>
-                          <p className="font-body text-[10px]" style={{ color: 'hsl(var(--text-tertiary))' }}>
+                          <p className="font-body text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>
                             vs {fund.benchmark.name}
                           </p>
                         </div>
@@ -101,7 +147,7 @@ export function FundTable({ funds }: FundTableProps) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`text-[11px] font-medium font-body px-2 py-0.5 rounded ${fund.is_direct ? 'pill-direct' : 'pill-regular'}`}>
+                      <span className={`text-xs font-medium font-body px-2 py-0.5 rounded ${fund.is_direct ? 'pill-direct' : 'pill-regular'}`}>
                         {fund.is_direct ? 'Direct' : 'Regular'}
                       </span>
                     </td>
@@ -111,7 +157,7 @@ export function FundTable({ funds }: FundTableProps) {
                       <td colSpan={7} className="px-6 py-4" style={{ background: 'hsl(var(--bg-tertiary))' }}>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div>
-                            <p className="section-label text-[10px] mb-2">TOP 5 HOLDINGS</p>
+                            <p className="section-label mb-2">TOP 5 HOLDINGS</p>
                             {fund.overlap.top_holdings.map((h, i) => (
                               <div key={i} className="flex justify-between py-1">
                                 <span className="font-body text-xs text-primary-light">{h.name}</span>
@@ -123,7 +169,7 @@ export function FundTable({ funds }: FundTableProps) {
                             )}
                           </div>
                           <div>
-                            <p className="section-label text-[10px] mb-2">EXPENSE BREAKDOWN</p>
+                            <p className="section-label mb-2">EXPENSE BREAKDOWN</p>
                             <div className="space-y-1">
                               <div className="flex justify-between"><span className="font-body text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>Current TER</span><span className="font-mono-dm text-xs text-negative">{fund.expense.estimated_ter}%</span></div>
                               <div className="flex justify-between"><span className="font-body text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>Direct TER</span><span className="font-mono-dm text-xs text-positive">{fund.expense.direct_plan_ter}%</span></div>
@@ -131,7 +177,7 @@ export function FundTable({ funds }: FundTableProps) {
                             </div>
                           </div>
                           <div>
-                            <p className="section-label text-[10px] mb-2">HOLDING PERIOD</p>
+                            <p className="section-label mb-2">HOLDING PERIOD</p>
                             <p className="font-mono-dm text-sm text-primary-light">{Math.round(fund.xirr.holding_period_days / 365.25 * 10) / 10} years</p>
                             <p className="font-body text-xs mt-1" style={{ color: 'hsl(var(--text-secondary))' }}>{fund.xirr.holding_period_days} days</p>
                           </div>

@@ -44,7 +44,7 @@ export function WealthGapChart({ currentPath, optimizedPath, assumptions }: Weal
     const row = payload[0]?.payload;
     if (!row) return null;
     return (
-      <div className="card-arth p-3 text-xs" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+      <div className="card-arth p-3 text-xs border border-white/[0.06]">
         <p className="font-body" style={{ color: 'hsl(var(--text-secondary))' }}>Year {row.year}</p>
         <p className="font-mono-dm text-positive">Optimized: {compactINR(row.optimized)}</p>
         <p className="font-mono-dm" style={{ color: 'hsl(var(--chart-6))' }}>Current: {compactINR(row.current)}</p>
@@ -53,8 +53,7 @@ export function WealthGapChart({ currentPath, optimizedPath, assumptions }: Weal
   };
 
   return (
-    <div ref={ref} className="card-arth p-8" style={{
-      borderRadius: '16px',
+    <div ref={ref} className="card-arth p-6 border border-white/[0.06]" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',

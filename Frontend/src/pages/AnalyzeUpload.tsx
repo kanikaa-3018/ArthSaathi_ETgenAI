@@ -15,12 +15,7 @@ export default function AnalyzeUpload() {
       {reportHint ? (
         <div className="max-w-[1120px] mx-auto px-4 pt-3">
           <div
-            className="rounded-md px-4 py-3 font-body text-sm"
-            style={{
-              color: "hsl(var(--text-secondary))",
-              background: "rgba(74, 144, 217, 0.1)",
-              border: "1px solid rgba(74, 144, 217, 0.25)",
-            }}
+            className="rounded-md px-4 py-3 font-body text-sm text-[hsl(var(--text-secondary))] bg-[rgba(74,144,217,0.1)] border border-[rgba(74,144,217,0.25)]"
             role="status"
           >
             {reportHint}
@@ -29,13 +24,9 @@ export default function AnalyzeUpload() {
       ) : null}
       <div className="max-w-[1120px] mx-auto px-4 pt-4">
         <button
+          type="button"
           onClick={() => navigate("/")}
-          className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
-          style={{
-            color: "hsl(var(--text-secondary))",
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "transparent",
-          }}
+          className="font-body text-xs px-3 py-1.5 rounded-md transition-colors text-[hsl(var(--text-secondary))] border border-white/10 bg-transparent hover:bg-white/5"
         >
           ← Back to Landing
         </button>

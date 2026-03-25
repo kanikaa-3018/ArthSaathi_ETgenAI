@@ -30,7 +30,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
   };
 
   return (
-    <div ref={ref} className="card-arth p-8" style={{
+    <div ref={ref} className="card-arth p-6 border border-white/[0.06]" style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'translateY(0)' : 'translateY(20px)',
       transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -39,13 +39,13 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
 
       {/* Heatmap */}
       <div className="overflow-x-auto mt-6">
-        <div className="inline-grid gap-0.5" style={{
-          gridTemplateColumns: `120px repeat(${names.length}, 80px)`,
+        <div className="inline-grid gap-0.5 min-w-0" style={{
+          gridTemplateColumns: `minmax(100px,1fr) repeat(${names.length}, minmax(60px, 1fr))`,
         }}>
           {/* Header row */}
           <div />
           {names.map(n => (
-            <div key={n} className="font-body text-[10px] text-center px-1 py-2 truncate" style={{ color: 'hsl(var(--text-tertiary))' }}>
+            <div key={n} className="font-body text-xs text-center px-1 py-2 truncate" style={{ color: 'hsl(var(--text-tertiary))' }}>
               {n.split(' ').slice(0, 2).join(' ')}
             </div>
           ))}
@@ -53,7 +53,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
           {/* Rows */}
           {names.map((rowName, ri) => (
             <Fragment key={rowName}>
-              <div className="font-body text-[11px] font-medium text-primary-light flex items-center pr-2 truncate">
+              <div className="font-body text-xs font-medium text-primary-light flex items-center pr-2 truncate">
                 {rowName.split(' ').slice(0, 2).join(' ')}
               </div>
               {names.map((colName, ci) => {
@@ -73,6 +73,12 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
             </Fragment>
           ))}
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-4 mt-3 text-xs" style={{ color: 'hsl(var(--text-secondary))' }}>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded shrink-0" style={{background: 'rgba(248,113,113,0.6)'}} /> 30%+ High</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded shrink-0" style={{background: 'rgba(251,191,36,0.5)'}} /> 15-30% Moderate</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded shrink-0" style={{background: 'rgba(255,255,255,0.08)'}} /> &lt;15% Low</span>
       </div>
 
       {/* Concentrated Stocks */}
@@ -95,7 +101,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
                 </div>
               </div>
               {stock.warning && (
-                <span className="text-[10px] font-body font-medium px-2 py-0.5 rounded" style={{
+                <span className="text-xs font-body font-medium px-2 py-0.5 rounded" style={{
                   background: 'rgba(248,113,113,0.1)',
                   color: 'hsl(var(--negative))',
                 }}>

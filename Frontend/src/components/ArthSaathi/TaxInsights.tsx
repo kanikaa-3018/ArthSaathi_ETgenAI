@@ -38,7 +38,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
   }, [data]);
 
   return (
-    <div className="card-arth p-6 border border-white/10">
+    <div className="card-arth p-6 border border-white/[0.06]">
       <div className="flex items-center gap-2 mb-3">
         <Receipt className="h-5 w-5 text-[hsl(var(--accent))]" />
         <div>
@@ -62,7 +62,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
             {tax.summary}
           </p>
           <div
-            className="grid sm:grid-cols-3 gap-3 font-body text-xs rounded-lg p-3 border border-white/10"
+            className="grid sm:grid-cols-3 gap-3 font-body text-xs rounded-lg p-3 border border-white/[0.06]"
             style={{ background: "rgba(0,0,0,0.2)" }}
           >
             <div>
@@ -79,7 +79,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
             </div>
           </div>
           <div
-            className="rounded-lg p-3 border border-white/10 font-body text-[11px] space-y-2"
+            className="rounded-lg p-3 border border-white/[0.06] font-body text-xs space-y-2"
             style={{ color: "hsl(var(--text-tertiary))" }}
           >
             <p className="font-medium text-primary-light text-xs">Methodology</p>
@@ -97,7 +97,7 @@ export function TaxInsights({ data }: TaxInsightsProps) {
               </div>
             ))}
           </div>
-          <p className="font-body text-[11px] leading-relaxed" style={{ color: "hsl(var(--text-tertiary))" }}>
+          <p className="font-body text-xs leading-relaxed" style={{ color: "hsl(var(--text-tertiary))" }}>
             {tax.disclaimer}
           </p>
         </div>
