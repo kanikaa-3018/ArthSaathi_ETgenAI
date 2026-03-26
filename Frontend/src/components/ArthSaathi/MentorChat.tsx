@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { Send, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
+import { authHeaders } from "@/lib/auth";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ const QUICK_PROMPTS = [
 ];
 
 interface MentorChatProps {
-  analysis: AnalysisData;
+  analysis?: AnalysisData | null;
 }
 
 export function MentorChat({ analysis }: MentorChatProps) {
@@ -32,18 +33,22 @@ export function MentorChat({ analysis }: MentorChatProps) {
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const accRef = useRef("");
-  const portfolioContext = analysis as unknown as Record<string, unknown>;
+  const portfolioContext = (analysis ?? {}) as unknown as Record<string, unknown>;
 
-  const analysisKey = `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`;
+  const analysisKey = analysis
+    ? `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`
+    : 'no-analysis';
 
   useEffect(() => {
-    const greeting = `I've analyzed your portfolio (${analysis.portfolio_summary.total_funds} funds, ₹${(
-      analysis.portfolio_summary.total_current_value / 1e5
-    ).toFixed(2)} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`;
+    const greeting = analysis
+      ? `I've analyzed your portfolio (${analysis.portfolio_summary.total_funds} funds, ₹${(
+          analysis.portfolio_summary.total_current_value / 1e5
+        ).toFixed(2)} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`
+      : "Upload a CAS statement to get portfolio-aware answers. For now, ask me general questions about mutual funds, XIRR, or tax optimisation.";
     setMessages([{ role: "assistant", content: greeting }]);
     setStreaming("");
     setError(null);
-  }, [analysisKey, analysis.portfolio_summary.total_funds, analysis.portfolio_summary.total_current_value]);
+  }, [analysisKey, analysis]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,7 +71,11 @@ export function MentorChat({ analysis }: MentorChatProps) {
       try {
         await fetchEventSource(api.chat, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "text/event-stream",
+            ...authHeaders(),
+          },
           body: JSON.stringify({
             message: trimmed,
             portfolio_context: portfolioContext,

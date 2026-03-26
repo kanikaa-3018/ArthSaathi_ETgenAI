@@ -14,6 +14,8 @@ import AnalyzeError from "./pages/AnalyzeError";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import { AnalysisProvider } from "@/context/analysis-context";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,8 @@ const App = () => {
               <Route path="/analyze/error" element={<AnalyzeError />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/app" element={<AnalyzeUpload />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

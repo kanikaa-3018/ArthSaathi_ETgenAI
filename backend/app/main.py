@@ -17,13 +17,19 @@ import os
 import time
 from typing import AsyncGenerator, Literal
 
-from fastapi import Body, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Body, Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
 from app.config import settings
+from app.auth import (
+    authenticate_user,
+    create_access_token,
+    get_user_from_token,
+    register_user,
+)
 from app.chat_service import stream_chat_events
 from app.goals import compute_goal
 from app.orchestrator import run_pipeline
@@ -42,7 +48,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(","),
+    allow_origins=[
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,6 +78,60 @@ def root():
 
 
 # ---------------------------------------------------------------------------
+# Auth (new feature)
+# ---------------------------------------------------------------------------
+
+
+def get_current_user(authorization: str = Header(default=None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    token = authorization.split(" ", 1)[1]
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    return user
+
+
+class AuthRegisterBody(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class AuthLoginBody(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/api/auth/register")
+def auth_register(body: AuthRegisterBody):
+    try:
+        user = register_user(body.username, body.email, body.password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    token = create_access_token(user["username"])
+    return {"detail": "User created", "access_token": token, "token_type": "bearer"}
+
+
+@app.post("/api/auth/login")
+def auth_login(body: AuthLoginBody):
+    user = authenticate_user(body.username, body.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = create_access_token(user["username"])
+    return {"detail": "Login successful", "access_token": token, "token_type": "bearer"}
+
+
+@app.get("/api/auth/me")
+def auth_me(current_user=Depends(get_current_user)):
+    return {"username": current_user.get("username"), "email": current_user.get("email")}
+
+
+# ---------------------------------------------------------------------------
 # Mentor chat, goals, tax (EXECUTION_PLAN Part 9)
 # ---------------------------------------------------------------------------
 
@@ -89,7 +152,7 @@ class GoalsCalculateBody(BaseModel):
 
 
 @app.post("/api/goals/calculate")
-def goals_calculate(body: GoalsCalculateBody):
+def goals_calculate(body: GoalsCalculateBody, current_user=Depends(get_current_user)):
     """Goal planner — pure math."""
     result = compute_goal(
         goal_type=body.goal_type,
@@ -106,14 +169,14 @@ def goals_calculate(body: GoalsCalculateBody):
 
 
 @app.post("/api/tax/insights")
-def tax_insights_endpoint(payload: dict = Body(...)):
+def tax_insights_endpoint(payload: dict = Body(...), current_user=Depends(get_current_user)):
     """Rough tax harvesting / LTCG context from analysis JSON."""
     analysis = payload.get("analysis") if "analysis" in payload else payload
     return JSONResponse(content=compute_tax_insights(analysis))
 
 
 @app.post("/api/chat")
-async def chat_endpoint(request: Request):
+async def chat_endpoint(request: Request, current_user=Depends(get_current_user)):
     """
     AI Mentor chat. POST JSON body; response is text/event-stream (SSE).
     Events: token (partial text), done (full message).
@@ -147,7 +210,7 @@ def health():
 
 
 @app.get("/api/analyze/test")
-async def analyze_test(request: Request):
+async def analyze_test(request: Request, current_user=Depends(get_current_user)):
     """
     DEV ONLY — Runs the full agent pipeline using the pre-parsed JSON fixture
     at tests/sample_cas_parsed.json. No PDF upload needed.
@@ -338,6 +401,7 @@ async def analyze(
     request: Request,
     file: UploadFile = File(...),
     password: str = Form(...),
+    current_user=Depends(get_current_user),
 ):
     """
     Upload a CAS PDF and receive a stream of SSE agent events followed

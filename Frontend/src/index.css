@@ -14,8 +14,8 @@
 
     --text-primary: 220 10% 95%;
     --text-secondary: 220 5% 57%;
-    --text-tertiary: 220 6% 37%;
-    --text-muted: 220 6% 26%;
+    --text-tertiary: 220 8% 52%;
+    --text-muted: 220 6% 45%;
 
     --accent: 213 60% 56%;
     --accent-hover: 213 65% 66%;
@@ -222,9 +222,10 @@
   }
 
   .section-label {
-    @apply font-syne text-xs font-medium uppercase;
+    @apply font-syne font-medium uppercase;
+    font-size: 0.8125rem;
     color: hsl(var(--text-muted));
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
   }
 }
 

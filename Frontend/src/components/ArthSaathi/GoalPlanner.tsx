@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Target } from "lucide-react";
 import { api } from "@/lib/api";
+import { authHeaders } from "@/lib/auth";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,10 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       }
       const res = await fetch(api.goalsCalculate, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());

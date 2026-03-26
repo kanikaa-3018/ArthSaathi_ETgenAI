@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { isAuthenticated, clearToken } from '@/lib/auth';
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
   const [counter, setCounter] = useState(28538);
+  const [loggedIn, setLoggedIn] = useState(isAuthenticated());
   const counterRef = useRef<HTMLSpanElement>(null);
   const wordmarkRef = useRef<HTMLSpanElement>(null);
   const centerRef = useRef<HTMLSpanElement>(null);
@@ -14,12 +18,20 @@ export default function Navbar() {
     const nav = navRef.current;
     if (!nav) return;
 
-    // Entrance animation
+    // Entrance animation - filter out null refs
+    const refArray = [wordmarkRef.current, centerRef.current, btnRef.current].filter(Boolean);
     const tl = gsap.timeline({ delay: 0.1 });
-    gsap.set([wordmarkRef.current, centerRef.current, btnRef.current], { opacity: 0, y: -8 });
-    tl.to(wordmarkRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.3);
-    tl.to(centerRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.45);
-    tl.to(btnRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.55);
+    gsap.set(refArray, { opacity: 0, y: -8 });
+    
+    if (wordmarkRef.current) {
+      tl.to(wordmarkRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.3);
+    }
+    if (centerRef.current) {
+      tl.to(centerRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.45);
+    }
+    if (btnRef.current) {
+      tl.to(btnRef.current, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.55);
+    }
 
     const trigger = ScrollTrigger.create({
       start: 'top -80px',
@@ -91,13 +103,40 @@ export default function Navbar() {
         <span className="font-syne text-text-muted">/sec drained from India's investors</span>
       </span>
 
-      <button
-        ref={btnRef}
-        className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97]"
-        onClick={() => window.location.assign('/analyze')}
-      >
-        Analyze Portfolio
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          ref={btnRef}
+          className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97]"
+          onClick={() => {
+            if (loggedIn) {
+              navigate('/analyze');
+            } else {
+              navigate('/login');
+            }
+          }}
+        >
+          {loggedIn ? 'Analyze Portfolio' : 'Login to Analyze'}
+        </button>
+        {loggedIn ? (
+          <button
+            className="font-syne font-semibold text-[13px] border border-white/20 text-white h-[34px] px-4 rounded-[7px] hover:bg-white/10"
+            onClick={() => {
+              clearToken();
+              setLoggedIn(false);
+              navigate('/login');
+            }}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="font-syne font-semibold text-[13px] border border-white/20 text-white h-[34px] px-4 rounded-[7px] hover:bg-white/10"
+            onClick={() => navigate('/login')}
+          >
+            Login
+          </button>
+        )}
+      </div>
     </nav>
   );
 }

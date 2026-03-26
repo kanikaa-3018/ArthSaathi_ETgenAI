@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeroUpload } from "@/components/ArthSaathi/HeroUpload";
 import { useAnalysis } from "@/context/analysis-context";
+import { isAuthenticated } from "@/lib/auth";
 
 type UploadLocationState = { reportHint?: string };
 
@@ -9,6 +11,12 @@ export default function AnalyzeUpload() {
   const location = useLocation();
   const { setUpload, setSampleMode } = useAnalysis();
   const reportHint = (location.state as UploadLocationState | null)?.reportHint;
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-primary-dark">

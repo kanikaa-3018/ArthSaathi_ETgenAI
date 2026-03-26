@@ -8,4 +8,7 @@ export const api = {
   chat: `${API_BASE}/api/chat`,
   goalsCalculate: `${API_BASE}/api/goals/calculate`,
   taxInsights: `${API_BASE}/api/tax/insights`,
+  authRegister: `${API_BASE}/api/auth/register`,
+  authLogin: `${API_BASE}/api/auth/login`,
+  authMe: `${API_BASE}/api/auth/me`,
 };

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { authHeaders, isAuthenticated } from "@/lib/auth";
 import { CheckCircle2 } from "lucide-react";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
 import { useAnalysis } from "@/context/analysis-context";
@@ -15,6 +16,12 @@ const REVIEW_SECONDS_BEFORE_DIALOG = 5;
 export default function AnalyzeProcessing() {
   const navigate = useNavigate();
   const { state, startAnalysis, pushEvent, setResult, setError } = useAnalysis();
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
   const [showCompletion, setShowCompletion] = useState(false);
   const [completionMeta, setCompletionMeta] = useState<{ processingMs: number } | null>(null);
   /** Countdown while you review the agent list (before overlay dialog) */
@@ -70,6 +77,9 @@ export default function AnalyzeProcessing() {
       try {
         await fetchEventSource(state.mode === "sample" ? api.analyzeTest : api.analyze, {
           method: state.mode === "sample" ? "GET" : "POST",
+          headers: {
+            ...authHeaders(),
+          },
           body:
             state.mode === "sample"
               ? undefined

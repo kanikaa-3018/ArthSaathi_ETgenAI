@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # App metadata
     APP_VERSION: str = "1.0.0"
 
+    # Auth
+    AUTH_TOKEN_TTL_SECONDS: int = 7 * 24 * 60 * 60  # 1 week
+
     class Config:
         env_file = ".env"
         extra = "ignore"
