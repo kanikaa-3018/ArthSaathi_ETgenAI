@@ -33,22 +33,36 @@ export default function AnalyzeError() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get("code") ?? "INTERNAL_ERROR";
 
-  const view = useMemo(() => ERROR_MAP[code] ?? ERROR_MAP.INTERNAL_ERROR, [code]);
+  const view = useMemo(
+    () => ERROR_MAP[code] ?? ERROR_MAP.INTERNAL_ERROR,
+    [code],
+  );
 
   return (
     <div className="min-h-screen bg-primary-dark flex items-center justify-center px-4">
       <div className="card-arth w-full max-w-[720px] p-8">
         <p className="section-label">Analysis Error</p>
-        <h1 className="font-display text-3xl mt-3 text-primary-light">{view.title}</h1>
-        <p className="font-body text-sm mt-3" style={{ color: "hsl(var(--text-secondary))" }}>
+        <h1 className="font-display text-3xl mt-3 text-primary-light">
+          {view.title}
+        </h1>
+        <p
+          className="font-body text-sm mt-3"
+          style={{ color: "hsl(var(--text-secondary))" }}
+        >
           {view.description}
         </p>
 
         <div
           className="mt-6 p-4 rounded-md"
-          style={{ background: "hsl(var(--bg-tertiary))", border: "1px solid rgba(255,255,255,0.1)" }}
+          style={{
+            background: "hsl(var(--bg-tertiary))",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
         >
-          <p className="font-mono text-xs" style={{ color: "hsl(var(--warning))" }}>
+          <p
+            className="font-mono text-xs"
+            style={{ color: "hsl(var(--warning))" }}
+          >
             error_code: {code}
           </p>
         </div>

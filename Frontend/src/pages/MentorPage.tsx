@@ -1,10 +1,10 @@
-import { useAnalysis } from '@/context/analysis-context';
-import { MentorChat } from '@/components/ArthSaathi/MentorChat';
+import { useAnalysis } from "@/context/analysis-context";
+import { MentorChat } from "@/components/ArthSaathi/MentorChat";
 
 function compactINR(value: number): string {
   if (value >= 1e7) return `${(value / 1e7).toFixed(1)}Cr`;
   if (value >= 1e5) return `${(value / 1e5).toFixed(1)}L`;
-  return value.toLocaleString('en-IN');
+  return value.toLocaleString("en-IN");
 }
 
 export default function MentorPage() {
@@ -27,8 +27,8 @@ export default function MentorPage() {
         {data && (
           <p className="font-mono text-[12px] text-text-muted mt-2">
             {data.portfolio_summary.total_funds} funds
-            {' · '}₹{compactINR(data.portfolio_summary.total_current_value)}
-            {' · '}Health {data.health_score.score}/100
+            {" · "}₹{compactINR(data.portfolio_summary.total_current_value)}
+            {" · "}Health {data.health_score.score}/100
           </p>
         )}
       </div>

@@ -1,17 +1,17 @@
-import { useAnalysis } from '@/context/analysis-context';
-import { TaxInsights } from '@/components/ArthSaathi/TaxInsights';
-import { Link } from 'react-router-dom';
-import type { AnalysisData } from '@/types/analysis';
+import { useAnalysis } from "@/context/analysis-context";
+import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
+import { Link } from "react-router-dom";
+import type { AnalysisData } from "@/types/analysis";
 
 /** Stub AnalysisData for use when no real analysis is available */
 const stubData: AnalysisData = {
-  status: 'success',
+  status: "success",
   processing_time_ms: 0,
-  investor: { name: '', email: '', pan_masked: '' },
+  investor: { name: "", email: "", pan_masked: "" },
 
-  statement_period: { 
-    from: '',
-    to: '',
+  statement_period: {
+    from: "",
+    to: "",
   },
 
   portfolio_summary: {
@@ -25,11 +25,12 @@ const stubData: AnalysisData = {
     direct_plan_count: 0,
   },
 
-  portfolio_xirr: { rate: 0.1, display: '10.00%', status: 'estimated' },
+  portfolio_xirr: { rate: 0.1, display: "10.00%", status: "estimated" },
 
   funds: [],
 
-  overlap_analysis: {   // ✅ FIXED
+  overlap_analysis: {
+    // ✅ FIXED
     max_pairwise_overlap: null,
     overlap_level: null,
     matrix: [],
@@ -49,8 +50,8 @@ const stubData: AnalysisData = {
 
   health_score: {
     score: 0,
-    grade: 'C',
-    label: 'No data',
+    grade: "C",
+    label: "No data",
     breakdown: {},
   },
 
@@ -69,8 +70,8 @@ const stubData: AnalysisData = {
 
   rebalancing_plan: {
     ai_generated: false,
-    ai_provider: 'rule_engine',
-    content: '',
+    ai_provider: "rule_engine",
+    content: "",
   },
 };
 
@@ -82,7 +83,10 @@ export default function TaxWizard() {
   return (
     <div className="max-w-[720px] mx-auto px-4 py-8">
       {/* Header */}
-      <div className="w-10 h-[2px] mb-4" style={{ background: 'hsl(var(--accent))' }} />
+      <div
+        className="w-10 h-[2px] mb-4"
+        style={{ background: "hsl(var(--accent))" }}
+      />
       <h1
         className="font-fraunces text-[26px] text-text-primary"
         style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
@@ -95,10 +99,10 @@ export default function TaxWizard() {
 
       {usingStub && (
         <p className="font-syne text-[13px] text-text-muted mb-6">
-          Upload a{' '}
+          Upload a{" "}
           <Link to="/analyze" className="text-accent hover:underline">
             CAS statement
-          </Link>{' '}
+          </Link>{" "}
           for personalized tax estimates based on your actual portfolio.
         </p>
       )}

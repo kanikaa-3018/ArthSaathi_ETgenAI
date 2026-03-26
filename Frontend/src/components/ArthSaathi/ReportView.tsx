@@ -20,11 +20,18 @@ export function ReportView({ topBar, footerNote }: ReportViewProps) {
 
   return (
     <div className="min-h-screen bg-primary-dark animate-reveal">
-      {topBar ? <div className="max-w-[1120px] mx-auto px-4 pt-4">{topBar}</div> : null}
+      {topBar ? (
+        <div className="max-w-[1120px] mx-auto px-4 pt-4">{topBar}</div>
+      ) : null}
 
       <div className="pt-6 pb-2 text-center">
-        <h1 className="font-display text-2xl font-bold text-primary-light">ArthSaathi</h1>
-        <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+        <h1 className="font-display text-2xl font-bold text-primary-light">
+          ArthSaathi
+        </h1>
+        <p
+          className="font-body text-xs"
+          style={{ color: "hsl(var(--text-tertiary))" }}
+        >
           (अर्थसाथी)
         </p>
       </div>
@@ -49,7 +56,9 @@ export function ReportView({ topBar, footerNote }: ReportViewProps) {
 
           <ExpenseCallout
             projected10yr={data.expense_summary.total_projected_10yr_drag}
-            potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
+            potentialSavings10yr={
+              data.expense_summary.total_potential_10yr_savings
+            }
           />
 
           <WealthGapChart
@@ -73,8 +82,12 @@ export function ReportView({ topBar, footerNote }: ReportViewProps) {
           />
 
           <footer className="text-center py-16">
-            <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-              {footerNote ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+            <p
+              className="font-body text-[13px]"
+              style={{ color: "hsl(var(--text-tertiary))" }}
+            >
+              {footerNote ??
+                "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
             </p>
           </footer>
         </div>

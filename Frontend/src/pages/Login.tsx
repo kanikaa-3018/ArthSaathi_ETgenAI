@@ -10,7 +10,11 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    form?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,12 +22,19 @@ export default function Login() {
   }, [navigate]);
 
   useEffect(() => {
-    gsap.from(".auth-form-card", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out", delay: 0.1 });
+    gsap.from(".auth-form-card", {
+      opacity: 0,
+      y: 16,
+      duration: 0.5,
+      ease: "power2.out",
+      delay: 0.1,
+    });
   }, []);
 
   const validate = () => {
     const errs: typeof errors = {};
-    if (!email || !email.includes("@")) errs.email = "Enter a valid email address";
+    if (!email || !email.includes("@"))
+      errs.email = "Enter a valid email address";
     if (!password) errs.password = "Password is required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -52,10 +63,14 @@ export default function Login() {
     background: "hsl(220 20% 12%)",
     borderColor: "hsl(220 10% 20%)",
   };
-  const inputFocusClass = "focus:border-accent focus:ring-1 focus:ring-accent/20";
+  const inputFocusClass =
+    "focus:border-accent focus:ring-1 focus:ring-accent/20";
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "hsl(var(--bg-primary))" }}>
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: "hsl(var(--bg-primary))" }}
+    >
       <div className="auth-form-card w-full max-w-[360px]">
         {/* Wordmark */}
         <div className="text-center mb-8">
@@ -65,12 +80,19 @@ export default function Login() {
           >
             ArthSaathi
           </h1>
-          <p className="font-syne text-[13px] text-text-muted mt-1">(अर्थसाथी)</p>
-          <div className="w-10 h-[2px] mx-auto mt-6 mb-8" style={{ background: "hsl(var(--accent))" }} />
+          <p className="font-syne text-[13px] text-text-muted mt-1">
+            (अर्थसाथी)
+          </p>
+          <div
+            className="w-10 h-[2px] mx-auto mt-6 mb-8"
+            style={{ background: "hsl(var(--accent))" }}
+          />
         </div>
 
         {/* Form */}
-        <p className="font-syne text-[15px] text-text-secondary font-medium mb-6">Sign in</p>
+        <p className="font-syne text-[15px] text-text-secondary font-medium mb-6">
+          Sign in
+        </p>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           {/* Email */}
@@ -85,7 +107,9 @@ export default function Login() {
               autoComplete="email"
             />
             {errors.email && (
-              <p className="font-syne text-xs text-negative mt-1">{errors.email}</p>
+              <p className="font-syne text-xs text-negative mt-1">
+                {errors.email}
+              </p>
             )}
           </div>
 
@@ -101,7 +125,9 @@ export default function Login() {
               autoComplete="current-password"
             />
             {errors.password && (
-              <p className="font-syne text-xs text-negative mt-1">{errors.password}</p>
+              <p className="font-syne text-xs text-negative mt-1">
+                {errors.password}
+              </p>
             )}
           </div>
 

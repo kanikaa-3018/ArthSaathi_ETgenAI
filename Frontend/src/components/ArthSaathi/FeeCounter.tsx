@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 interface FeeCounterProps {
   annualDrag: number;
@@ -19,7 +19,10 @@ export function FeeCounter({ annualDrag }: FeeCounterProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="font-body text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>
+      <span
+        className="font-body text-xs"
+        style={{ color: "hsl(var(--text-tertiary))" }}
+      >
         Since you opened this report:
       </span>
       <span className="font-mono-dm text-base font-medium text-negative">

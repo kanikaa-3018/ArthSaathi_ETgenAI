@@ -1,47 +1,47 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { mockData } from '@/data/mockData';
-import { HeroUpload } from '@/components/ArthSaathi/HeroUpload';
-import { AgentPanel } from '@/components/ArthSaathi/AgentPanel';
-import { ResultsHeader } from '@/components/ArthSaathi/ResultsHeader';
-import { SummaryCards } from '@/components/ArthSaathi/SummaryCards';
-import { HealthScore } from '@/components/ArthSaathi/HealthScore';
-import { FundTable } from '@/components/ArthSaathi/FundTable';
-import { ExpenseCallout } from '@/components/ArthSaathi/ExpenseCallout';
-import { WealthGapChart } from '@/components/ArthSaathi/WealthGapChart';
-import { OverlapMatrix } from '@/components/ArthSaathi/OverlapMatrix';
-import { AssetAllocation } from '@/components/ArthSaathi/AssetAllocation';
-import { RebalancingPlan } from '@/components/ArthSaathi/RebalancingPlan';
+import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { mockData } from "@/data/mockData";
+import { HeroUpload } from "@/components/ArthSaathi/HeroUpload";
+import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
+import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
+import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
+import { HealthScore } from "@/components/ArthSaathi/HealthScore";
+import { FundTable } from "@/components/ArthSaathi/FundTable";
+import { ExpenseCallout } from "@/components/ArthSaathi/ExpenseCallout";
+import { WealthGapChart } from "@/components/ArthSaathi/WealthGapChart";
+import { OverlapMatrix } from "@/components/ArthSaathi/OverlapMatrix";
+import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
+import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
 
-type AppState = 'upload' | 'analyzing' | 'results';
+type AppState = "upload" | "analyzing" | "results";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [state, setState] = useState<AppState>('upload');
+  const [state, setState] = useState<AppState>("upload");
   const data = mockData;
 
   const handleAnalyze = useCallback(() => {
-    setState('analyzing');
+    setState("analyzing");
   }, []);
 
   const handleSampleData = useCallback(() => {
-    setState('analyzing');
+    setState("analyzing");
   }, []);
 
   const handleAgentsComplete = useCallback(() => {
-    setTimeout(() => setState('results'), 500);
+    setTimeout(() => setState("results"), 500);
   }, []);
 
   return (
     <div className="min-h-screen bg-primary-dark">
       <div className="max-w-[1120px] mx-auto px-4 pt-4">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
           style={{
-            color: 'hsl(var(--text-secondary))',
-            border: '1px solid rgba(255,255,255,0.1)',
-            background: 'transparent',
+            color: "hsl(var(--text-secondary))",
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "transparent",
           }}
         >
           ← Back to Landing
@@ -49,30 +49,48 @@ const Index = () => {
       </div>
 
       {/* Hero / Upload */}
-      {state === 'upload' && (
+      {state === "upload" && (
         <HeroUpload onAnalyze={handleAnalyze} onSampleData={handleSampleData} />
       )}
 
       {/* Agent Panel */}
-      {state === 'analyzing' && (
+      {state === "analyzing" && (
         <div className="min-h-screen flex items-center justify-center px-4">
           <div className="w-full max-w-[1120px]">
             <div className="text-center mb-8">
-              <h1 className="font-display text-3xl font-bold text-primary-light">ArthSaathi</h1>
-              <p className="font-body text-sm mt-1" style={{ color: 'hsl(var(--text-tertiary))' }}>(अर्थसाथी)</p>
+              <h1 className="font-display text-3xl font-bold text-primary-light">
+                ArthSaathi
+              </h1>
+              <p
+                className="font-body text-sm mt-1"
+                style={{ color: "hsl(var(--text-tertiary))" }}
+              >
+                (अर्थसाथी)
+              </p>
             </div>
-            <AgentPanel active={true} mode="demo" onComplete={handleAgentsComplete} />
+            <AgentPanel
+              active={true}
+              mode="demo"
+              onComplete={handleAgentsComplete}
+            />
           </div>
         </div>
       )}
 
       {/* Results */}
-      {state === 'results' && (
+      {state === "results" && (
         <div className="animate-reveal">
           {/* Compact header */}
           <div className="pt-6 pb-2 text-center">
-            <h1 className="font-display text-2xl font-bold text-primary-light">ArthSaathi</h1>
-            <p className="font-body text-xs" style={{ color: 'hsl(var(--text-tertiary))' }}>(अर्थसाथी)</p>
+            <h1 className="font-display text-2xl font-bold text-primary-light">
+              ArthSaathi
+            </h1>
+            <p
+              className="font-body text-xs"
+              style={{ color: "hsl(var(--text-tertiary))" }}
+            >
+              (अर्थसाथी)
+            </p>
           </div>
 
           <div className="max-w-[1120px] mx-auto px-4">
@@ -102,7 +120,9 @@ const Index = () => {
               {/* Expense Callout */}
               <ExpenseCallout
                 projected10yr={data.expense_summary.total_projected_10yr_drag}
-                potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
+                potentialSavings10yr={
+                  data.expense_summary.total_potential_10yr_savings
+                }
               />
 
               {/* Wealth Gap Chart */}
@@ -131,7 +151,10 @@ const Index = () => {
 
               {/* Footer */}
               <footer className="text-center py-16">
-                <p className="font-body text-[13px]" style={{ color: 'hsl(var(--text-tertiary))' }}>
+                <p
+                  className="font-body text-[13px]"
+                  style={{ color: "hsl(var(--text-tertiary))" }}
+                >
                   ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026
                 </p>
               </footer>

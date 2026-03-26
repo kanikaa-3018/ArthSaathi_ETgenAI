@@ -33,17 +33,22 @@ export function MentorChat({ analysis }: MentorChatProps) {
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const accRef = useRef("");
-  const portfolioContext = (analysis ?? {}) as unknown as Record<string, unknown>;
+  const portfolioContext = (analysis ?? {}) as unknown as Record<
+    string,
+    unknown
+  >;
 
   const analysisKey = analysis
     ? `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`
-    : 'no-analysis';
+    : "no-analysis";
 
   useEffect(() => {
     const greeting = analysis
       ? `I've analyzed your portfolio (${analysis.portfolio_summary.total_funds} funds, ₹${(
           analysis.portfolio_summary.total_current_value / 1e5
-        ).toFixed(2)} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`
+        ).toFixed(
+          2,
+        )} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`
       : "Upload a CAS statement to get portfolio-aware answers. For now, ask me general questions about mutual funds, XIRR, or tax optimisation.";
     setMessages([{ role: "assistant", content: greeting }]);
     setStreaming("");
@@ -59,7 +64,10 @@ export function MentorChat({ analysis }: MentorChatProps) {
       const trimmed = text.trim();
       if (!trimmed || loading) return;
 
-      const historyForApi = messages.map((m) => ({ role: m.role, content: m.content }));
+      const historyForApi = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
 
       setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
       setInput("");
@@ -115,10 +123,15 @@ export function MentorChat({ analysis }: MentorChatProps) {
           },
         });
         const finalText = accRef.current.trim() || "(No response)";
-        setMessages((prev) => [...prev, { role: "assistant", content: finalText }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: finalText },
+        ]);
         setStreaming("");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not reach mentor chat.");
+        setError(
+          e instanceof Error ? e.message : "Could not reach mentor chat.",
+        );
         setStreaming("");
       } finally {
         setLoading(false);
@@ -138,8 +151,13 @@ export function MentorChat({ analysis }: MentorChatProps) {
       >
         <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
         <div>
-          <p className="font-display text-sm font-semibold text-primary-light">AI Mentor</p>
-          <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+          <p className="font-display text-sm font-semibold text-primary-light">
+            AI Mentor
+          </p>
+          <p
+            className="font-body text-[11px]"
+            style={{ color: "hsl(var(--text-tertiary))" }}
+          >
             Answers use your portfolio context
           </p>
         </div>
@@ -151,7 +169,10 @@ export function MentorChat({ analysis }: MentorChatProps) {
             key={`${i}-${m.role}-${m.content.slice(0, 12)}`}
             className={`rounded-lg px-3 py-2 max-w-[95%] ${m.role === "user" ? "ml-auto text-right" : "mr-auto"}`}
             style={{
-              background: m.role === "user" ? "rgba(74, 144, 217, 0.25)" : "hsl(var(--bg-tertiary))",
+              background:
+                m.role === "user"
+                  ? "rgba(74, 144, 217, 0.25)"
+                  : "hsl(var(--bg-tertiary))",
               color: "hsl(var(--text-secondary))",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
@@ -209,11 +230,19 @@ export function MentorChat({ analysis }: MentorChatProps) {
           disabled={loading}
           className="font-body text-sm bg-[hsl(var(--bg-tertiary))] border-white/10"
         />
-        <Button type="submit" size="icon" disabled={loading || !input.trim()} className="shrink-0">
+        <Button
+          type="submit"
+          size="icon"
+          disabled={loading || !input.trim()}
+          className="shrink-0"
+        >
           <Send className="h-4 w-4" />
         </Button>
       </form>
-      <p className="px-3 pb-3 font-body text-[10px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+      <p
+        className="px-3 pb-3 font-body text-[10px]"
+        style={{ color: "hsl(var(--text-tertiary))" }}
+      >
         Not SEBI-registered advice. Educational use only.
       </p>
     </div>

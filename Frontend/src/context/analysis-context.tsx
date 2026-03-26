@@ -1,6 +1,16 @@
-import { createContext, useCallback, useContext, useMemo, useReducer } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+} from "react";
 import type { PropsWithChildren } from "react";
-import type { AgentEvent, AnalysisData, ApiErrorPayload } from "@/types/analysis";
+import type {
+  AgentEvent,
+  AnalysisData,
+  ApiErrorPayload,
+} from "@/types/analysis";
 
 export type AnalysisMode = "upload" | "sample";
 
@@ -150,7 +160,11 @@ export function AnalysisProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  return <AnalysisContext.Provider value={value}>{children}</AnalysisContext.Provider>;
+  return (
+    <AnalysisContext.Provider value={value}>
+      {children}
+    </AnalysisContext.Provider>
+  );
 }
 
 export function useAnalysis() {

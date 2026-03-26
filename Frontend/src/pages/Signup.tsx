@@ -10,7 +10,12 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [pan, setPan] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; form?: string }>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    form?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,14 +23,22 @@ export default function Signup() {
   }, [navigate]);
 
   useEffect(() => {
-    gsap.from(".auth-form-card", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out", delay: 0.1 });
+    gsap.from(".auth-form-card", {
+      opacity: 0,
+      y: 16,
+      duration: 0.5,
+      ease: "power2.out",
+      delay: 0.1,
+    });
   }, []);
 
   const validate = () => {
     const errs: typeof errors = {};
     if (!name.trim()) errs.name = "Name is required";
-    if (!email || !email.includes("@")) errs.email = "Enter a valid email address";
-    if (!password || password.length < 6) errs.password = "Password must be at least 6 characters";
+    if (!email || !email.includes("@"))
+      errs.email = "Enter a valid email address";
+    if (!password || password.length < 6)
+      errs.password = "Password must be at least 6 characters";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -37,7 +50,11 @@ export default function Signup() {
     setErrors({});
     try {
       // register(username, email, password) — use name as username
-      await registerRequest(name.trim().split(" ")[0].toLowerCase(), email, password);
+      await registerRequest(
+        name.trim().split(" ")[0].toLowerCase(),
+        email,
+        password,
+      );
       navigate("/analyze", { replace: true });
     } catch (err) {
       setErrors({ form: (err as Error).message || "Registration failed" });
@@ -52,10 +69,14 @@ export default function Signup() {
     background: "hsl(220 20% 12%)",
     borderColor: "hsl(220 10% 20%)",
   };
-  const inputFocusClass = "focus:border-accent focus:ring-1 focus:ring-accent/20";
+  const inputFocusClass =
+    "focus:border-accent focus:ring-1 focus:ring-accent/20";
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8" style={{ background: "hsl(var(--bg-primary))" }}>
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-8"
+      style={{ background: "hsl(var(--bg-primary))" }}
+    >
       <div className="auth-form-card w-full max-w-[360px]">
         {/* Wordmark */}
         <div className="text-center mb-8">
@@ -65,11 +86,18 @@ export default function Signup() {
           >
             ArthSaathi
           </h1>
-          <p className="font-syne text-[13px] text-text-muted mt-1">(अर्थसाथी)</p>
-          <div className="w-10 h-[2px] mx-auto mt-6 mb-8" style={{ background: "hsl(var(--accent))" }} />
+          <p className="font-syne text-[13px] text-text-muted mt-1">
+            (अर्थसाथी)
+          </p>
+          <div
+            className="w-10 h-[2px] mx-auto mt-6 mb-8"
+            style={{ background: "hsl(var(--accent))" }}
+          />
         </div>
 
-        <p className="font-syne text-[15px] text-text-secondary font-medium mb-6">Create account</p>
+        <p className="font-syne text-[15px] text-text-secondary font-medium mb-6">
+          Create account
+        </p>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           {/* Name */}
@@ -83,7 +111,11 @@ export default function Signup() {
               style={inputStyle}
               autoComplete="name"
             />
-            {errors.name && <p className="font-syne text-xs text-negative mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p className="font-syne text-xs text-negative mt-1">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           {/* Email */}
@@ -97,7 +129,11 @@ export default function Signup() {
               style={inputStyle}
               autoComplete="email"
             />
-            {errors.email && <p className="font-syne text-xs text-negative mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="font-syne text-xs text-negative mt-1">
+                {errors.email}
+              </p>
+            )}
           </div>
 
           {/* PAN (optional) */}
@@ -128,10 +164,16 @@ export default function Signup() {
               style={inputStyle}
               autoComplete="new-password"
             />
-            {errors.password && <p className="font-syne text-xs text-negative mt-1">{errors.password}</p>}
+            {errors.password && (
+              <p className="font-syne text-xs text-negative mt-1">
+                {errors.password}
+              </p>
+            )}
           </div>
 
-          {errors.form && <p className="font-syne text-xs text-negative">{errors.form}</p>}
+          {errors.form && (
+            <p className="font-syne text-xs text-negative">{errors.form}</p>
+          )}
 
           <button
             type="submit"

@@ -23,7 +23,11 @@ export function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function register(username: string, email: string, password: string) {
+export async function register(
+  username: string,
+  email: string,
+  password: string,
+) {
   const response = await fetch(api.authRegister, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

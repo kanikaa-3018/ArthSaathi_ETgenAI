@@ -1,12 +1,12 @@
-import { useAnalysis } from '@/context/analysis-context';
-import { GoalPlanner } from '@/components/ArthSaathi/GoalPlanner';
-import { Link } from 'react-router-dom';
-import type { AnalysisData } from '@/types/analysis';
+import { useAnalysis } from "@/context/analysis-context";
+import { GoalPlanner } from "@/components/ArthSaathi/GoalPlanner";
+import { Link } from "react-router-dom";
+import type { AnalysisData } from "@/types/analysis";
 
 const stubData: AnalysisData = {
-  status: 'success',
+  status: "success",
   processing_time_ms: 0,
-  investor: { name: '', email: '', pan_masked: '' },
+  investor: { name: "", email: "", pan_masked: "" },
   portfolio_summary: {
     total_current_value: 0,
     total_invested: 0,
@@ -17,7 +17,7 @@ const stubData: AnalysisData = {
     regular_plan_count: 0,
     direct_plan_count: 0,
   },
-  portfolio_xirr: { rate: 0.10, display: '10.00%', status: 'estimated' },
+  portfolio_xirr: { rate: 0.1, display: "10.00%", status: "estimated" },
   funds: [],
   overlap_analysis: null,
   expense_summary: {
@@ -29,7 +29,7 @@ const stubData: AnalysisData = {
     direct_plan_count: 0,
     weighted_average_ter: 0,
   },
-  health_score: { score: 0, grade: 'C', label: 'No data', breakdown: {} },
+  health_score: { score: 0, grade: "C", label: "No data", breakdown: {} },
   wealth_projection: {
     current_path: [],
     optimised_path: [],
@@ -42,7 +42,11 @@ const stubData: AnalysisData = {
       alpha_improvement_applied: 0,
     },
   },
-  rebalancing_plan: { ai_generated: false, ai_provider: 'rule_engine', content: '' },
+  rebalancing_plan: {
+    ai_generated: false,
+    ai_provider: "rule_engine",
+    content: "",
+  },
 };
 
 export default function FirePlanner() {
@@ -53,7 +57,10 @@ export default function FirePlanner() {
   return (
     <div className="max-w-[800px] mx-auto px-4 py-8">
       {/* Header */}
-      <div className="w-10 h-[2px] mb-4" style={{ background: 'hsl(var(--warning))' }} />
+      <div
+        className="w-10 h-[2px] mb-4"
+        style={{ background: "hsl(var(--warning))" }}
+      />
       <h1
         className="font-fraunces text-[26px] text-text-primary"
         style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
@@ -68,7 +75,7 @@ export default function FirePlanner() {
 
       {usingStub && (
         <p className="font-syne text-[13px] text-text-muted mt-6">
-          For projections based on your actual returns,{' '}
+          For projections based on your actual returns,{" "}
           <Link to="/analyze" className="text-accent hover:underline">
             upload a CAS statement
           </Link>
