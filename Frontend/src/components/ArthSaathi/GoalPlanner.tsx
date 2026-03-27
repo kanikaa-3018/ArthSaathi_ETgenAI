@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "@/lib/api";
+import { authHeaders } from "@/lib/auth";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +65,10 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       }
       const res = await fetch(api.goalsCalculate, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -224,71 +228,6 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                   <li key={`${idx}-${r.slice(0, 40)}`}>{r}</li>
                 ))}
               </ul>
-
-              {yearlyRoadmap && yearlyRoadmap.length > 0 ? (
-                <div className="mt-4 h-56 w-full">
-                  <p className="font-body text-[11px] mb-2" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    Illustrative corpus path (yearly)
-                  </p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearlyRoadmap} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                      <XAxis dataKey="year" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }}
-                        tickFormatter={(v) => `${(v / 1e5).toFixed(1)}L`}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--bg-secondary))",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          fontSize: 12,
-                        }}
-                        formatter={(value: number) => [value.toLocaleString("en-IN"), "Corpus"]}
-                      />
-                      <Line type="monotone" dataKey="corpus" stroke="hsl(var(--accent))" dot={false} strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : null}
-
-              {result.emergency_fund_check ? (
-                <div
-                  className="mt-4 rounded-lg p-3 border border-white/10"
-                  style={{ background: "rgba(0,0,0,0.15)" }}
-                >
-                  <p className="font-body text-xs font-medium text-primary-light">Emergency fund (from income)</p>
-                  <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-secondary))" }}>
-                    Target {result.emergency_fund_check.target_display} (
-                    {result.emergency_fund_check.monthly_expenses_estimate.toLocaleString("en-IN")}/mo estimate)
-                  </p>
-                  <p className="font-body text-[11px] mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    {result.emergency_fund_check.recommendation}
-                  </p>
-                </div>
-              ) : null}
-
-              {result.asset_allocation ? (
-                <div className="mt-4 space-y-2">
-                  <p className="font-body text-xs font-medium text-primary-light">Illustrative allocation</p>
-                  <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    {result.asset_allocation.note}
-                  </p>
-                  <div className="h-3 rounded-full overflow-hidden flex" style={{ background: "hsl(var(--bg-tertiary))" }}>
-                    <div
-                      className="h-full"
-                      style={{ width: `${result.asset_allocation.equity_pct}%`, background: "hsl(var(--accent))" }}
-                    />
-                    <div
-                      className="h-full"
-                      style={{ width: `${result.asset_allocation.debt_pct}%`, background: "hsl(var(--positive))" }}
-                    />
-                  </div>
-                  <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-secondary))" }}>
-                    {result.asset_allocation.equity_pct}% equity · {result.asset_allocation.debt_pct}% debt ·{" "}
-                    {result.asset_allocation.rule}
-                  </p>
-                </div>
-              ) : null}
 
               <div
                 className="mt-3 pt-3 border-t border-white/10 font-body text-[11px] space-y-1"

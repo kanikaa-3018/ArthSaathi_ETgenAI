@@ -37,11 +37,20 @@ interface ReportSectionsProps {
   };
 }
 
-function UnavailableBlock({ title, description }: { title: string; description: string }) {
+function UnavailableBlock({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="card-arth p-6">
       <p className="section-label">{title}</p>
-      <p className="font-body text-sm mt-2" style={{ color: "hsl(var(--text-secondary))" }}>
+      <p
+        className="font-body text-sm mt-2"
+        style={{ color: "hsl(var(--text-secondary))" }}
+      >
         {description}
       </p>
     </div>
@@ -83,11 +92,18 @@ export function ReportSections({
 
   return (
     <div className="animate-reveal">
-      {topSlot ? <div className="max-w-[1120px] mx-auto px-4 pt-4">{topSlot}</div> : null}
+      {topSlot ? (
+        <div className="max-w-[1120px] mx-auto px-4 pt-4">{topSlot}</div>
+      ) : null}
 
       <div className="pt-6 pb-2 text-center">
-        <h1 className="font-display text-2xl font-bold text-primary-light">ArthSaathi</h1>
-        <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+        <h1 className="font-display text-2xl font-bold text-primary-light">
+          ArthSaathi
+        </h1>
+        <p
+          className="font-body text-xs"
+          style={{ color: "hsl(var(--text-tertiary))" }}
+        >
           (अर्थसाथी)
         </p>
       </div>
@@ -132,7 +148,9 @@ export function ReportSections({
           <FundTable funds={data.funds} />
           <ExpenseCallout
             projected10yr={data.expense_summary.total_projected_10yr_drag}
-            potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
+            potentialSavings10yr={
+              data.expense_summary.total_potential_10yr_savings
+            }
           />
           {showFallbacks?.projectionUnavailable ? (
             <UnavailableBlock
@@ -210,8 +228,12 @@ export function ReportSections({
           ) : null}
 
           <footer className="text-center py-16">
-            <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-              {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+            <p
+              className="font-body text-[13px]"
+              style={{ color: "hsl(var(--text-tertiary))" }}
+            >
+              {footerLabel ??
+                "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
             </p>
           </footer>
           </div>

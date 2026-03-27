@@ -3,7 +3,12 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -15,9 +20,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        body: ['"Inter"', 'system-ui', 'sans-serif'],
-        'mono-dm': ['"DM Mono"', 'monospace'],
+        display: ['"Playfair Display"', "serif"],
+        body: ['"Inter"', "system-ui", "sans-serif"],
+        "mono-dm": ['"DM Mono"', "monospace"],
         fraunces: ["Fraunces", "serif"],
         syne: ["Syne", "sans-serif"],
         mono: ["DM Mono", "monospace"],

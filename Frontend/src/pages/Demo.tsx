@@ -19,8 +19,12 @@ export default function Demo() {
               >
                 <div>
                   <p className="section-label">Sample Experience</p>
-                  <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                    Demo Mode is using curated sample portfolio data for presentation reliability.
+                  <p
+                    className="font-body text-sm"
+                    style={{ color: "hsl(var(--text-secondary))" }}
+                  >
+                    Demo Mode is using curated sample portfolio data for
+                    presentation reliability.
                   </p>
                 </div>
                 <button

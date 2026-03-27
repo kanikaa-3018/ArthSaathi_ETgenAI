@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
+import { getToken, isAuthenticated } from "@/lib/auth";
 import { CheckCircle2 } from "lucide-react";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
@@ -16,15 +17,21 @@ const REVIEW_SECONDS_BEFORE_DIALOG = 5;
 export default function AnalyzeProcessing() {
   const navigate = useNavigate();
   const { state, startAnalysis, pushEvent, setResult, setError } = useAnalysis();
-  const [viewMode, setViewMode] = useState<"list" | "dag">("list");
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
   const [showCompletion, setShowCompletion] = useState(false);
   const [completionMeta, setCompletionMeta] = useState<{ processingMs: number } | null>(null);
   /** Countdown while you review the agent list (before overlay dialog) */
   const [reviewSecondsLeft, setReviewSecondsLeft] = useState<number | null>(null);
   /** Countdown while dialog is open (until auto-navigate) */
   const [secondsLeft, setSecondsLeft] = useState(Math.ceil(AUTO_CONTINUE_MS / 1000));
-  const navigateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const navigateTimerRef = useRef<number | null>(null);
+  const countdownRef = useRef<number | null>(null);
   const manualSkipRef = useRef(false);
 
   useEffect(() => {
@@ -37,6 +44,11 @@ export default function AnalyzeProcessing() {
       }
 
       startAnalysis();
+      const headers: Record<string, string> = {};
+      const token = getToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
 
       const onErrorEvent = (payload: ApiErrorPayload) => {
         setError(payload);
@@ -72,6 +84,7 @@ export default function AnalyzeProcessing() {
       try {
         await fetchEventSource(state.mode === "sample" ? api.analyzeTest : api.analyze, {
           method: state.mode === "sample" ? "GET" : "POST",
+          headers,
           body:
             state.mode === "sample"
               ? undefined
@@ -178,11 +191,11 @@ export default function AnalyzeProcessing() {
     manualSkipRef.current = true;
     setReviewSecondsLeft(null);
     if (navigateTimerRef.current) {
-      clearTimeout(navigateTimerRef.current);
+      window.clearTimeout(navigateTimerRef.current);
       navigateTimerRef.current = null;
     }
     if (countdownRef.current) {
-      clearInterval(countdownRef.current);
+      window.clearInterval(countdownRef.current);
       countdownRef.current = null;
     }
     navigate("/analyze/report");
@@ -222,11 +235,11 @@ export default function AnalyzeProcessing() {
 
     return () => {
       if (countdownRef.current) {
-        clearInterval(countdownRef.current);
+        window.clearInterval(countdownRef.current);
         countdownRef.current = null;
       }
       if (navigateTimerRef.current) {
-        clearTimeout(navigateTimerRef.current);
+        window.clearTimeout(navigateTimerRef.current);
         navigateTimerRef.current = null;
       }
     };

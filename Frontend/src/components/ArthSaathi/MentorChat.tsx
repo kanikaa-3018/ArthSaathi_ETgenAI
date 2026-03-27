@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { Mic, MicOff, Send, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { api } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +24,7 @@ const QUICK_PROMPTS = [
 ];
 
 interface MentorChatProps {
-  analysis: AnalysisData;
+  analysis?: AnalysisData | null;
 }
 
 export function MentorChat({ analysis }: MentorChatProps) {
@@ -35,23 +36,27 @@ export function MentorChat({ analysis }: MentorChatProps) {
   const [autoSpeak, setAutoSpeak] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const accRef = useRef("");
-  const portfolioContext = analysis as unknown as Record<string, unknown>;
+  const portfolioContext = (analysis ?? {}) as unknown as Record<
+    string,
+    unknown
+  >;
 
-  const { isListening, transcript, isSupported: micSupported, startListening, stopListening } =
-    useSpeechRecognition();
-  const { speak, stop: stopSpeaking, isSupported: ttsSupported } = useSpeechSynthesis();
-
-  const analysisKey = `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`;
+  const analysisKey = analysis
+    ? `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`
+    : "no-analysis";
 
   useEffect(() => {
-    const greeting = `I've analyzed your portfolio (${analysis.portfolio_summary.total_funds} funds, ₹${(
-      analysis.portfolio_summary.total_current_value / 1e5
-    ).toFixed(2)} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`;
+    const greeting = analysis
+      ? `I've analyzed your portfolio (${analysis.portfolio_summary.total_funds} funds, ₹${(
+          analysis.portfolio_summary.total_current_value / 1e5
+        ).toFixed(
+          2,
+        )} L). Ask anything about fees, overlap, taxes, or goals — I'll use your numbers.`
+      : "Upload a CAS statement to get portfolio-aware answers. For now, ask me general questions about mutual funds, XIRR, or tax optimisation.";
     setMessages([{ role: "assistant", content: greeting }]);
     setStreaming("");
     setError(null);
-    stopSpeaking();
-  }, [analysisKey, analysis.portfolio_summary.total_funds, analysis.portfolio_summary.total_current_value, stopSpeaking]);
+  }, [analysisKey, analysis]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,7 +73,10 @@ export function MentorChat({ analysis }: MentorChatProps) {
       const trimmed = text.trim();
       if (!trimmed || loading) return;
 
-      const historyForApi = messages.map((m) => ({ role: m.role, content: m.content }));
+      const historyForApi = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
 
       setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
       setInput("");
@@ -76,11 +84,19 @@ export function MentorChat({ analysis }: MentorChatProps) {
       setError(null);
       accRef.current = "";
       setStreaming("");
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+      };
+      const token = getToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
 
       try {
         await fetchEventSource(api.chat, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+          headers,
           body: JSON.stringify({
             message: trimmed,
             portfolio_context: portfolioContext,
@@ -120,11 +136,16 @@ export function MentorChat({ analysis }: MentorChatProps) {
           },
         });
         const finalText = accRef.current.trim() || "(No response)";
-        setMessages((prev) => [...prev, { role: "assistant", content: finalText }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: finalText },
+        ]);
         setStreaming("");
         if (autoSpeak && ttsSupported) speak(finalText);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not reach mentor chat.");
+        setError(
+          e instanceof Error ? e.message : "Could not reach mentor chat.",
+        );
         setStreaming("");
       } finally {
         setLoading(false);
@@ -142,14 +163,17 @@ export function MentorChat({ analysis }: MentorChatProps) {
         className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/10"
         style={{ background: "rgba(74, 144, 217, 0.08)" }}
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <Sparkles className="h-4 w-4 text-[hsl(var(--accent))] shrink-0" />
-          <div className="min-w-0">
-            <p className="font-display text-sm font-semibold text-primary-light">AI Mentor</p>
-            <p className="font-body text-[11px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-              Answers use your portfolio context
-            </p>
-          </div>
+        <Sparkles className="h-4 w-4 text-[hsl(var(--accent))]" />
+        <div>
+          <p className="font-display text-sm font-semibold text-primary-light">
+            AI Mentor
+          </p>
+          <p
+            className="font-body text-[11px]"
+            style={{ color: "hsl(var(--text-tertiary))" }}
+          >
+            Answers use your portfolio context
+          </p>
         </div>
         {ttsSupported ? (
           <button
@@ -170,7 +194,10 @@ export function MentorChat({ analysis }: MentorChatProps) {
             key={`${i}-${m.role}-${m.content.slice(0, 12)}`}
             className={`rounded-lg px-3 py-2 max-w-[95%] ${m.role === "user" ? "ml-auto text-right" : "mr-auto"}`}
             style={{
-              background: m.role === "user" ? "rgba(74, 144, 217, 0.25)" : "hsl(var(--bg-tertiary))",
+              background:
+                m.role === "user"
+                  ? "rgba(74, 144, 217, 0.25)"
+                  : "hsl(var(--bg-tertiary))",
               color: "hsl(var(--text-secondary))",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
@@ -230,24 +257,19 @@ export function MentorChat({ analysis }: MentorChatProps) {
           disabled={loading}
           className={`font-body text-sm bg-[hsl(var(--bg-tertiary))] border-white/10 ${isListening ? "ring-1 ring-red-400/50 animate-pulse" : ""}`}
         />
-        {micSupported ? (
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            disabled={loading}
-            onClick={() => (isListening ? stopListening() : startListening())}
-            className={`shrink-0 border-white/10 ${isListening ? "bg-red-500/20 text-red-400" : ""}`}
-            aria-label={isListening ? "Stop listening" : "Speak"}
-          >
-            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
-        ) : null}
-        <Button type="submit" size="icon" disabled={loading || !(isListening ? transcript : input).trim()} className="shrink-0">
+        <Button
+          type="submit"
+          size="icon"
+          disabled={loading || !input.trim()}
+          className="shrink-0"
+        >
           <Send className="h-4 w-4" />
         </Button>
       </form>
-      <p className="px-3 pb-3 font-body text-[10px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+      <p
+        className="px-3 pb-3 font-body text-[10px]"
+        style={{ color: "hsl(var(--text-tertiary))" }}
+      >
         Not SEBI-registered advice. Educational use only.
       </p>
     </div>

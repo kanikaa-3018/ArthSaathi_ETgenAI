@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReportSections } from "@/components/ArthSaathi/ReportSections";
+import { isAuthenticated } from "@/lib/auth";
 import { MentorChat } from "@/components/ArthSaathi/MentorChat";
 import { useAnalysis } from "@/context/analysis-context";
 
@@ -9,10 +10,17 @@ export default function AnalyzeReport() {
   const { state } = useAnalysis();
 
   useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
     if (!state.result) {
       navigate("/analyze", {
         replace: true,
-        state: { reportHint: "Upload a CAS or try sample data to generate a report." },
+        state: {
+          reportHint: "Upload a CAS or try sample data to generate a report.",
+        },
       });
     }
   }, [navigate, state.result]);
@@ -24,7 +32,10 @@ export default function AnalyzeReport() {
         aria-busy="true"
         aria-label="Redirecting to upload"
       >
-        <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+        <p
+          className="font-body text-sm"
+          style={{ color: "hsl(var(--text-secondary))" }}
+        >
           No report in session — taking you to upload…
         </p>
       </div>

@@ -9,4 +9,7 @@ export const api = {
   goalsCalculate: `${API_BASE}/api/goals/calculate`,
   taxInsights: `${API_BASE}/api/tax/insights`,
   taxRegimeCompare: `${API_BASE}/api/tax/regime-compare`,
+  authRegister: `${API_BASE}/api/auth/register`,
+  authLogin: `${API_BASE}/api/auth/login`,
+  authMe: `${API_BASE}/api/auth/me`,
 };

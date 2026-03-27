@@ -19,7 +19,9 @@ type RawWealthProjection = {
   assumptions?: RawAssumptions | null;
 };
 
-export function normalizeWealthProjectionForChart(wp: RawWealthProjection | null | undefined): {
+export function normalizeWealthProjectionForChart(
+  wp: RawWealthProjection | null | undefined,
+): {
   currentPath: PathPoint[];
   optimizedPath: PathPoint[];
   assumptions: {
@@ -30,8 +32,11 @@ export function normalizeWealthProjectionForChart(wp: RawWealthProjection | null
   };
 } {
   const currentPath = wp?.current_path?.length ? wp.current_path : [];
-  const optimizedPath =
-    wp?.optimized_path?.length ? wp.optimized_path : wp?.optimised_path?.length ? wp.optimised_path : [];
+  const optimizedPath = wp?.optimized_path?.length
+    ? wp.optimized_path
+    : wp?.optimised_path?.length
+      ? wp.optimised_path
+      : [];
 
   const a = wp?.assumptions;
   const assumptions = {
