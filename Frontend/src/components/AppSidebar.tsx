@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
+  LogIn,
   LogOut,
   MessageCircle,
   Play,
@@ -38,6 +39,8 @@ export interface AppSidebarProps {
   mobileOpen: boolean;
   onMobileOpenChange: (open: boolean) => void;
   isMobile: boolean;
+  /** Public /demo without session: hide sign-out, show sign-in CTA instead. */
+  guestMode?: boolean;
 }
 
 function NavItem({
@@ -121,6 +124,7 @@ export function AppSidebar({
   mobileOpen,
   onMobileOpenChange,
   isMobile,
+  guestMode = false,
 }: AppSidebarProps) {
   const navigate = useNavigate();
   const { state } = useAnalysis();
@@ -129,6 +133,11 @@ export function AppSidebar({
   const [initial, setInitial] = useState("");
 
   useEffect(() => {
+    if (guestMode) {
+      setEmail("");
+      setInitial("?");
+      return;
+    }
     fetchMe()
       .then((u) => {
         const e = u.email || "";
@@ -140,7 +149,7 @@ export function AppSidebar({
         setEmail("");
         setInitial("?");
       });
-  }, []);
+  }, [guestMode]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -293,7 +302,7 @@ export function AppSidebar({
       </nav>
 
       <div className="mt-auto shrink-0 border-t border-white/[0.06] p-2 space-y-2">
-        {hasResult && state.result ? (
+        {!guestMode && hasResult && state.result ? (
           <div
             className={cn(
               "rounded-lg border border-white/[0.06] bg-white/[0.03] p-2",
@@ -314,48 +323,87 @@ export function AppSidebar({
           </div>
         ) : null}
 
-        <div
-          className={cn(
-            "flex items-center gap-2 px-1",
-            !showExpanded && "flex-col gap-2",
-          )}
-        >
+        {guestMode ? (
           <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-primary"
-            title={email}
+            className={cn(
+              "flex items-center gap-2 px-1",
+              !showExpanded && "flex-col gap-2",
+            )}
           >
-            {initial}
-          </div>
-          {showExpanded ? (
-            <span className="min-w-0 flex-1 truncate font-syne text-xs text-text-muted">
-              {email || "—"}
-            </span>
-          ) : null}
-          {!showExpanded ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() => void handleSignOut()}
-                  className="rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-                  aria-label="Sign out"
-                >
-                  <LogOut size={18} strokeWidth={1.5} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Sign out</TooltipContent>
-            </Tooltip>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void handleSignOut()}
-              className="shrink-0 rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-              aria-label="Sign out"
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-muted"
+              title="Guest"
             >
-              <LogOut size={18} strokeWidth={1.5} />
-            </button>
-          )}
-        </div>
+              ?
+            </div>
+            {showExpanded ? (
+              <Link
+                to="/login"
+                className="min-w-0 flex-1 rounded-md border border-white/[0.08] px-2 py-1.5 text-center font-syne text-xs font-semibold text-accent hover:bg-white/[0.04] no-underline"
+                onClick={() => isMobile && onMobileOpenChange(false)}
+              >
+                Sign in
+              </Link>
+            ) : (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Link
+                    to="/login"
+                    className="rounded-md p-2 text-accent hover:bg-white/[0.04] no-underline inline-flex"
+                    aria-label="Sign in"
+                    onClick={() => isMobile && onMobileOpenChange(false)}
+                  >
+                    <LogIn size={18} strokeWidth={1.5} />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign in</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "flex items-center gap-2 px-1",
+              !showExpanded && "flex-col gap-2",
+            )}
+          >
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-primary"
+              title={email}
+            >
+              {initial}
+            </div>
+            {showExpanded ? (
+              <span className="min-w-0 flex-1 truncate font-syne text-xs text-text-muted">
+                {email || "—"}
+              </span>
+            ) : null}
+            {!showExpanded ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => void handleSignOut()}
+                    className="rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
+                    aria-label="Sign out"
+                  >
+                    <LogOut size={18} strokeWidth={1.5} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign out</TooltipContent>
+              </Tooltip>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className="shrink-0 rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
+                aria-label="Sign out"
+              >
+                <LogOut size={18} strokeWidth={1.5} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );
