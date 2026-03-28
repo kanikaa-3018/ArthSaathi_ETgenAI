@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { getToken, isAuthenticated } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { CheckCircle2 } from "lucide-react";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
@@ -18,18 +18,13 @@ export default function AnalyzeProcessing() {
   const navigate = useNavigate();
   const { state, startAnalysis, pushEvent, setResult, setError } = useAnalysis();
 
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login", { replace: true });
-    }
-  }, [navigate]);
-
   const [showCompletion, setShowCompletion] = useState(false);
   const [completionMeta, setCompletionMeta] = useState<{ processingMs: number } | null>(null);
   /** Countdown while you review the agent list (before overlay dialog) */
   const [reviewSecondsLeft, setReviewSecondsLeft] = useState<number | null>(null);
   /** Countdown while dialog is open (until auto-navigate) */
   const [secondsLeft, setSecondsLeft] = useState(Math.ceil(AUTO_CONTINUE_MS / 1000));
+  const [viewMode, setViewMode] = useState<'list' | 'dag'>('list');
   const navigateTimerRef = useRef<number | null>(null);
   const countdownRef = useRef<number | null>(null);
   const manualSkipRef = useRef(false);
@@ -45,7 +40,7 @@ export default function AnalyzeProcessing() {
 
       startAnalysis();
       const headers: Record<string, string> = {};
-      const token = getToken();
+      const token = await getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }

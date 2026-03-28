@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Receipt } from "lucide-react";
 import { api } from "@/lib/api";
-import { authHeaders } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import type { AnalysisData, TaxInsightsResponse } from "@/types/analysis";
 
 interface TaxInsightsProps {
@@ -19,12 +19,14 @@ export function TaxInsights({ data }: TaxInsightsProps) {
       setLoading(true);
       setErr(null);
       try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        const token = await getAccessToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
         const res = await fetch(api.taxInsights, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...authHeaders(),
-          },
+          headers,
           body: JSON.stringify({ analysis: data }),
         });
         if (!res.ok) throw new Error(await res.text());

@@ -120,5 +120,119 @@ def get_user_from_token(token: str) -> Optional[Dict[str, Any]]:
     return _find_user(data["username"])
 
 
+def _claims_to_user(payload: Dict[str, Any]) -> Dict[str, Any]:
+    email = (payload.get("email") or "").strip()
+    sub = (payload.get("sub") or "").strip()
+    meta = payload.get("user_metadata") or {}
+    if isinstance(meta, dict):
+        name = (meta.get("full_name") or meta.get("name") or "").strip()
+    else:
+        name = ""
+    username = name or (email.split("@")[0] if "@" in email else sub) or "user"
+    return {"username": username, "email": email or sub}
+
+
+def _decode_supabase_hs256(token: str, secret: str) -> Optional[Dict[str, Any]]:
+    import jwt as pyjwt
+    from jwt import PyJWTError
+
+    for aud in ("authenticated", None):
+        try:
+            if aud is not None:
+                return pyjwt.decode(token, secret, algorithms=["HS256"], audience=aud)
+            return pyjwt.decode(
+                token,
+                secret,
+                algorithms=["HS256"],
+                options={"verify_aud": False},
+            )
+        except PyJWTError:
+            continue
+    return None
+
+
+def _decode_supabase_es256(token: str) -> Optional[Dict[str, Any]]:
+    """ECC (P-256) project JWTs — needs SUPABASE_URL and outbound HTTPS to fetch JWKS."""
+    base = (settings.SUPABASE_URL or "").strip().rstrip("/")
+    if not base:
+        return None
+    import jwt as pyjwt
+    from jwt import PyJWTError, PyJWKClient
+
+    try:
+        unverified = pyjwt.decode(token, options={"verify_signature": False})
+    except PyJWTError:
+        return None
+    iss = (unverified.get("iss") or "").rstrip("/")
+    expected_iss = f"{base}/auth/v1"
+    if iss != expected_iss:
+        return None
+    jwks_url = f"{iss}/.well-known/jwks.json"
+    try:
+        jwks_client = PyJWKClient(jwks_url)
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+    except Exception:
+        return None
+    for aud in ("authenticated", None):
+        try:
+            if aud is not None:
+                return pyjwt.decode(
+                    token,
+                    signing_key.key,
+                    algorithms=["ES256"],
+                    audience=aud,
+                    issuer=iss,
+                )
+            return pyjwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["ES256"],
+                issuer=iss,
+                options={"verify_aud": False},
+            )
+        except PyJWTError:
+            continue
+    return None
+
+
+def get_user_from_supabase_jwt(token: str) -> Optional[Dict[str, Any]]:
+    """
+    Validate Supabase Auth access_token: HS256 (shared secret) or ES256 (JWKS).
+    - HS256: set SUPABASE_JWT_SECRET (trimmed; no stray quotes in .env).
+    - ES256: set SUPABASE_URL to https://<ref>.supabase.co (same as frontend).
+    """
+    if not token or token.count(".") != 2:
+        return None
+    try:
+        import jwt as pyjwt
+        from jwt import PyJWTError
+    except ImportError:
+        return None
+
+    try:
+        header = pyjwt.get_unverified_header(token)
+    except PyJWTError:
+        return None
+    alg = header.get("alg")
+    secret = (settings.SUPABASE_JWT_SECRET or "").strip().strip('"').strip("'")
+
+    payload: Optional[Dict[str, Any]] = None
+    if alg == "HS256" and secret:
+        payload = _decode_supabase_hs256(token, secret)
+    elif alg == "ES256":
+        payload = _decode_supabase_es256(token)
+    else:
+        if secret:
+            payload = _decode_supabase_hs256(token, secret)
+        if not payload:
+            payload = _decode_supabase_es256(token)
+
+    if not payload:
+        return None
+    if payload.get("role") == "service_role":
+        return None
+    return _claims_to_user(payload)
+
+
 def revoke_token(token: str) -> None:
     _active_tokens.pop(token, None)

@@ -24,7 +24,7 @@ Upload a CAMS/KFintech CAS PDF → watch **9 analysis agents** stream live → r
    pnpm dev
    ```
 
-3. Open the app, go to **Analyze** → **Try sample data** (or upload a CAS PDF).
+3. Open **http://localhost:8080** (dev server port is set in `Frontend/vite.config.ts`, not Vite’s default 5173), then go to **Analyze** → **Try sample data** (or upload a CAS PDF).
 
 ## Docs
 

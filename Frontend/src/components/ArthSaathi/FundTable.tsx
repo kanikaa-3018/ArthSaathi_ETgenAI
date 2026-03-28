@@ -8,13 +8,18 @@ interface FundTableProps {
   funds: AnalysisData["funds"];
 }
 
+/** API uses TER as a fraction (e.g. 0.0211); mocks use whole percents (e.g. 1.82). */
+function terAsDisplayPercent(ter: number): number {
+  return ter > 0.2 ? ter : ter * 100;
+}
+
 export function FundTable({ funds }: FundTableProps) {
   const { ref, visible } = useScrollReveal();
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const terColor = (ter: number) => {
-    if (ter > 1.5) return "hsl(var(--negative))";
-    if (ter > 0.8) return "hsl(var(--warning))";
+  const terColor = (terPct: number) => {
+    if (terPct > 1.5) return "hsl(var(--negative))";
+    if (terPct > 0.8) return "hsl(var(--warning))";
     return "hsl(var(--positive))";
   };
 
@@ -166,9 +171,11 @@ export function FundTable({ funds }: FundTableProps) {
                     <td className="px-6 py-4 text-right">
                       <span
                         className="font-mono-dm text-sm"
-                        style={{ color: terColor(fund.expense.estimated_ter) }}
+                        style={{
+                          color: terColor(terAsDisplayPercent(fund.expense.estimated_ter)),
+                        }}
                       >
-                        {fund.expense.estimated_ter}%
+                        {terAsDisplayPercent(fund.expense.estimated_ter).toFixed(2)}%
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -238,7 +245,7 @@ export function FundTable({ funds }: FundTableProps) {
                                   Current TER
                                 </span>
                                 <span className="font-mono-dm text-xs text-negative">
-                                  {fund.expense.estimated_ter}%
+                                  {terAsDisplayPercent(fund.expense.estimated_ter).toFixed(2)}%
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -251,7 +258,7 @@ export function FundTable({ funds }: FundTableProps) {
                                   Direct TER
                                 </span>
                                 <span className="font-mono-dm text-xs text-positive">
-                                  {fund.expense.direct_plan_ter}%
+                                  {terAsDisplayPercent(fund.expense.direct_plan_ter).toFixed(2)}%
                                 </span>
                               </div>
                               <div className="flex justify-between">
