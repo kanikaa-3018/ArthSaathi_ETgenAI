@@ -3,12 +3,14 @@ import { useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { FloatingChat } from "@/components/FloatingChat";
+import { useSession } from "@/context/session-context";
 
 const SIDEBAR_KEY = "arthsaathi_sidebar";
 const MOBILE_BREAKPOINT = 768;
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const { session, loading: sessionLoading } = useSession();
   const [sidebarExpanded, setSidebarExpanded] = useState(() => {
     if (typeof window === "undefined") return true;
     const stored = localStorage.getItem(SIDEBAR_KEY);
@@ -39,7 +41,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   const mainMarginLeft = isMobile ? 0 : sidebarExpanded ? 240 : 56;
-  const showFloatingChat = location.pathname !== "/mentor";
+  const isDemoRoute = location.pathname === "/demo";
+  const demoGuest = isDemoRoute && !sessionLoading && !session;
+  const showFloatingChat =
+    location.pathname !== "/mentor" &&
+    !(isDemoRoute && (sessionLoading || !session));
 
   return (
     <div className="min-h-screen" style={{ background: "hsl(var(--bg-primary))" }}>
@@ -49,6 +55,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         mobileOpen={mobileOpen}
         onMobileOpenChange={setMobileOpen}
         isMobile={isMobile}
+        guestMode={demoGuest}
       />
 
       {isMobile ? (

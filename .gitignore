@@ -193,8 +193,8 @@ cython_debug/
 #  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+#  Ignore local VS Code settings (keep machine-specific config out of git)
+.vscode/
 
 # Ruff stuff:
 .ruff_cache/
@@ -219,6 +219,7 @@ __marimo__/
 # Internal working docs (not for submission)
 CURSOR_*.md
 PROMPTS_*.md
+FRONTEND_EXECUTION_PLAN.md
 WINNING_STRATEGY.md
 EXECUTION_PLAN.md
 FEATURES_BUILD_SPEC.md

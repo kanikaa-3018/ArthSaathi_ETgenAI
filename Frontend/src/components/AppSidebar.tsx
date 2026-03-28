@@ -1,9 +1,10 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
+  LogIn,
   LogOut,
   MessageCircle,
   Play,
@@ -38,6 +39,8 @@ export interface AppSidebarProps {
   mobileOpen: boolean;
   onMobileOpenChange: (open: boolean) => void;
   isMobile: boolean;
+  /** Public /demo without session: hide sign-out, show sign-in CTA instead. */
+  guestMode?: boolean;
 }
 
 function NavItem({
@@ -48,6 +51,7 @@ function NavItem({
   expanded: ex,
   disabled,
   onAfterNavigate,
+  activateOnPathnames,
 }: {
   to: string;
   end?: boolean;
@@ -56,17 +60,23 @@ function NavItem({
   expanded: boolean;
   disabled?: boolean;
   onAfterNavigate?: () => void;
+  /** Treat NavLink as active on these paths (e.g. /demo → highlight Analyze). */
+  activateOnPathnames?: string[];
 }) {
-  const body = ({ isActive }: { isActive: boolean }) =>
-    cn(
+  const location = useLocation();
+  const body = ({ isActive }: { isActive: boolean }) => {
+    const alsoActive = activateOnPathnames?.includes(location.pathname) ?? false;
+    const active = isActive || alsoActive;
+    return cn(
       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-xs font-syne font-medium",
       !ex && "justify-center",
       disabled && "pointer-events-none opacity-40",
       !disabled &&
-        (isActive
+        (active
           ? "bg-white/[0.06] text-[hsl(var(--text-primary))] border-l-2 border-[hsl(var(--accent))]"
           : "text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-secondary))] hover:bg-white/[0.03] border-l-2 border-transparent"),
     );
+  };
 
   const inner = (
     <>
@@ -114,26 +124,39 @@ export function AppSidebar({
   mobileOpen,
   onMobileOpenChange,
   isMobile,
+  guestMode = false,
 }: AppSidebarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { state } = useAnalysis();
   const hasResult = Boolean(state.result);
   const [email, setEmail] = useState("");
   const [initial, setInitial] = useState("");
 
   useEffect(() => {
+    if (guestMode) {
+      setEmail("");
+      setInitial("?");
+      return;
+    }
+    let cancelled = false;
     fetchMe()
       .then((u) => {
+        if (cancelled) return;
         const e = u.email || "";
         setEmail(e);
         const d = (u.username || e || "U").trim();
         setInitial(d.charAt(0).toUpperCase());
       })
       .catch(() => {
+        if (cancelled) return;
         setEmail("");
         setInitial("?");
       });
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [guestMode]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -221,6 +244,7 @@ export function AppSidebar({
             icon={Search}
             label="Portfolio X-Ray"
             expanded={showExpanded}
+            activateOnPathnames={["/demo"]}
             onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
           />
           <NavItem
@@ -285,7 +309,7 @@ export function AppSidebar({
       </nav>
 
       <div className="mt-auto shrink-0 border-t border-white/[0.06] p-2 space-y-2">
-        {hasResult && state.result ? (
+        {!guestMode && hasResult && state.result ? (
           <div
             className={cn(
               "rounded-lg border border-white/[0.06] bg-white/[0.03] p-2",
@@ -306,48 +330,89 @@ export function AppSidebar({
           </div>
         ) : null}
 
-        <div
-          className={cn(
-            "flex items-center gap-2 px-1",
-            !showExpanded && "flex-col gap-2",
-          )}
-        >
+        {guestMode ? (
           <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-primary"
-            title={email}
+            className={cn(
+              "flex items-center gap-2 px-1",
+              !showExpanded && "flex-col gap-2",
+            )}
           >
-            {initial}
-          </div>
-          {showExpanded ? (
-            <span className="min-w-0 flex-1 truncate font-syne text-xs text-text-muted">
-              {email || "—"}
-            </span>
-          ) : null}
-          {!showExpanded ? (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() => void handleSignOut()}
-                  className="rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-                  aria-label="Sign out"
-                >
-                  <LogOut size={18} strokeWidth={1.5} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Sign out</TooltipContent>
-            </Tooltip>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void handleSignOut()}
-              className="shrink-0 rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-              aria-label="Sign out"
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-muted"
+              title="Guest"
             >
-              <LogOut size={18} strokeWidth={1.5} />
-            </button>
-          )}
-        </div>
+              ?
+            </div>
+            {showExpanded ? (
+              <Link
+                to="/login"
+                state={{ from: location.pathname }}
+                className="min-w-0 flex-1 rounded-md border border-white/[0.08] px-2 py-1.5 text-center font-syne text-xs font-semibold text-accent hover:bg-white/[0.04] no-underline"
+                onClick={() => isMobile && onMobileOpenChange(false)}
+              >
+                Sign in
+              </Link>
+            ) : (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Link
+                    to="/login"
+                    state={{ from: location.pathname }}
+                    className="rounded-md p-2 text-accent hover:bg-white/[0.04] no-underline inline-flex"
+                    aria-label="Sign in"
+                    onClick={() => isMobile && onMobileOpenChange(false)}
+                  >
+                    <LogIn size={18} strokeWidth={1.5} />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign in</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "flex items-center gap-2 px-1",
+              !showExpanded && "flex-col gap-2",
+            )}
+          >
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-primary"
+              title={email}
+            >
+              {initial}
+            </div>
+            {showExpanded ? (
+              <span className="min-w-0 flex-1 truncate font-syne text-xs text-text-muted">
+                {email || "—"}
+              </span>
+            ) : null}
+            {!showExpanded ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => void handleSignOut()}
+                    className="rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
+                    aria-label="Sign out"
+                  >
+                    <LogOut size={18} strokeWidth={1.5} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Sign out</TooltipContent>
+              </Tooltip>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className="shrink-0 rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
+                aria-label="Sign out"
+              >
+                <LogOut size={18} strokeWidth={1.5} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

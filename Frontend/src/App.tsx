@@ -7,6 +7,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnalysisProvider } from "@/context/analysis-context";
+import { SessionProvider } from "@/context/session-context";
 import { AppLayout } from "@/components/AppLayout";
 import { AuthGuard } from "@/components/AuthGuard";
 import Landing from "./pages/Landing";
@@ -53,11 +54,12 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AnalysisProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <SessionProvider>
+        <AnalysisProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -148,20 +150,19 @@ const App = () => {
               <Route
                 path="/demo"
                 element={
-                  <AuthGuard>
-                    <AppLayout>
-                      <Demo />
-                    </AppLayout>
-                  </AuthGuard>
+                  <AppLayout>
+                    <Demo />
+                  </AppLayout>
                 }
               />
 
               <Route path="/app" element={<Navigate to="/dashboard" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AnalysisProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AnalysisProvider>
+      </SessionProvider>
     </QueryClientProvider>
   );
 };
