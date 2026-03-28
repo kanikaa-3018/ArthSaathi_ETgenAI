@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Hide user data
+backend/users.json
+
 # C extensions
 *.so
 
