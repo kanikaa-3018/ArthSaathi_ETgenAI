@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { Mic, MicOff, Send, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,7 +90,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       };
-      const token = getToken();
+      const token = await getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }

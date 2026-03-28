@@ -2,22 +2,65 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
+const FALLBACK_MS = 15_000;
+
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        navigate("/analyze", { replace: true });
-      }
-    });
+    let isMounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
 
-    // Fallback: if no auth event fires within 5s, redirect to login
-    const timeout = setTimeout(() => navigate("/login", { replace: true }), 5000);
+    const clearFallback = () => {
+      if (timeout !== null) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+    };
+
+    const goAnalyze = () => {
+      clearFallback();
+      navigate("/analyze", { replace: true });
+    };
+
+    const goLogin = () => {
+      clearFallback();
+      navigate("/login", { replace: true });
+    };
+
+    const init = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!isMounted) return;
+
+      if (session) {
+        goAnalyze();
+        return;
+      }
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        // Not only SIGNED_IN — INITIAL_SESSION / TOKEN_REFRESHED can carry the new session after OAuth.
+        if (session?.access_token) goAnalyze();
+      });
+
+      authSubscription = subscription;
+
+      timeout = setTimeout(() => {
+        if (isMounted) goLogin();
+      }, FALLBACK_MS);
+    };
+
+    void init();
 
     return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
+      isMounted = false;
+      clearFallback();
+      authSubscription?.unsubscribe();
     };
   }, [navigate]);
 

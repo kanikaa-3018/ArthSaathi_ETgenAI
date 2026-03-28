@@ -26,12 +26,18 @@ if [ -z "$PYTHON" ]; then
 fi
 echo "[ok] Python: $($PYTHON --version)"
 
-# ---- Node check ----
+# ---- Node check (@supabase/supabase-js expects Node 20+ in its dependency tree) ----
 if ! command -v node &>/dev/null; then
-  echo "ERROR: Node.js 18+ required. Install: https://nodejs.org/"
+  echo "ERROR: Node.js 20+ required. Install: https://nodejs.org/"
   exit 1
 fi
-echo "[ok] Node: $(node --version)"
+NODE_VERSION_RAW="$(node --version 2>/dev/null || echo "")"
+NODE_MAJOR="$(echo "$NODE_VERSION_RAW" | sed -E 's/^v([0-9]+).*/\1/')"
+if [ -z "$NODE_MAJOR" ] || [ "$NODE_MAJOR" -lt 20 ]; then
+  echo "ERROR: Node.js 20+ required. Found: ${NODE_VERSION_RAW:-none}"
+  exit 1
+fi
+echo "[ok] Node: $NODE_VERSION_RAW"
 
 # ---- pnpm check ----
 if ! command -v pnpm &>/dev/null; then
@@ -72,7 +78,7 @@ cd ..
 echo ""
 echo "--- Frontend setup ---"
 cd Frontend
-pnpm install 2>/dev/null
+pnpm install
 echo "[ok] Frontend dependencies installed"
 cd ..
 

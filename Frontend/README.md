@@ -1,6 +1,6 @@
 # ArthSaathi Frontend
 
-**Backend:** run the API separately — see [`../backend/README.md`](../backend/README.md). Use **Python 3.11 or 3.12** for fast `pip install` (avoid 3.14+ for local dev).
+**Backend:** run the API separately — see [`../backend/README.md`](../backend/README.md). Use **Python 3.11 or 3.12** for fast `pip install` (avoid 3.14+ for local dev). Use **Node.js 20+** for the frontend (required by the current `@supabase/supabase-js` dependency tree).
 
 Unified frontend for ArthSaathi with:
 

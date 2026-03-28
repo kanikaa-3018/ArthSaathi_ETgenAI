@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { getToken } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { CheckCircle2 } from "lucide-react";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { AgentPanel } from "@/components/ArthSaathi/AgentPanel";
@@ -40,7 +40,7 @@ export default function AnalyzeProcessing() {
 
       startAnalysis();
       const headers: Record<string, string> = {};
-      const token = getToken();
+      const token = await getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }

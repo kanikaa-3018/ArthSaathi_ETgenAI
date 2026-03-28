@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "@/lib/api";
-import { authHeaders } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,12 +63,14 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       if (goalType === "custom" && customAmount) {
         body.target_amount = Number(customAmount.replace(/,/g, ""));
       }
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const token = await getAccessToken();
+      if (token) headers.Authorization = `Bearer ${token}`;
       const res = await fetch(api.goalsCalculate, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders(),
-        },
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());

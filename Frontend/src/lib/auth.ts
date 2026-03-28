@@ -1,10 +1,25 @@
+/**
+ * API auth: send the Supabase session access_token as Bearer; the FastAPI app validates it
+ * (HS256 + SUPABASE_JWT_SECRET and/or ES256 JWKS + SUPABASE_URL — see backend/app/auth.py).
+ */
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
+function storageKeyForSupabaseUrl(url: string): string {
+  try {
+    const host = new URL(url).hostname.split(".")[0];
+    return `sb-${host}-auth-token`;
+  } catch {
+    const projectRef = url.replace(/^https?:\/\//, "").split(".")[0];
+    return `sb-${projectRef}-auth-token`;
+  }
+}
+
+/** Sync read from localStorage — can lag right after OAuth redirect; prefer getAccessToken for API calls. */
 export function getToken(): string | null {
   const url = import.meta.env.VITE_SUPABASE_URL || "";
-  const projectRef = url.replace("https://", "").split(".")[0];
-  const key = `sb-${projectRef}-auth-token`;
+  if (!url) return null;
+  const key = storageKeyForSupabaseUrl(url);
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
@@ -13,6 +28,12 @@ export function getToken(): string | null {
   } catch {
     return null;
   }
+}
+
+/** Session from Supabase client (matches OAuth callback timing). */
+export async function getAccessToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? getToken();
 }
 
 export function isAuthenticated(): boolean {

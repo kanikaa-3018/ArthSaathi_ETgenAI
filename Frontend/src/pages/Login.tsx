@@ -20,6 +20,7 @@ export default function Login() {
     form?: string;
   }>({});
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated()) navigate("/analyze", { replace: true });
@@ -167,6 +168,8 @@ export default function Login() {
         <button
           type="button"
           onClick={async () => {
+            setOauthLoading(true);
+            setErrors({});
             try {
               await signInWithGoogle();
             } catch (err) {
@@ -174,9 +177,11 @@ export default function Login() {
                 form:
                   err instanceof Error ? err.message : "Google sign-in failed",
               });
+            } finally {
+              setOauthLoading(false);
             }
           }}
-          disabled={loading}
+          disabled={loading || oauthLoading}
           className="w-full h-11 rounded-lg font-syne font-semibold text-[14px] flex items-center justify-center gap-2 border transition-colors hover:border-white/20"
           style={{
             background: "hsl(220 20% 12%)",
@@ -202,7 +207,7 @@ export default function Login() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Continue with Google
+          {oauthLoading ? "Redirecting…" : "Continue with Google"}
         </button>
 
         <p className="font-syne text-[13px] text-text-muted text-center mt-6">

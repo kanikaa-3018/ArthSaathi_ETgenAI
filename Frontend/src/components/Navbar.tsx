@@ -1,14 +1,32 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { isAuthenticated } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
   const wordmarkRef = useRef<HTMLSpanElement>(null);
   const centerRef = useRef<HTMLSpanElement>(null);
   const btnRef = useRef<HTMLAnchorElement>(null);
-  const loggedIn = isAuthenticated();
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled) setLoggedIn(Boolean(data.session?.access_token));
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(Boolean(session?.access_token));
+    });
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -84,37 +102,54 @@ export default function Navbar() {
         ref={wordmarkRef}
         className="font-fraunces text-text-primary text-sm cursor-pointer"
         style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-        onClick={() => window.location.assign("/")}
+        onClick={() => navigate("/")}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            window.location.assign("/");
+            navigate("/");
           }
         }}
       >
         ArthSaathi
       </span>
 
-      <span
-        ref={centerRef}
-        className="hidden md:flex items-center gap-6"
-      >
-        <a href="/analyze" className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors">X-Ray</a>
-        <a href="/tax" className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors">Tax</a>
-        <a href="/fire" className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors">FIRE</a>
-        <a href="/mentor" className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors">Mentor</a>
+      <span ref={centerRef} className="hidden md:flex items-center gap-6">
+        <Link
+          to="/analyze"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          X-Ray
+        </Link>
+        <Link
+          to="/tax"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          Tax
+        </Link>
+        <Link
+          to="/fire"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          FIRE
+        </Link>
+        <Link
+          to="/mentor"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          Mentor
+        </Link>
       </span>
 
       <div className="flex items-center gap-2">
-        <a
+        <Link
           ref={btnRef}
-          href={loggedIn ? "/analyze" : "/login"}
+          to={loggedIn ? "/analyze" : "/login"}
           className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97] inline-flex items-center justify-center no-underline"
         >
           {loggedIn ? "Open App" : "Sign in"}
-        </a>
+        </Link>
       </div>
     </nav>
   );

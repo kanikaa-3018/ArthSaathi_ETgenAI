@@ -21,6 +21,8 @@ export default function Signup() {
     form?: string;
   }>({});
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [confirmEmailHint, setConfirmEmailHint] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated()) navigate("/analyze", { replace: true });
@@ -53,8 +55,12 @@ export default function Signup() {
     setLoading(true);
     setErrors({});
     try {
-      await registerRequest(email, password, name.trim());
-      navigate("/analyze", { replace: true });
+      const data = await registerRequest(email, password, name.trim());
+      if (data.session) {
+        navigate("/analyze", { replace: true });
+      } else {
+        setConfirmEmailHint(true);
+      }
     } catch (err) {
       setErrors({ form: (err as Error).message || "Registration failed" });
     } finally {
@@ -97,6 +103,32 @@ export default function Signup() {
         <p className="font-syne text-[15px] text-text-secondary font-medium mb-6">
           Create account
         </p>
+
+        {confirmEmailHint ? (
+          <div
+            className="mb-6 rounded-lg p-4 font-syne text-sm border"
+            style={{
+              background: "hsl(220 20% 12%)",
+              borderColor: "hsl(220 10% 20%)",
+              color: "hsl(var(--text-secondary))",
+            }}
+          >
+            <p className="mb-2">
+              If your project requires email confirmation, check your inbox and verify your address, then{" "}
+              <Link to="/login" className="text-accent hover:underline">
+                sign in
+              </Link>
+              .
+            </p>
+            <p className="text-text-muted text-xs">
+              No confirmation email? You may already be able to{" "}
+              <Link to="/login" className="text-accent hover:underline">
+                sign in
+              </Link>{" "}
+              now.
+            </p>
+          </div>
+        ) : null}
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           {/* Name */}
@@ -204,6 +236,8 @@ export default function Signup() {
         <button
           type="button"
           onClick={async () => {
+            setOauthLoading(true);
+            setErrors({});
             try {
               await signInWithGoogle();
             } catch (err) {
@@ -211,9 +245,11 @@ export default function Signup() {
                 form:
                   err instanceof Error ? err.message : "Google sign-in failed",
               });
+            } finally {
+              setOauthLoading(false);
             }
           }}
-          disabled={loading}
+          disabled={loading || oauthLoading}
           className="w-full h-11 rounded-lg font-syne font-semibold text-[14px] flex items-center justify-center gap-2 border transition-colors hover:border-white/20"
           style={{
             background: "hsl(220 20% 12%)",
@@ -239,7 +275,7 @@ export default function Signup() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Continue with Google
+          {oauthLoading ? "Redirecting…" : "Continue with Google"}
         </button>
 
         <p className="font-syne text-[13px] text-text-muted text-center mt-6">
