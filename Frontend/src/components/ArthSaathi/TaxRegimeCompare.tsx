@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Calculator, ChevronDown, ChevronUp } from "lucide-react";
 import { api } from "@/lib/api";
 import type { AnalysisData, TaxRegimeCompareResponse } from "@/types/analysis";
@@ -15,6 +24,16 @@ function elssFromPortfolio(funds: AnalysisData["funds"]): number {
 
 interface TaxRegimeCompareProps {
   data: AnalysisData;
+}
+
+const inputClass =
+  "bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm text-sm";
+
+/** Strips ₹, spaces, commas, etc. so pasted values still parse. */
+function parseAmountField(raw: string): number {
+  const digits = raw.replace(/\D/g, "");
+  const n = Number(digits);
+  return Number.isFinite(n) ? n : 0;
 }
 
 export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
@@ -38,14 +57,14 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
     setErr(null);
     try {
       const body = {
-        gross_salary: Number(grossSalary.replace(/,/g, "")) || 0,
-        hra_received_annual: Number(hraAnnual.replace(/,/g, "")) || 0,
-        rent_paid_annual: Number(rentAnnual.replace(/,/g, "")) || 0,
+        gross_salary: parseAmountField(grossSalary),
+        hra_received_annual: parseAmountField(hraAnnual),
+        rent_paid_annual: parseAmountField(rentAnnual),
         is_metro: isMetro,
-        section_80c: Number(s80c.replace(/,/g, "")) || 0,
-        section_80d: Number(s80d.replace(/,/g, "")) || 0,
-        section_80ccd1b: Number(ccd1b.replace(/,/g, "")) || 0,
-        home_loan_interest: Number(homeLoan.replace(/,/g, "")) || 0,
+        section_80c: parseAmountField(s80c),
+        section_80d: parseAmountField(s80d),
+        section_80ccd1b: parseAmountField(ccd1b),
+        home_loan_interest: parseAmountField(homeLoan),
         elss_from_portfolio: elss,
       };
       const res = await fetch(api.taxRegimeCompare, {
@@ -71,12 +90,18 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
         ]
       : [];
 
+  const recNew = result?.recommendation === "new";
+  const recBannerStyle = recNew
+    ? { background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.25)" }
+    : { background: "rgba(74,144,217,0.12)", border: "1px solid rgba(74,144,217,0.25)" };
+  const recTextColor = recNew ? "hsl(var(--positive))" : "hsl(var(--accent))";
+
   return (
-    <div className="card-arth p-6 border border-white/10">
+    <div className="card-arth border border-white/10 p-6">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between gap-2 text-left"
+        className="flex w-full items-center justify-between gap-2 text-left"
       >
         <div className="flex items-center gap-2">
           <Calculator className="h-5 w-5 text-[hsl(var(--accent))]" />
@@ -91,47 +116,102 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
       </button>
 
       {open ? (
-        <div className="mt-6 grid lg:grid-cols-2 gap-6">
-          <div className="space-y-3">
+        <div className="mt-6 grid gap-8 lg:grid-cols-2">
+          <div className="space-y-6">
             {elss > 0 ? (
-              <p className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
+              <p className="font-syne text-xs text-text-secondary">
                 ELSS in portfolio (toward 80C cap): ₹{(elss / 100000).toFixed(2)}L auto-included
               </p>
             ) : null}
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Annual gross salary (₹)</span>
-              <Input value={grossSalary} onChange={(e) => setGrossSalary(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>HRA received (annual ₹)</span>
-              <Input value={hraAnnual} onChange={(e) => setHraAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Rent paid (annual ₹)</span>
-              <Input value={rentAnnual} onChange={(e) => setRentAnnual(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <div className="flex items-center gap-2">
-              <Switch checked={isMetro} onCheckedChange={setIsMetro} id="metro" />
-              <label htmlFor="metro" className="font-body text-xs" style={{ color: "hsl(var(--text-secondary))" }}>
-                Metro city (50% HRA rule)
+
+            <div className="space-y-3 border-b border-white/[0.06] pb-6">
+              <p className="section-label">Income</p>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">Annual gross salary</span>
+                <Input
+                  value={grossSalary}
+                  onChange={(e) => setGrossSalary(e.target.value)}
+                  placeholder="₹18,00,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">HRA received (annual)</span>
+                <Input
+                  value={hraAnnual}
+                  onChange={(e) => setHraAnnual(e.target.value)}
+                  placeholder="₹2,40,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">Rent paid (annual)</span>
+                <Input
+                  value={rentAnnual}
+                  onChange={(e) => setRentAnnual(e.target.value)}
+                  placeholder="₹3,00,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <div className="flex items-center gap-2 pt-1">
+                <Switch checked={isMetro} onCheckedChange={setIsMetro} id="metro" />
+                <label htmlFor="metro" className="font-syne text-xs text-text-secondary">
+                  Metro city (50% HRA rule)
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-3 border-b border-white/[0.06] pb-6">
+              <p className="section-label">Deductions</p>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">80C excl. ELSS (ELSS from CAS added)</span>
+                <Input
+                  value={s80c}
+                  onChange={(e) => setS80c(e.target.value)}
+                  placeholder="₹1,50,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">80D (medical)</span>
+                <Input
+                  value={s80d}
+                  onChange={(e) => setS80d(e.target.value)}
+                  placeholder="₹25,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">80CCD(1B) NPS</span>
+                <Input
+                  value={ccd1b}
+                  onChange={(e) => setCcd1b(e.target.value)}
+                  placeholder="₹50,000"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
               </label>
             </div>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80C (excl. ELSS field — ELSS from CAS added)</span>
-              <Input value={s80c} onChange={(e) => setS80c(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80D</span>
-              <Input value={s80d} onChange={(e) => setS80d(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>80CCD(1B) NPS</span>
-              <Input value={ccd1b} onChange={(e) => setCcd1b(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Home loan interest (24b)</span>
-              <Input value={homeLoan} onChange={(e) => setHomeLoan(e.target.value)} className="bg-[hsl(var(--bg-tertiary))] border-white/10" />
-            </label>
+
+            <div className="space-y-3">
+              <p className="section-label">Home</p>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">Home loan interest (24(b))</span>
+                <Input
+                  value={homeLoan}
+                  onChange={(e) => setHomeLoan(e.target.value)}
+                  placeholder="₹0"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+            </div>
+
             <Button type="button" onClick={() => void compare()} disabled={loading}>
               {loading ? "Calculating…" : "Compare regimes"}
             </Button>
@@ -141,43 +221,55 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
           <div className="space-y-4">
             {result ? (
               <>
-                <div
-                  className="rounded-lg px-3 py-2 border border-white/10 inline-block"
-                  style={{
-                    background:
-                      result.recommendation === "new" ? "rgba(52,211,153,0.12)" : "rgba(74,144,217,0.12)",
-                  }}
-                >
-                  <span className="font-body text-xs font-medium text-primary-light">
-                    Lower tax: {result.recommendation === "new" ? "New regime" : "Old regime"} · Save{" "}
-                    {result.savings_display}
+                <div className="rounded-lg px-4 py-3" style={recBannerStyle}>
+                  <span className="font-syne text-sm font-medium" style={{ color: recTextColor }}>
+                    Lower tax: {recNew ? "New regime" : "Old regime"} · Save {result.savings_display}
                   </span>
                 </div>
                 <div className="h-48 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                       <XAxis dataKey="name" tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 11 }} />
-                      <YAxis tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }} />
+                      <YAxis
+                        tick={{ fill: "hsl(var(--text-tertiary))", fontSize: 10 }}
+                        tickFormatter={(v) => `₹${(Number(v) / 100000).toFixed(1)}L`}
+                      />
                       <Tooltip
                         contentStyle={{
                           background: "hsl(var(--bg-secondary))",
                           border: "1px solid rgba(255,255,255,0.1)",
                           fontSize: 12,
+                          fontFamily: "DM Mono, ui-monospace, monospace",
                         }}
                       />
-                      <Bar dataKey="tax" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="tax" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry) => (
+                          <Cell
+                            key={entry.name}
+                            fill={
+                              entry.name === "New regime"
+                                ? recNew
+                                  ? "hsl(var(--positive))"
+                                  : "hsl(220 8% 38%)"
+                                : recNew
+                                  ? "hsl(220 8% 38%)"
+                                  : "hsl(var(--accent))"
+                            }
+                          />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-                <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+                <ul className="list-disc space-y-1 pl-5 font-syne text-xs text-text-tertiary">
                   {result.tips.map((t) => (
                     <li key={t.slice(0, 48)}>{t}</li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
+              <p className="font-syne text-xs text-text-tertiary">
                 Enter salary and deductions, then compare.
               </p>
             )}

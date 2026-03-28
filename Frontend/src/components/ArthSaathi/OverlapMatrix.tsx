@@ -1,5 +1,6 @@
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { isEquityForOverlap } from "@/lib/equityCategory";
 import { shortFundName } from "@/lib/format";
 import type { AnalysisData } from "@/types/analysis";
 import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
@@ -20,8 +21,34 @@ function overlapBg(pct: number) {
 export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
   const { ref, visible } = useScrollReveal();
 
-  const equityFunds = funds.filter((f) => f.category.startsWith("Equity"));
-  if (!equityFunds || equityFunds.length < 2) {
+  const equityFunds = useMemo(
+    () => funds.filter((f) => isEquityForOverlap(f.category)),
+    [funds],
+  );
+
+  const sortedPairs = useMemo(() => {
+    if (equityFunds.length < 2) return [];
+    const seen = new Set<string>();
+    const rows: {
+      fund_a_short: string;
+      fund_b_short: string;
+      overlap: number;
+    }[] = [];
+    for (const m of data.matrix) {
+      const a = shortFundName(m.fund_a);
+      const b = shortFundName(m.fund_b);
+      const key = [a, b].sort().join("\0");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const ov = m.overlap ?? 0;
+      if (ov <= 0) continue;
+      rows.push({ fund_a_short: a, fund_b_short: b, overlap: ov });
+    }
+    rows.sort((x, y) => y.overlap - x.overlap);
+    return rows.slice(0, 5);
+  }, [data.matrix, equityFunds.length]);
+
+  if (equityFunds.length < 2) {
     return (
       <NoDataCard
         title="Overlap Analysis"
@@ -29,6 +56,7 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
       />
     );
   }
+
   const names = equityFunds.map((f) => shortFundName(f.scheme_name));
 
   const getOverlap = (a: string, b: string): number | null => {
@@ -57,8 +85,35 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
         Fund Overlap Analysis
       </h2>
 
-      {/* Heatmap */}
-      <div className="overflow-x-auto mt-6">
+      {sortedPairs.length > 0 ? (
+        <div className="mt-6 space-y-2 md:hidden">
+          <p className="section-label">Top overlaps</p>
+          {sortedPairs.map((pair, i) => {
+            const o = pair.overlap;
+            const heat = Math.min(1, o / 40);
+            return (
+              <div
+                key={`${pair.fund_a_short}-${pair.fund_b_short}-${i}`}
+                className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.06] px-3 py-2"
+                style={{
+                  background: `rgba(248, 113, 113, ${0.06 + heat * 0.14})`,
+                }}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-syne text-xs text-text-primary">{pair.fund_a_short}</p>
+                  <p className="truncate font-syne text-xs text-text-muted">{pair.fund_b_short}</p>
+                </div>
+                <span className="ml-2 shrink-0 font-mono text-sm text-text-primary">
+                  {o.toFixed(0)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* Heatmap — desktop */}
+      <div className="mt-6 hidden overflow-x-auto md:block">
         <div
           className="inline-grid gap-0.5"
           style={{

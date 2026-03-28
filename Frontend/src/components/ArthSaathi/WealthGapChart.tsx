@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useId, useMemo, useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { compactINR } from "@/lib/format";
 import {
   Area,
   AreaChart,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
@@ -25,11 +26,20 @@ interface WealthGapChartProps {
 type GapPoint = { year: number; current: number; optimized: number };
 type TooltipPayloadEntry = { payload?: GapPoint };
 
+function axisCompactINR(v: number): string {
+  const a = Math.abs(v);
+  if (a >= 1e7) return `${(v / 1e7).toFixed(1)}Cr`;
+  if (a >= 1e5) return `${(v / 1e5).toFixed(0)}L`;
+  if (a >= 1e3) return `${(v / 1e3).toFixed(0)}k`;
+  return String(Math.round(v));
+}
+
 export function WealthGapChart({
   currentPath,
   optimizedPath,
   assumptions,
 }: WealthGapChartProps) {
+  const chartUid = useId().replace(/:/g, "");
   const { ref, visible } = useScrollReveal();
   const [years, setYears] = useState(10);
 
@@ -84,20 +94,15 @@ export function WealthGapChart({
     if (!row) return null;
     return (
       <div
-        className="card-arth p-3 text-xs"
-        style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+        className="rounded-md border border-white/10 px-3 py-2 text-xs"
+        style={{ background: "hsl(var(--bg-secondary))" }}
       >
-        <p
-          className="font-body"
-          style={{ color: "hsl(var(--text-secondary))" }}
-        >
-          Year {row.year}
+        <p className="font-syne text-text-muted">Year {row.year}</p>
+        <p className="font-mono-dm mt-1 text-[hsl(160,67%,52%)]">
+          Optimized {compactINR(row.optimized)}
         </p>
-        <p className="font-mono-dm text-positive">
-          Optimized: {compactINR(row.optimized)}
-        </p>
-        <p className="font-mono-dm" style={{ color: "hsl(var(--chart-6))" }}>
-          Current: {compactINR(row.current)}
+        <p className="font-mono-dm mt-0.5 text-[hsl(213,60%,56%)]">
+          Current {compactINR(row.current)}
         </p>
       </div>
     );
@@ -139,30 +144,55 @@ export function WealthGapChart({
         <ResponsiveContainer>
           <AreaChart
             data={filtered}
-            margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+            margin={{ top: 8, right: 8, bottom: 8, left: 4 }}
           >
             <defs>
-              <linearGradient id="gapFill" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient
+                id={`currentGrad-${chartUid}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
                 <stop
                   offset="0%"
-                  stopColor="hsl(0 92% 72%)"
-                  stopOpacity={0.1}
+                  stopColor="hsl(213, 60%, 56%)"
+                  stopOpacity={0.32}
                 />
                 <stop
                   offset="100%"
-                  stopColor="hsl(0 92% 72%)"
-                  stopOpacity={0.02}
+                  stopColor="hsl(213, 60%, 56%)"
+                  stopOpacity={0}
+                />
+              </linearGradient>
+              <linearGradient
+                id={`optimizedGrad-${chartUid}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="0%"
+                  stopColor="hsl(160, 60%, 50%)"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="100%"
+                  stopColor="hsl(160, 60%, 50%)"
+                  stopOpacity={0}
                 />
               </linearGradient>
             </defs>
+            <CartesianGrid stroke="transparent" vertical={false} />
             <XAxis
               dataKey="year"
               axisLine={false}
               tickLine={false}
               tick={{
                 fontSize: 11,
-                fontFamily: "DM Mono",
-                fill: "hsl(220 5% 57%)",
+                fontFamily: "DM Mono, ui-monospace, monospace",
+                fill: "hsl(var(--text-tertiary))",
               }}
               tickFormatter={(v) => `Y${v}`}
             />
@@ -171,29 +201,29 @@ export function WealthGapChart({
               tickLine={false}
               tick={{
                 fontSize: 11,
-                fontFamily: "DM Mono",
-                fill: "hsl(220 5% 57%)",
+                fontFamily: "DM Mono, ui-monospace, monospace",
+                fill: "hsl(var(--text-tertiary))",
               }}
-              tickFormatter={(v) => compactINR(v)}
-              width={70}
+              tickFormatter={(v) => axisCompactINR(Number(v))}
+              width={52}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="optimized"
-              stroke="hsl(160 67% 52%)"
+              stroke="hsl(160, 67%, 52%)"
               strokeWidth={2}
-              fill="none"
+              fill={`url(#optimizedGrad-${chartUid})`}
               dot={false}
               animationDuration={1500}
             />
             <Area
               type="monotone"
               dataKey="current"
-              stroke="hsl(220 5% 57%)"
+              stroke="hsl(213, 60%, 56%)"
               strokeWidth={2}
               strokeDasharray="6 4"
-              fill="url(#gapFill)"
+              fill={`url(#currentGrad-${chartUid})`}
               dot={false}
               animationDuration={1500}
             />

@@ -9,6 +9,10 @@ interface AssetAllocationProps {
   directCount: number;
 }
 
+/** ~60% inner radius vs outer 80 */
+const OUTER_R = 80;
+const INNER_R = 48;
+
 export function AssetAllocation({
   equityPct,
   debtPct,
@@ -27,14 +31,33 @@ export function AssetAllocation({
   }
 
   const allocationData = [
-    { name: "Equity", value: equityPct, color: "hsl(213, 60%, 56%)" },
-    { name: "Debt", value: debtPct, color: "hsl(220, 5%, 57%)" },
+    {
+      name: "Equity",
+      value: equityPct,
+      color: "hsl(var(--accent))",
+    },
+    {
+      name: "Debt",
+      value: debtPct,
+      color: "hsl(220, 8%, 42%)",
+    },
   ];
 
   const planData = [
-    { name: "Regular", value: regularCount, color: "hsl(44, 96%, 56%)" },
-    { name: "Direct", value: directCount, color: "hsl(160, 67%, 52%)" },
+    {
+      name: "Regular",
+      value: regularCount,
+      color: "hsl(44, 96%, 56%)",
+    },
+    {
+      name: "Direct",
+      value: directCount,
+      color: "hsl(160, 67%, 52%)",
+    },
   ];
+
+  const totalPct = Math.round(equityPct + debtPct);
+  const planTotal = regularCount + directCount;
 
   return (
     <div
@@ -50,97 +73,102 @@ export function AssetAllocation({
         Asset Allocation
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Equity vs Debt */}
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
         <div className="flex flex-col items-center">
-          <div className="relative w-48 h-48">
-            <ResponsiveContainer>
+          <div className="relative h-52 w-52">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={allocationData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
+                  innerRadius={INNER_R}
+                  outerRadius={OUTER_R}
                   dataKey="value"
                   startAngle={90}
                   endAngle={-270}
+                  stroke="rgba(255,255,255,0.06)"
+                  strokeWidth={1}
                   animationDuration={1500}
                   animationBegin={visible ? 0 : 99999}
                 >
                   {allocationData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} stroke="none" />
+                    <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-mono-dm text-[28px] font-medium text-primary-light">
-                {equityPct}%
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span className="font-mono-dm text-2xl font-medium text-primary-light">
+                {totalPct}%
+              </span>
+              <span className="font-syne mt-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                Net allocated
               </span>
             </div>
           </div>
-          <div className="flex gap-4 mt-3">
+          <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2">
             {allocationData.map((d) => (
-              <div key={d.name} className="flex items-center gap-2">
+              <span
+                key={d.name}
+                className="font-syne inline-flex items-center gap-2 text-xs text-text-secondary"
+              >
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="h-2 w-2 shrink-0 rounded-sm"
                   style={{ background: d.color }}
                 />
-                <span
-                  className="font-body text-xs"
-                  style={{ color: "hsl(var(--text-secondary))" }}
-                >
-                  {d.name} ({d.value}%)
-                </span>
-              </div>
+                {d.name} <span className="font-mono-dm">{d.value}%</span>
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Regular vs Direct */}
         <div className="flex flex-col items-center">
-          <div className="relative w-48 h-48">
-            <ResponsiveContainer>
+          <div className="relative h-52 w-52">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={planData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
+                  innerRadius={INNER_R}
+                  outerRadius={OUTER_R}
                   dataKey="value"
                   startAngle={90}
                   endAngle={-270}
+                  stroke="rgba(255,255,255,0.06)"
+                  strokeWidth={1}
                   animationDuration={1500}
                   animationBegin={visible ? 0 : 99999}
                 >
                   {planData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} stroke="none" />
+                    <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-mono-dm text-[28px] font-medium text-primary-light">
-                {regularCount}:{directCount}
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span className="font-mono-dm text-xl font-medium text-primary-light">
+                {planTotal > 0 ? `${regularCount}:${directCount}` : "—"}
+              </span>
+              <span className="font-syne mt-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                Regular : direct
               </span>
             </div>
           </div>
-          <div className="flex gap-4 mt-3">
+          <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2">
             {planData.map((d) => (
-              <div key={d.name} className="flex items-center gap-2">
+              <span
+                key={d.name}
+                className="font-syne inline-flex items-center gap-2 text-xs text-text-secondary"
+              >
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="h-2 w-2 shrink-0 rounded-sm"
                   style={{ background: d.color }}
                 />
-                <span
-                  className="font-body text-xs"
-                  style={{ color: "hsl(var(--text-secondary))" }}
-                >
-                  {d.name} ({d.value})
-                </span>
-              </div>
+                {d.name}{" "}
+                <span className="font-mono-dm">{d.value} funds</span>
+              </span>
             ))}
           </div>
         </div>

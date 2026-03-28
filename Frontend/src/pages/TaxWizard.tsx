@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import { useAnalysis } from "@/context/analysis-context";
 import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
-import { Link } from "react-router-dom";
+import { TaxRegimeCompare } from "@/components/ArthSaathi/TaxRegimeCompare";
 import type { AnalysisData } from "@/types/analysis";
 
 /** Stub AnalysisData for use when no real analysis is available */
@@ -30,7 +31,6 @@ const stubData: AnalysisData = {
   funds: [],
 
   overlap_analysis: {
-    // ✅ FIXED
     max_pairwise_overlap: null,
     overlap_level: null,
     matrix: [],
@@ -78,38 +78,48 @@ const stubData: AnalysisData = {
 export default function TaxWizard() {
   const { state } = useAnalysis();
   const data: AnalysisData = state.result ?? stubData;
-  const usingStub = !state.result;
+  const hasRealAnalysis = Boolean(state.result);
 
   return (
-    <div className="max-w-[720px] mx-auto px-4 py-8">
-      {/* Header */}
-      <div
-        className="w-10 h-[2px] mb-4"
-        style={{ background: "hsl(var(--accent))" }}
-      />
-      <h1
-        className="font-fraunces text-[26px] text-text-primary"
-        style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-      >
-        Tax insights
-      </h1>
-      <p className="font-syne text-[15px] text-text-secondary mt-2 mb-8">
-        LTCG estimates, harvesting opportunities, and tax regime context.
-      </p>
-
-      {usingStub && (
-        <p className="font-syne text-[13px] text-text-muted mb-6">
-          Upload a{" "}
-          <Link to="/analyze" className="text-accent hover:underline">
-            CAS statement
-          </Link>{" "}
-          for personalized tax estimates based on your actual portfolio.
+    <div className="mx-auto max-w-[720px] px-4 py-8">
+      <div className="mb-8">
+        <h1
+          className="font-fraunces text-[24px] text-text-primary"
+          style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+        >
+          Tax calculator
+        </h1>
+        <p className="font-syne mt-2 text-sm text-text-secondary">
+          Compare old and new tax regimes. Enter your income details below. LTCG-style estimates from your
+          portfolio appear when you have an analysis in session.
         </p>
-      )}
+      </div>
+
+      {!hasRealAnalysis ? (
+        <div
+          className="card-arth mb-6 border px-4 py-3"
+          style={{
+            background: "rgba(255, 180, 50, 0.06)",
+            borderColor: "rgba(255, 180, 50, 0.15)",
+          }}
+        >
+          <p className="font-syne text-xs text-text-secondary">
+            Showing sample context only.{" "}
+            <Link to="/analyze" className="text-accent hover:underline">
+              Upload a CAS
+            </Link>{" "}
+            for personalized tax and portfolio-aware inputs.
+          </p>
+        </div>
+      ) : null}
 
       <TaxInsights data={data} />
 
-      <p className="font-syne text-[12px] text-text-muted mt-8">
+      <div className="mt-8">
+        <TaxRegimeCompare data={data} />
+      </div>
+
+      <p className="font-syne mt-8 text-xs text-text-muted">
         FY 2025-26 rates. Indicative only — not SEBI-registered advice.
       </p>
     </div>

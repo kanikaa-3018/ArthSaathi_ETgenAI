@@ -1,12 +1,13 @@
+import { Link } from "react-router-dom";
 import { useAnalysis } from "@/context/analysis-context";
 import { GoalPlanner } from "@/components/ArthSaathi/GoalPlanner";
-import { Link } from "react-router-dom";
 import type { AnalysisData } from "@/types/analysis";
 
 const stubData: AnalysisData = {
   status: "success",
   processing_time_ms: 0,
   investor: { name: "", email: "", pan_masked: "" },
+  statement_period: { from: "", to: "" },
   portfolio_summary: {
     total_current_value: 0,
     total_invested: 0,
@@ -19,7 +20,13 @@ const stubData: AnalysisData = {
   },
   portfolio_xirr: { rate: 0.1, display: "10.00%", status: "estimated" },
   funds: [],
-  overlap_analysis: null,
+  overlap_analysis: {
+    max_pairwise_overlap: null,
+    overlap_level: null,
+    matrix: [],
+    top_concentrated_stocks: [],
+    concentration_warnings: [],
+  },
   expense_summary: {
     total_annual_drag: 0,
     total_projected_10yr_drag: 0,
@@ -52,36 +59,45 @@ const stubData: AnalysisData = {
 export default function FirePlanner() {
   const { state } = useAnalysis();
   const data: AnalysisData = state.result ?? stubData;
-  const usingStub = !state.result;
+  const hasRealAnalysis = Boolean(state.result);
 
   return (
-    <div className="max-w-[800px] mx-auto px-4 py-8">
-      {/* Header */}
-      <div
-        className="w-10 h-[2px] mb-4"
-        style={{ background: "hsl(var(--warning))" }}
-      />
-      <h1
-        className="font-fraunces text-[26px] text-text-primary"
-        style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-      >
-        Plan your goals
-      </h1>
-      <p className="font-syne text-[15px] text-text-secondary mt-2 mb-8">
-        Set a target. See if your SIPs get you there.
-      </p>
+    <div className="mx-auto max-w-[800px] px-4 py-8">
+      <div className="mb-8">
+        <h1
+          className="font-fraunces text-[24px] text-text-primary"
+          style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+        >
+          Goal & FIRE planner
+        </h1>
+        <p className="font-syne mt-2 text-sm text-text-secondary">
+          Set a target year and SIP budget. We project corpus using your portfolio value and XIRR when available.
+        </p>
+      </div>
+
+      {!hasRealAnalysis ? (
+        <div
+          className="card-arth mb-6 border px-4 py-3"
+          style={{
+            background: "rgba(255, 180, 50, 0.06)",
+            borderColor: "rgba(255, 180, 50, 0.15)",
+          }}
+        >
+          <p className="font-syne text-xs text-text-secondary">
+            Showing sample data.{" "}
+            <Link to="/analyze" className="text-accent hover:underline">
+              Upload a CAS
+            </Link>{" "}
+            for personalized results.
+          </p>
+        </div>
+      ) : null}
 
       <GoalPlanner data={data} />
 
-      {usingStub && (
-        <p className="font-syne text-[13px] text-text-muted mt-6">
-          For projections based on your actual returns,{" "}
-          <Link to="/analyze" className="text-accent hover:underline">
-            upload a CAS statement
-          </Link>
-          .
-        </p>
-      )}
+      <p className="font-syne mt-8 text-xs text-text-muted">
+        Illustrative projections only — not investment advice.
+      </p>
     </div>
   );
 }

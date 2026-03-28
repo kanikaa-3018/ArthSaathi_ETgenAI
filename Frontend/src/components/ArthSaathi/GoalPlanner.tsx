@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Target } from "lucide-react";
 import {
+  Area,
+  ComposedChart,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -10,9 +11,21 @@ import {
 } from "recharts";
 import { api } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
+import { compactINR } from "@/lib/format";
 import type { AnalysisData, GoalCalculateResponse } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+const YEAR_MIN = 2026;
+const YEAR_MAX = 2060;
+
+function axisShort(v: number): string {
+  const a = Math.abs(v);
+  if (a >= 1e7) return `${(v / 1e7).toFixed(1)}Cr`;
+  if (a >= 1e5) return `${(v / 1e5).toFixed(0)}L`;
+  if (a >= 1e3) return `${Math.round(v / 1e3)}k`;
+  return String(Math.round(v));
+}
 
 const GOAL_TYPES = [
   { id: "retirement", label: "Retirement" },
@@ -27,6 +40,7 @@ interface GoalPlannerProps {
 }
 
 export function GoalPlanner({ data }: GoalPlannerProps) {
+  const chartUid = useId().replace(/:/g, "");
   const [open, setOpen] = useState(false);
   const [goalType, setGoalType] = useState<string>("retirement");
   const [targetYear, setTargetYear] = useState(2045);
@@ -95,6 +109,37 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
 
   const yearlyRoadmap = result?.yearly_roadmap ?? result?.monthly_roadmap;
 
+  const chartData = useMemo(
+    () =>
+      (yearlyRoadmap ?? []).map((r) => ({
+        yearLabel: String(r.year),
+        corpus: r.corpus,
+        invested: r.cumulative_invested,
+      })),
+    [yearlyRoadmap],
+  );
+
+  const GoalTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<{ payload?: { yearLabel: string; corpus: number; invested: number } }>;
+  }) => {
+    if (!active || !payload?.[0]?.payload) return null;
+    const p = payload[0].payload;
+    return (
+      <div
+        className="rounded-md border border-white/10 px-3 py-2 text-xs"
+        style={{ background: "hsl(var(--bg-secondary))" }}
+      >
+        <p className="font-syne text-text-muted">{p.yearLabel}</p>
+        <p className="font-mono-dm text-text-primary">Corpus {compactINR(p.corpus)}</p>
+        <p className="font-mono-dm text-text-tertiary">Invested {compactINR(p.invested)}</p>
+      </div>
+    );
+  };
+
   return (
     <div className="card-arth p-6 border border-white/10">
       <button
@@ -134,56 +179,88 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
             ))}
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-3">
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Target year</span>
+          <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+            {goalType === "custom" ? (
+              <label className="font-syne min-w-[200px] flex-1 text-xs space-y-1">
+                <span className="text-text-tertiary">Target corpus</span>
+                <Input
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  placeholder="e.g. 5,00,00,000"
+                  inputMode="decimal"
+                  className="bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm"
+                />
+              </label>
+            ) : null}
+
+            <div className="min-w-[200px] flex-1 space-y-1">
+              <span className="font-syne text-xs text-text-tertiary">Target year ({YEAR_MIN}–{YEAR_MAX})</span>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={YEAR_MIN}
+                  max={YEAR_MAX}
+                  value={targetYear}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    if (Number.isFinite(n))
+                      setTargetYear(Math.min(YEAR_MAX, Math.max(YEAR_MIN, n)));
+                  }}
+                  className="bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm sm:max-w-[120px]"
+                />
+                <input
+                  type="range"
+                  min={YEAR_MIN}
+                  max={YEAR_MAX}
+                  value={Math.min(YEAR_MAX, Math.max(YEAR_MIN, targetYear))}
+                  onChange={(e) => setTargetYear(Number(e.target.value))}
+                  className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full"
+                  style={{
+                    accentColor: "hsl(var(--accent))",
+                    background: "hsl(var(--bg-tertiary))",
+                  }}
+                  aria-label="Adjust target year"
+                />
+              </div>
+            </div>
+
+            <label className="font-syne min-w-[160px] flex-1 text-xs space-y-1">
+              <span className="text-text-tertiary">Monthly SIP (₹)</span>
               <Input
                 type="number"
-                value={targetYear}
-                onChange={(e) => setTargetYear(Number(e.target.value))}
-                className="bg-[hsl(var(--bg-tertiary))] border-white/10"
-              />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Current age</span>
-              <Input
-                type="number"
-                value={currentAge}
-                onChange={(e) => setCurrentAge(Number(e.target.value))}
-                className="bg-[hsl(var(--bg-tertiary))] border-white/10"
-              />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Monthly income (₹)</span>
-              <Input
-                type="number"
-                value={monthlyIncome}
-                onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-                className="bg-[hsl(var(--bg-tertiary))] border-white/10"
-              />
-            </label>
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Monthly SIP budget (₹)</span>
-              <Input
-                type="number"
+                inputMode="numeric"
                 value={monthlySip}
                 onChange={(e) => setMonthlySip(Number(e.target.value))}
-                className="bg-[hsl(var(--bg-tertiary))] border-white/10"
+                placeholder="₹25,000"
+                className="bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm"
               />
             </label>
           </div>
 
-          {goalType === "custom" ? (
-            <label className="font-body text-xs block space-y-1">
-              <span style={{ color: "hsl(var(--text-tertiary))" }}>Target corpus (₹)</span>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="font-syne text-xs block space-y-1">
+              <span className="text-text-tertiary">Current age</span>
               <Input
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder="e.g. 50000000"
-                className="bg-[hsl(var(--bg-tertiary))] border-white/10"
+                type="number"
+                inputMode="numeric"
+                value={currentAge}
+                onChange={(e) => setCurrentAge(Number(e.target.value))}
+                className="bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm"
               />
             </label>
-          ) : null}
+            <label className="font-syne text-xs block space-y-1">
+              <span className="text-text-tertiary">Monthly income (₹)</span>
+              <Input
+                type="number"
+                inputMode="numeric"
+                value={monthlyIncome}
+                onChange={(e) => setMonthlyIncome(Number(e.target.value))}
+                placeholder="₹1,50,000"
+                className="bg-[hsl(var(--bg-tertiary))] border-white/10 font-mono-dm"
+              />
+            </label>
+          </div>
 
           <Button type="button" onClick={() => void calculate()} disabled={loading} className="w-full sm:w-auto">
             {loading ? "Calculating…" : "Calculate"}
@@ -225,6 +302,82 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
                 Gap: <strong>{result.gap_analysis.shortfall_display}</strong>. Extra SIP:{" "}
                 <strong>{result.gap_analysis.additional_sip_display}</strong>
               </p>
+
+              {chartData.length > 0 ? (
+                <div className="mt-4">
+                  <p className="section-label mb-2">Corpus roadmap</p>
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient
+                            id={`goalCorpus-${chartUid}`}
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="hsl(213, 60%, 56%)"
+                              stopOpacity={0.35}
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="hsl(213, 60%, 56%)"
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <XAxis
+                          dataKey="yearLabel"
+                          tick={{ fontSize: 10, fill: "hsl(var(--text-tertiary))" }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 10, fill: "hsl(var(--text-tertiary))" }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={(v) => axisShort(Number(v))}
+                          width={44}
+                        />
+                        <Tooltip content={<GoalTooltip />} />
+                        <Area
+                          type="monotone"
+                          dataKey="corpus"
+                          stroke="hsl(213, 60%, 56%)"
+                          strokeWidth={2}
+                          fill={`url(#goalCorpus-${chartUid})`}
+                          dot={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="invested"
+                          stroke="hsl(220, 10%, 55%)"
+                          strokeWidth={1.5}
+                          strokeDasharray="4 4"
+                          dot={false}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                    {yearlyRoadmap?.slice(0, 10).map((r) => (
+                      <div
+                        key={`${r.year}-${r.age}`}
+                        className="min-w-[76px] shrink-0 border-l-2 border-[hsl(var(--accent))] pl-2"
+                      >
+                        <p className="font-mono text-[10px] text-text-muted">{r.year}</p>
+                        <p className="font-mono-dm text-[11px] text-text-primary leading-tight">
+                          {r.corpus_display}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               <ul className="list-disc pl-5 space-y-1 font-body text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
                 {result.recommendations.map((r, idx) => (
                   <li key={`${idx}-${r.slice(0, 40)}`}>{r}</li>
