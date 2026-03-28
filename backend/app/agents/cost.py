@@ -13,15 +13,38 @@ _TER_CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "ter
 _TER_ESTIMATES_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "ter_estimates.json")
 
 _ter_csv_cache: Optional[Dict[str, float]] = None
+_ter_scheme_cache: Optional[Dict[str, Dict[str, float]]] = None
 _ter_estimates_cache: Optional[Dict[str, Any]] = None
+
+
+def _norm_scheme_name(name: str) -> str:
+    return " ".join((name or "").strip().lower().split())
+
+
+def _parse_ter_percent(raw: str) -> Optional[float]:
+    try:
+        val = float(str(raw).replace("%", "").strip())
+        return val / 100 if val > 1 else val
+    except ValueError:
+        return None
+
+
+def _parse_tracker_ter_percent(raw: str) -> Optional[float]:
+    """TER values from captn3m0 Total TER (%) columns (e.g. 2.11 → 2.11%)."""
+    try:
+        val = float(str(raw).replace("%", "").strip())
+        return max(0.0, val / 100.0)
+    except ValueError:
+        return None
 
 
 def _load_ter_csv() -> Dict[str, float]:
     """Load captn3m0 TER tracker CSV. Returns {amfi_code: ter_decimal}."""
-    global _ter_csv_cache
+    global _ter_csv_cache, _ter_scheme_cache
     if _ter_csv_cache is not None:
         return _ter_csv_cache
     result: Dict[str, float] = {}
+    by_scheme: Dict[str, Dict[str, float]] = {}
     try:
         path = os.path.abspath(_TER_CSV_PATH)
         with open(path, newline="", encoding="utf-8") as f:
@@ -30,16 +53,36 @@ def _load_ter_csv() -> Dict[str, float]:
                 code = str(row.get("amfi_code") or row.get("schemeCode") or "").strip()
                 ter_raw = row.get("ter") or row.get("TER") or row.get("expense_ratio") or ""
                 if code and ter_raw:
-                    try:
-                        val = float(str(ter_raw).replace("%", "").strip())
-                        # Stored as percentage in CSV (e.g. 0.75 means 0.75%), convert to decimal
-                        result[code] = val / 100 if val > 1 else val
-                    except ValueError:
-                        pass
+                    parsed = _parse_ter_percent(ter_raw)
+                    if parsed is not None:
+                        result[code] = parsed
+
+                scheme = (
+                    row.get("Scheme Name")
+                    or row.get("scheme_name")
+                    or row.get("schemeName")
+                    or ""
+                ).strip()
+                reg_col = row.get("Regular Plan - Total TER (%)")
+                dir_col = row.get("Direct Plan - Total TER (%)")
+                if scheme and reg_col is not None and dir_col is not None:
+                    reg = _parse_tracker_ter_percent(str(reg_col))
+                    dire = _parse_tracker_ter_percent(str(dir_col))
+                    if reg is not None and dire is not None:
+                        by_scheme[_norm_scheme_name(scheme)] = {
+                            "regular": reg,
+                            "direct": dire,
+                        }
     except (FileNotFoundError, Exception):
         pass
     _ter_csv_cache = result
+    _ter_scheme_cache = by_scheme
     return result
+
+
+def _load_ter_by_scheme() -> Dict[str, Dict[str, float]]:
+    _load_ter_csv()
+    return _ter_scheme_cache or {}
 
 
 def _load_ter_estimates() -> Dict[str, Any]:
@@ -78,7 +121,12 @@ def _category_ter_key(category: str, is_direct: bool) -> str:
     return key
 
 
-def get_fund_ter(amfi_code: str, category: str, is_direct: bool) -> Dict[str, Any]:
+def get_fund_ter(
+    amfi_code: str,
+    category: str,
+    is_direct: bool,
+    scheme_name: str = "",
+) -> Dict[str, Any]:
     """
     Lookup chain:
       1. ter_data.csv (captn3m0 tracker)
@@ -86,14 +134,23 @@ def get_fund_ter(amfi_code: str, category: str, is_direct: bool) -> Dict[str, An
     Returns {ter, source, direct_ter}.
     """
     ter_csv = _load_ter_csv()
+    ter_by_scheme = _load_ter_by_scheme()
     ter_estimates = _load_ter_estimates()
 
-    # 1 — TER tracker CSV
+    # 1 — TER tracker CSV (AMFI code)
     if amfi_code and amfi_code in ter_csv:
         ter = ter_csv[amfi_code]
         key = _category_ter_key(category, is_direct)
         estimates = ter_estimates.get(key) or {}
         direct_ter = estimates.get("direct_ter", ter) if not is_direct else ter
+        return {"ter": ter, "source": "ter_tracker", "direct_ter": direct_ter}
+
+    # 1b — TER tracker CSV (scheme name — current captn3m0 data.csv format)
+    sn = _norm_scheme_name(scheme_name)
+    if sn and sn in ter_by_scheme:
+        pair = ter_by_scheme[sn]
+        ter = pair["direct"] if is_direct else pair["regular"]
+        direct_ter = pair["direct"]
         return {"ter": ter, "source": "ter_tracker", "direct_ter": direct_ter}
 
     # 2 — Category average
@@ -118,7 +175,8 @@ def compute_expense_drag(fund: Dict[str, Any], fund_xirr: Optional[float] = None
     is_direct = fund.get("is_direct", False)
     current_value = float(fund.get("current_value") or 0)
 
-    ter_info = get_fund_ter(amfi_code, category, is_direct)
+    scheme_name = str(fund.get("scheme_name") or "")
+    ter_info = get_fund_ter(amfi_code, category, is_direct, scheme_name=scheme_name)
     ter = ter_info["ter"]
     direct_ter = ter_info["direct_ter"]
     source = ter_info["source"]
