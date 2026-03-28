@@ -210,3 +210,14 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Internal working docs (not for submission)
+CURSOR_*.md
+PROMPTS_*.md
+WINNING_STRATEGY.md
+EXECUTION_PLAN.md
+FEATURES_BUILD_SPEC.md
+PPT_GUIDE.md
+VIDEO_SCRIPT.md
+gantt_chart.html
+onsite_dashboard_mockup.html

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { gsap } from "gsap";
@@ -13,6 +13,13 @@ import AnalyzeReport from "./pages/AnalyzeReport";
 import AnalyzeError from "./pages/AnalyzeError";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
+import TaxWizard from "./pages/TaxWizard";
+import FirePlanner from "./pages/FirePlanner";
+import MentorPage from "./pages/MentorPage";
+import AuthCallback from "./pages/AuthCallback";
+import { AppNavbar } from "@/components/AppNavbar";
+import { FloatingChat } from "@/components/FloatingChat";
+import { AuthGuard } from "@/components/AuthGuard";
 import { AnalysisProvider } from "@/context/analysis-context";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -27,6 +34,16 @@ function ScrollToTop() {
   }, [location.pathname]);
 
   return null;
+}
+
+function LayoutWithNav({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <AppNavbar />
+      <div className="pt-12">{children}</div>
+      <FloatingChat />
+    </>
+  );
 }
 
 const App = () => {
@@ -54,17 +71,99 @@ const App = () => {
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/analyze" element={<AnalyzeUpload />} />
-              <Route
-                path="/analyze/processing"
-                element={<AnalyzeProcessing />}
-              />
-              <Route path="/analyze/report" element={<AnalyzeReport />} />
-              <Route path="/analyze/error" element={<AnalyzeError />} />
-              <Route path="/demo" element={<Demo />} />
-              <Route path="/app" element={<AnalyzeUpload />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route
+                path="/analyze"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <AnalyzeUpload />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/analyze/processing"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <AnalyzeProcessing />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/analyze/report"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <AnalyzeReport />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/analyze/error"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <AnalyzeError />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/tax"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <TaxWizard />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/fire"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <FirePlanner />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/mentor"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <MentorPage />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/demo"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <Demo />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/app"
+                element={
+                  <AuthGuard>
+                    <LayoutWithNav>
+                      <AnalyzeUpload />
+                    </LayoutWithNav>
+                  </AuthGuard>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

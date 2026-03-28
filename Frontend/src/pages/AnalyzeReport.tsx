@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReportSections } from "@/components/ArthSaathi/ReportSections";
-import { isAuthenticated } from "@/lib/auth";
 import { MentorChat } from "@/components/ArthSaathi/MentorChat";
 import { useAnalysis } from "@/context/analysis-context";
 
@@ -10,11 +9,6 @@ export default function AnalyzeReport() {
   const { state } = useAnalysis();
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
     if (!state.result) {
       navigate("/analyze", {
         replace: true,

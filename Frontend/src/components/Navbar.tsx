@@ -1,24 +1,37 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { isAuthenticated, clearToken } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
-  const [counter, setCounter] = useState(28538);
-  const [loggedIn, setLoggedIn] = useState(isAuthenticated());
-  const counterRef = useRef<HTMLSpanElement>(null);
   const wordmarkRef = useRef<HTMLSpanElement>(null);
   const centerRef = useRef<HTMLSpanElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const btnRef = useRef<HTMLAnchorElement>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled) setLoggedIn(Boolean(data.session?.access_token));
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(Boolean(session?.access_token));
+    });
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
 
-    // Entrance animation - filter out null refs
     const refArray = [
       wordmarkRef.current,
       centerRef.current,
@@ -76,16 +89,6 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    const increment = 28538 / 60;
-    const interval = setInterval(() => {
-      setCounter((prev) => prev + increment);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const displayNum = Math.floor(counter).toLocaleString("en-IN");
-
   return (
     <nav
       ref={navRef}
@@ -99,64 +102,54 @@ export default function Navbar() {
         ref={wordmarkRef}
         className="font-fraunces text-text-primary text-sm cursor-pointer"
         style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-        onClick={() => window.location.assign("/")}
+        onClick={() => navigate("/")}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            window.location.assign("/");
+            navigate("/");
           }
         }}
       >
         ArthSaathi
       </span>
 
-      <span
-        ref={centerRef}
-        className="hidden md:flex items-center gap-1 text-[12px]"
-      >
-        <span className="font-mono text-negative font-medium" ref={counterRef}>
-          ₹{displayNum}
-        </span>
-        <span className="font-syne text-text-muted">
-          /sec drained from India's investors
-        </span>
+      <span ref={centerRef} className="hidden md:flex items-center gap-6">
+        <Link
+          to="/analyze"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          X-Ray
+        </Link>
+        <Link
+          to="/tax"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          Tax
+        </Link>
+        <Link
+          to="/fire"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          FIRE
+        </Link>
+        <Link
+          to="/mentor"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+        >
+          Mentor
+        </Link>
       </span>
 
       <div className="flex items-center gap-2">
-        <button
+        <Link
           ref={btnRef}
-          className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97]"
-          onClick={() => {
-            if (loggedIn) {
-              navigate("/analyze");
-            } else {
-              navigate("/login");
-            }
-          }}
+          to={loggedIn ? "/analyze" : "/login"}
+          className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97] inline-flex items-center justify-center no-underline"
         >
-          {loggedIn ? "Analyze Portfolio" : "Login to Analyze"}
-        </button>
-        {loggedIn ? (
-          <button
-            className="font-syne font-semibold text-[13px] border border-white/20 text-white h-[34px] px-4 rounded-[7px] hover:bg-white/10"
-            onClick={() => {
-              clearToken();
-              setLoggedIn(false);
-              navigate("/login");
-            }}
-          >
-            Logout
-          </button>
-        ) : (
-          <button
-            className="font-syne font-semibold text-[13px] border border-white/20 text-white h-[34px] px-4 rounded-[7px] hover:bg-white/10"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-        )}
+          {loggedIn ? "Open App" : "Sign in"}
+        </Link>
       </div>
     </nav>
   );

@@ -1,0 +1,22 @@
+# Store text files with LF in the repo; avoid CRLF/LF flip-flops on Windows.
+* text=auto eol=lf
+
+# Binaries — do not apply line-ending conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
+*.zip binary
+
+# Explicit LF for common text manifests
+pnpm-lock.yaml text eol=lf
+package-lock.json text eol=lf
+yarn.lock text eol=lf

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, clearToken, fetchMe } from "@/lib/auth";
+import { isAuthenticated, fetchMe, signOut } from "@/lib/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,8 +37,8 @@ export function AppNavbar() {
     }
   }, []);
 
-  const signOut = () => {
-    clearToken();
+  const handleSignOut = async () => {
+    await signOut();
     navigate("/");
   };
 
@@ -124,7 +124,7 @@ export function AppNavbar() {
               />
               <DropdownMenuItem
                 className="font-syne text-[13px] text-text-secondary cursor-pointer focus:bg-white/5"
-                onClick={signOut}
+                onClick={() => void handleSignOut()}
               >
                 Sign out
               </DropdownMenuItem>
@@ -191,7 +191,7 @@ export function AppNavbar() {
                     className="font-syne text-[13px] text-text-secondary hover:text-text-primary transition-colors"
                     onClick={() => {
                       setSheetOpen(false);
-                      signOut();
+                      void handleSignOut();
                     }}
                   >
                     Sign out

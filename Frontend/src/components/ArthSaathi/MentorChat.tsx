@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { Mic, MicOff, Send, Sparkles, Volume2, VolumeX } from "lucide-react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,8 @@ export function MentorChat({ analysis }: MentorChatProps) {
     string,
     unknown
   >;
+  const { isListening, transcript, isSupported: sttSupported, startListening, stopListening } = useSpeechRecognition();
+  const { speak, stop: stopSpeaking, isSupported: ttsSupported } = useSpeechSynthesis();
 
   const analysisKey = analysis
     ? `${analysis.processing_time_ms}-${analysis.portfolio_summary.total_funds}-${analysis.portfolio_summary.total_current_value}`
@@ -88,7 +90,7 @@ export function MentorChat({ analysis }: MentorChatProps) {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       };
-      const token = getToken();
+      const token = await getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
@@ -248,6 +250,18 @@ export function MentorChat({ analysis }: MentorChatProps) {
           void send(isListening ? transcript : input);
         }}
       >
+        {sttSupported ? (
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => isListening ? stopListening() : startListening()}
+            className={`shrink-0 ${isListening ? 'text-red-400 animate-pulse' : ''}`}
+            aria-label={isListening ? 'Stop listening' : 'Start listening'}
+          >
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        ) : null}
         <Input
           value={isListening ? transcript : input}
           onChange={(e) => {

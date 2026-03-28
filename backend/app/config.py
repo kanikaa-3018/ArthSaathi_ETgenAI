@@ -1,11 +1,22 @@
 """
 ArthSaathi application settings sourced from environment variables / .env file.
 """
-from pydantic_settings import BaseSettings
+from pathlib import Path
 from typing import Optional
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Always load backend/.env even if uvicorn is started from the repo root.
+_BACKEND_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=str(_BACKEND_ROOT / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     # Runtime
     ENV: str = "development"
 
@@ -33,10 +44,10 @@ class Settings(BaseSettings):
 
     # Auth
     AUTH_TOKEN_TTL_SECONDS: int = 7 * 24 * 60 * 60  # 1 week
-
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    # Supabase — same project URL as frontend (VITE_SUPABASE_URL); required for ECC (ES256) JWT verification
+    SUPABASE_URL: Optional[str] = None
+    # Legacy HS256 — Dashboard → API → JWT signing / shared secret (NOT the anon key)
+    SUPABASE_JWT_SECRET: Optional[str] = None
 
 
 settings = Settings()

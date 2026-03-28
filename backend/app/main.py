@@ -28,6 +28,7 @@ from app.config import settings
 from app.auth import (
     authenticate_user,
     create_access_token,
+    get_user_from_supabase_jwt,
     get_user_from_token,
     register_user,
 )
@@ -50,10 +51,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://127.0.0.1:8080"
-    ],
+    allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,7 +87,7 @@ def get_current_user(authorization: str = Header(default=None)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     token = authorization.split(" ", 1)[1]
-    user = get_user_from_token(token)
+    user = get_user_from_token(token) or get_user_from_supabase_jwt(token)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
