@@ -205,10 +205,8 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
-# Ignore local .cursor state; allow committed team rules under .cursor/rules/
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+# Cursor project folder — local only; do not commit (rules, MCP state, etc.)
+.cursor/
 
 # Marimo
 marimo/_static/
