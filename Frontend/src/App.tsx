@@ -45,14 +45,15 @@ const App = () => {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
     /** Keep ScrollTrigger (e.g. pinned sections) in sync with Lenis — avoids DOM/reconcile crashes on route change. */
-    const unsubScroll = lenis.on("scroll", () => {
+    const handleLenisScroll = () => {
       ScrollTrigger.update();
-    });
+    };
+    lenis.on("scroll", handleLenisScroll);
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
     return () => {
-      unsubScroll();
+      lenis.off("scroll", handleLenisScroll);
       lenis.destroy();
       gsap.ticker.remove(raf);
     };
