@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, fetchMe, signOut } from "@/lib/auth";
+import { fetchMe, getAccessToken, signOut } from "@/lib/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,19 +22,35 @@ export function AppNavbar() {
   const [userInitial, setUserInitial] = useState("A");
   const [userEmail, setUserEmail] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) {
+    let cancelled = false;
+    const init = async () => {
+      const token = await getAccessToken();
+      if (cancelled) return;
+      const isAuthed = Boolean(token);
+      setAuthed(isAuthed);
+      if (!isAuthed) return;
+
       fetchMe()
         .then((u) => {
+          if (cancelled) return;
           setUserEmail(u.email || u.username || "");
           const display = u.username || u.email || "";
           setUserInitial(display.charAt(0).toUpperCase());
         })
         .catch(() => {
+          if (cancelled) return;
           /* no-op — stay with default initial */
         });
-    }
+    };
+
+    void init();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -93,7 +109,7 @@ export function AppNavbar() {
       {/* Right */}
       <div className="flex items-center gap-3">
         {/* Avatar + dropdown — desktop */}
-        {isAuthenticated() ? (
+        {authed ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button

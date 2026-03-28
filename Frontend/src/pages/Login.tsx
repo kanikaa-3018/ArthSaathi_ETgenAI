@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { gsap } from "gsap";
 import {
   login as loginRequest,
-  isAuthenticated,
+  getAccessToken,
   signInWithGoogle,
 } from "@/lib/auth";
 
@@ -23,7 +23,15 @@ export default function Login() {
   const [oauthLoading, setOauthLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) navigate("/analyze", { replace: true });
+    let cancelled = false;
+    const check = async () => {
+      const token = await getAccessToken();
+      if (!cancelled && token) navigate("/analyze", { replace: true });
+    };
+    void check();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   useEffect(() => {

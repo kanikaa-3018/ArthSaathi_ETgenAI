@@ -23,12 +23,18 @@ export function TaxInsights({ data }: TaxInsightsProps) {
           "Content-Type": "application/json",
         };
         const token = await getAccessToken();
-        if (token) headers.Authorization = `Bearer ${token}`;
+        if (!token) {
+          throw new Error("Session expired. Please log in again.");
+        }
+        headers.Authorization = `Bearer ${token}`;
         const res = await fetch(api.taxInsights, {
           method: "POST",
           headers,
           body: JSON.stringify({ analysis: data }),
         });
+        if (res.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
         if (!res.ok) throw new Error(await res.text());
         const json = (await res.json()) as TaxInsightsResponse;
         if (!cancelled) setTax(json);

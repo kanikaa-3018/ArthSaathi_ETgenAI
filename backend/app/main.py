@@ -14,6 +14,7 @@ Endpoints:
 """
 import asyncio
 import json
+import logging
 import os
 import time
 from typing import AsyncGenerator, Literal
@@ -38,6 +39,8 @@ from app.orchestrator import run_pipeline
 from app.tax_insights import compute_tax_insights
 from app.tax_regime import compare_regimes
 from app.agents.overlap import _load_holdings   # for health endpoint
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -83,11 +86,15 @@ def root():
 
 
 def get_current_user(authorization: str = Header(default=None)):
-    if not authorization or not authorization.startswith("Bearer "):
+    if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     token = authorization.split(" ", 1)[1]
-    user = get_user_from_token(token) or get_user_from_supabase_jwt(token)
+    try:
+        user = get_user_from_token(token) or get_user_from_supabase_jwt(token)
+    except Exception:
+        logger.exception("Auth token verification crashed")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
@@ -506,6 +513,7 @@ async def analyze(
                 # Check for exception
                 exc = pipeline_task.exception()
                 if exc:
+                    logger.exception("Analyze pipeline failed", exc_info=exc)
                     error = exc
                 else:
                     result = pipeline_task.result()

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { gsap } from "gsap";
 import {
   register as registerRequest,
-  isAuthenticated,
+  getAccessToken,
   signInWithGoogle,
 } from "@/lib/auth";
 
@@ -25,7 +25,15 @@ export default function Signup() {
   const [confirmEmailHint, setConfirmEmailHint] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) navigate("/analyze", { replace: true });
+    let cancelled = false;
+    const check = async () => {
+      const token = await getAccessToken();
+      if (!cancelled && token) navigate("/analyze", { replace: true });
+    };
+    void check();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   useEffect(() => {

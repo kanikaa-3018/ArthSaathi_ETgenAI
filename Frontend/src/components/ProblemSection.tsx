@@ -17,14 +17,14 @@ export default function ProblemSection() {
 
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
-        pin: true,
         scrub: 1.2,
         snap: {
           snapTo: 1 / (panels.length - 1),
           duration: 0.3,
           ease: "power1.inOut",
         },
-        end: () => "+=" + (track.scrollWidth - window.innerWidth),
+        start: "top 70%",
+        end: () => "bottom top",
         animation: gsap.to(track, {
           x: -(track.scrollWidth - window.innerWidth),
           ease: "none",

@@ -74,6 +74,9 @@ The NAV agent uses [diskcache](https://pypi.org/project/diskcache/) under **`bac
 Create `backend/.env` if you need to override defaults (see `app/config.py`):
 
 - `CORS_ORIGINS` — comma-separated frontend origins (e.g. `http://localhost:8080`)
+- `SUPABASE_URL` — same value as frontend `VITE_SUPABASE_URL`
+- `SUPABASE_ANON_KEY` — same value as frontend `VITE_SUPABASE_ANON_KEY` (used for `/auth/v1/user` token validation fallback)
+- `SUPABASE_JWT_SECRET` — optional legacy HS256 secret if your project uses symmetric JWT signing
 - LLM keys — optional for advisor/chat features (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`)
 - `ANTHROPIC_MODEL`, `OPENAI_CHAT_MODEL`, `GEMINI_CHAT_MODEL` — optional; defaults match `app/config.py` (change if your API account uses different model IDs)
 

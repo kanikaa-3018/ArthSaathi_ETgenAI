@@ -41,9 +41,11 @@ export default function AnalyzeProcessing() {
       startAnalysis();
       const headers: Record<string, string> = {};
       const token = await getAccessToken();
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
+      if (!token) {
+        navigate("/login", { replace: true, state: { from: "/analyze" } });
+        return;
       }
+      headers.Authorization = `Bearer ${token}`;
 
       const onErrorEvent = (payload: ApiErrorPayload) => {
         setError(payload);

@@ -67,12 +67,18 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
         "Content-Type": "application/json",
       };
       const token = await getAccessToken();
-      if (token) headers.Authorization = `Bearer ${token}`;
+      if (!token) {
+        throw new Error("Session expired. Please log in again.");
+      }
+      headers.Authorization = `Bearer ${token}`;
       const res = await fetch(api.goalsCalculate, {
         method: "POST",
         headers,
         body: JSON.stringify(body),
       });
+      if (res.status === 401) {
+        throw new Error("Session expired. Please log in again.");
+      }
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as GoalCalculateResponse;
       setResult(json);

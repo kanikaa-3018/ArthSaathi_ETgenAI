@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     AUTH_TOKEN_TTL_SECONDS: int = 7 * 24 * 60 * 60  # 1 week
     # Supabase — same project URL as frontend (VITE_SUPABASE_URL); required for ECC (ES256) JWT verification
     SUPABASE_URL: Optional[str] = None
+    # Supabase anon key — used for /auth/v1/user fallback token validation.
+    SUPABASE_ANON_KEY: Optional[str] = None
     # Legacy HS256 — Dashboard → API → JWT signing / shared secret (NOT the anon key)
     SUPABASE_JWT_SECRET: Optional[str] = None
 
