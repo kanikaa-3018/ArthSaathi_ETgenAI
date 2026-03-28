@@ -56,9 +56,9 @@ class ParserAgent(BaseAgent):
             # ── Step 2a: try casparser ───────────────────────────────────────
             if CASPARSER_AVAILABLE:
                 try:
-                    loop = asyncio.get_event_loop()
+                    loop = asyncio.get_running_loop()
                     data = await loop.run_in_executor(
-                        None, lambda: casparser.read_cas_pdf(temp_path, password)
+                        None, lambda p=temp_path, pw=password: casparser.read_cas_pdf(p, pw)
                     )
 
                     if hasattr(data, "dict"):
@@ -90,7 +90,7 @@ class ParserAgent(BaseAgent):
             # ── Step 2b: text extraction fallback (MFCentral + others) ───────
             if PDFMINER_AVAILABLE:
                 try:
-                    loop = asyncio.get_event_loop()
+                    loop = asyncio.get_running_loop()
                     text = await loop.run_in_executor(
                         None, lambda p=temp_path, pw=password: extract_text(p, password=pw)
                     )
@@ -159,7 +159,7 @@ class ParserAgent(BaseAgent):
     _RE_CLOSING = re.compile(r"Closing\s+Unit\s+Balance\s*:\s*([\d,.]+)")
     _RE_NAV_LINE = re.compile(r"Nav\s+as\s+on\s+[\w-]+\s*:\s*INR\s+([\d,.]+)")
     _RE_VALUATION = re.compile(r"Valuation\s+on\s+([\w-]+)\s*:\s*INR\s+([\d,.]+)")
-    _RE_DATE = re.compile(r"(\d{2}-[A-Z]{3}-\d{4})")
+    _RE_DATE = re.compile(r"^\d{1,2}-[A-Za-z]{3}-\d{4}$", re.IGNORECASE)
     _RE_TXN_TYPE = re.compile(
         r"(Systematic Investment|Systematic Withdrawal|Purchase|Redemption|"
         r"Switch In|Switch Out|Dividend Payout|Dividend Reinvestment|"
@@ -174,9 +174,9 @@ class ParserAgent(BaseAgent):
 
     @staticmethod
     def _parse_date_str(s: str) -> str:
-        """Convert '01-Jan-2025' / '01-JAN-2025' to ISO '2025-01-01'."""
+        """Convert '01-Jan-2025' / '1-JAN-2025' to ISO '2025-01-01'."""
         s = s.strip()
-        if re.match(r"^\d{2}-[A-Za-z]{3}-\d{4}$", s):
+        if re.match(r"^\d{1,2}-[A-Za-z]{3}-\d{4}$", s, re.IGNORECASE):
             d, mon, y = s.split("-")
             mon = mon.capitalize()
             s = f"{d}-{mon}-{y}"
@@ -270,9 +270,8 @@ class ParserAgent(BaseAgent):
             if "Consolidated Account" in line or "SoA Holdings" in line or "Demat Holdings" in line:
                 continue
 
-            date_m = self._RE_DATE.match(line)
-            if date_m and len(line) <= 15:
-                dates.append(date_m.group(1))
+            if self._RE_DATE.match(line):
+                dates.append(line)
                 continue
 
             txn_m = self._RE_TXN_TYPE.match(line)
@@ -320,7 +319,9 @@ class ParserAgent(BaseAgent):
         transactions = []
         for i in range(n):
             raw = txn_types[i].lower()
-            if "systematic investment" in raw or "purchase" in raw:
+            if "systematic investment" in raw or (
+                "purchase" in raw and "dividend" not in raw and "idcw" not in raw
+            ):
                 t = "PURCHASE_SIP" if "systematic" in raw else "PURCHASE"
             elif "redemption" in raw or "withdrawal" in raw:
                 t = "REDEMPTION"
@@ -328,8 +329,19 @@ class ParserAgent(BaseAgent):
                 t = "SWITCH_IN"
             elif "switch out" in raw:
                 t = "SWITCH_OUT"
+            elif "dividend" in raw or "idcw" in raw:
+                if "reinvestment" in raw or "reinvest" in raw:
+                    t = "DIVIDEND_REINVESTMENT"
+                else:
+                    t = "DIVIDEND_PAYOUT"
+            elif "stamp duty" in raw:
+                t = "STAMP_DUTY_TAX"
+            elif "securities transaction tax" in raw or raw.strip() == "stt":
+                t = "STT_TAX"
+            elif "miscellaneous" in raw or raw.strip() == "misc":
+                t = "MISC"
             else:
-                t = "PURCHASE_SIP"
+                t = "MISC"
 
             transactions.append({
                 "type": t,
