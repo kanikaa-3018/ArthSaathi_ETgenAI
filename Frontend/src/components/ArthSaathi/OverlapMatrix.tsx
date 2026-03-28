@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { shortFundName } from "@/lib/format";
 import type { AnalysisData } from "@/types/analysis";
+import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
 
 interface OverlapMatrixProps {
   data: AnalysisData["overlap_analysis"];
@@ -20,6 +21,14 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
   const { ref, visible } = useScrollReveal();
 
   const equityFunds = funds.filter((f) => f.category.startsWith("Equity"));
+  if (!equityFunds || equityFunds.length < 2) {
+    return (
+      <NoDataCard
+        title="Overlap Analysis"
+        description="Need at least 2 equity funds to compute overlap."
+      />
+    );
+  }
   const names = equityFunds.map((f) => shortFundName(f.scheme_name));
 
   const getOverlap = (a: string, b: string): number | null => {

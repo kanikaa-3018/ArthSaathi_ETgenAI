@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -43,10 +44,16 @@ const App = () => {
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
+    /** Keep ScrollTrigger (e.g. pinned sections) in sync with Lenis — avoids DOM/reconcile crashes on route change. */
+    const handleLenisScroll = () => {
+      ScrollTrigger.update();
+    };
+    lenis.on("scroll", handleLenisScroll);
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
     return () => {
+      lenis.off("scroll", handleLenisScroll);
       lenis.destroy();
       gsap.ticker.remove(raf);
     };
@@ -59,7 +66,12 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Landing />} />

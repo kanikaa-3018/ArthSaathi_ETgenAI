@@ -7,6 +7,7 @@ import { getAccessToken } from "@/lib/auth";
 import type { AnalysisData } from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 
@@ -28,9 +29,18 @@ interface MentorChatProps {
   analysis?: AnalysisData | null;
   /** When true (e.g. public demo, no session), block API calls and prompt sign-in. */
   guestChatLocked?: boolean;
+  /**
+   * `column` — fill a flex parent with max-height (report sidebar / mobile drawer).
+   * `default` — standalone min/max height for floating widget and demo.
+   */
+  layout?: "default" | "column";
 }
 
-export function MentorChat({ analysis, guestChatLocked = false }: MentorChatProps) {
+export function MentorChat({
+  analysis,
+  guestChatLocked = false,
+  layout = "default",
+}: MentorChatProps) {
   const location = useLocation();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -162,10 +172,25 @@ export function MentorChat({ analysis, guestChatLocked = false }: MentorChatProp
     [autoSpeak, guestChatLocked, loading, messages, portfolioContext, speak, ttsSupported],
   );
 
+  const rootStyle =
+    layout === "column"
+      ? ({
+          minHeight: 0,
+          maxHeight: "100%",
+          height: "100%",
+        } as const)
+      : ({
+          minHeight: 420,
+          maxHeight: "min(720px, calc(100vh - 3rem))",
+        } as const);
+
   return (
     <div
-      className="card-arth flex flex-col overflow-hidden border border-white/10"
-      style={{ minHeight: 420, maxHeight: "min(720px, calc(100vh - 3rem))" }}
+      className={cn(
+        "card-arth flex min-h-0 flex-col overflow-hidden border border-white/10",
+        layout === "default" && "min-h-[420px]",
+      )}
+      style={rootStyle}
     >
       <div
         className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/10"

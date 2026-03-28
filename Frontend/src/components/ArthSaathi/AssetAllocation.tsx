@@ -1,5 +1,6 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
 
 interface AssetAllocationProps {
   equityPct: number;
@@ -15,6 +16,15 @@ export function AssetAllocation({
   directCount,
 }: AssetAllocationProps) {
   const { ref, visible } = useScrollReveal();
+
+  if (equityPct === 0 && debtPct === 0) {
+    return (
+      <NoDataCard
+        title="Asset Allocation"
+        description="Allocation data not available."
+      />
+    );
+  }
 
   const allocationData = [
     { name: "Equity", value: equityPct, color: "hsl(213, 60%, 56%)" },

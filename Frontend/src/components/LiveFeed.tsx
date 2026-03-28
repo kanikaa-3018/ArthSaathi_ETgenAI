@@ -34,7 +34,10 @@ export default function LiveFeed() {
     const timeout = setTimeout(() => {
       gsap.to(el, { opacity: 0, duration: 0.3 });
     }, 4000);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      gsap.killTweensOf(el);
+    };
   }, [index]);
 
   // Format the entry to color the numbers

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CursorReticle from "@/components/CursorReticle";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -13,6 +15,13 @@ import Footer from "@/components/Footer";
 import LiveFeed from "@/components/LiveFeed";
 
 export default function Index() {
+  useEffect(() => {
+    return () => {
+      ScrollTrigger.getAll().forEach((st) => st.kill());
+      ScrollTrigger.refresh();
+    };
+  }, []);
+
   return (
     <>
       <CursorReticle />

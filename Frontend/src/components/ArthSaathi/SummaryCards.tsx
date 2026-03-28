@@ -28,15 +28,27 @@ export function SummaryCards({
   const dragVal = useCountUp(annualDrag, 1200, visible);
 
   const gain = summary.total_current_value - summary.total_invested;
-  const gainPct = ((gain / summary.total_invested) * 100).toFixed(2);
+  const invested = summary.total_invested;
+  const gainPctNum = invested > 0 ? (gain / invested) * 100 : 0;
+  const gainPct = gainPctNum.toFixed(2);
+  const gainSign = gain >= 0 ? "+" : "";
+  const pctSign = gainPctNum >= 0 ? "+" : "";
+  const sub2Color =
+    invested <= 0
+      ? gain >= 0
+        ? "hsl(var(--positive))"
+        : "hsl(var(--negative))"
+      : gainPctNum >= 0
+        ? "hsl(var(--positive))"
+        : "hsl(var(--negative))";
 
   const cards = [
     {
       label: "TOTAL VALUE",
       value: compactINR(totalVal),
       sub1: `Invested ${compactINR(summary.total_invested)}`,
-      sub2: `+${compactINR(gain)} (+${gainPct}%)`,
-      sub2Color: "hsl(var(--positive))",
+      sub2: `${gainSign}${compactINR(gain)} (${pctSign}${gainPct}%)`,
+      sub2Color,
     },
     {
       label: "PORTFOLIO XIRR",

@@ -24,7 +24,20 @@ export default function AnalyzeProcessing() {
   const [reviewSecondsLeft, setReviewSecondsLeft] = useState<number | null>(null);
   /** Countdown while dialog is open (until auto-navigate) */
   const [secondsLeft, setSecondsLeft] = useState(Math.ceil(AUTO_CONTINUE_MS / 1000));
-  const [viewMode, setViewMode] = useState<'list' | 'dag'>('list');
+  const [viewMode, setViewMode] = useState<"list" | "dag">(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) return "list";
+    return "dag";
+  });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => {
+      if (mq.matches) setViewMode("list");
+    };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const navigateTimerRef = useRef<number | null>(null);
   const countdownRef = useRef<number | null>(null);
   const manualSkipRef = useRef(false);
@@ -271,7 +284,7 @@ export default function AnalyzeProcessing() {
               (अर्थसाथी)
             </p>
           </div>
-          <div className="flex justify-center gap-2 mb-6">
+          <div className="hidden lg:flex justify-center gap-2 mb-6">
             <button
               type="button"
               onClick={() => setViewMode("list")}

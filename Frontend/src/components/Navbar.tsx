@@ -86,6 +86,7 @@ export default function Navbar() {
     return () => {
       trigger.kill();
       tl.kill();
+      gsap.killTweensOf(nav);
     };
   }, []);
 

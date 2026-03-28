@@ -43,9 +43,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const mainMarginLeft = isMobile ? 0 : sidebarExpanded ? 240 : 56;
   const isDemoRoute = location.pathname === "/demo";
   const demoGuest = isDemoRoute && !sessionLoading && !session;
+  /** Sidebar MentorChat owns chat on /demo and /analyze/report — no duplicate floating widget. */
   const showFloatingChat =
     location.pathname !== "/mentor" &&
-    !(isDemoRoute && (sessionLoading || !session));
+    location.pathname !== "/analyze/report" &&
+    location.pathname !== "/demo";
 
   return (
     <div className="min-h-screen" style={{ background: "hsl(var(--bg-primary))" }}>

@@ -241,30 +241,29 @@ export function ReportSections({
 
               <Tabs defaultValue="overview" className="mt-8 w-full">
                 <TabsList
-                  className="grid h-10 w-full grid-cols-4 rounded-lg p-1"
-                  style={{ background: "hsl(var(--bg-secondary))" }}
+                  className="flex h-10 w-full shrink-0 gap-0 overflow-x-auto rounded-none border-b border-white/[0.06] bg-transparent p-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
                   <TabsTrigger
                     value="overview"
-                    className="rounded-md font-syne text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="shrink-0 rounded-none border-b-2 border-transparent px-4 font-syne text-xs text-text-muted transition-colors hover:text-text-secondary data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:bg-transparent data-[state=active]:text-white"
                   >
                     Overview
                   </TabsTrigger>
                   <TabsTrigger
                     value="analysis"
-                    className="rounded-md font-syne text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="shrink-0 rounded-none border-b-2 border-transparent px-4 font-syne text-xs text-text-muted transition-colors hover:text-text-secondary data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:bg-transparent data-[state=active]:text-white"
                   >
                     Analysis
                   </TabsTrigger>
                   <TabsTrigger
                     value="plan"
-                    className="rounded-md font-syne text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="shrink-0 rounded-none border-b-2 border-transparent px-4 font-syne text-xs text-text-muted transition-colors hover:text-text-secondary data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:bg-transparent data-[state=active]:text-white"
                   >
                     AI Plan
                   </TabsTrigger>
                   <TabsTrigger
                     value="planning"
-                    className="rounded-md font-syne text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="shrink-0 rounded-none border-b-2 border-transparent px-4 font-syne text-xs text-text-muted transition-colors hover:text-text-secondary data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:bg-transparent data-[state=active]:text-white"
                   >
                     Planning
                   </TabsTrigger>

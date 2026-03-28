@@ -1,4 +1,5 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
 
 interface HealthScoreProps {
   data: {
@@ -41,6 +42,14 @@ function gradeLetterColor(grade: string): string {
 
 export function HealthScore({ data }: HealthScoreProps) {
   const { ref, visible } = useScrollReveal();
+  if (!data || data.score == null || Number.isNaN(Number(data.score))) {
+    return (
+      <NoDataCard
+        title="Health Score"
+        description="Health score data is not available."
+      />
+    );
+  }
   const circumference = 2 * Math.PI * 56;
   const offset = circumference - (data.score / 100) * circumference;
 

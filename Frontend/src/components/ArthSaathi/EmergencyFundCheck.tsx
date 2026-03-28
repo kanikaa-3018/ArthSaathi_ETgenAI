@@ -22,6 +22,8 @@ export function EmergencyFundCheck({ funds, monthlyExpenseBasisIncome }: Emergen
     })
     .reduce((sum, f) => sum + f.current_value, 0);
 
+  const usingDefaultMonthlyExpenses =
+    monthlyExpenseBasisIncome == null || monthlyExpenseBasisIncome === 0;
   const monthlyExpenses = monthlyExpenseBasisIncome ? monthlyExpenseBasisIncome * 0.5 : 50000;
   const target = monthlyExpenses * 6;
   const coverage = target > 0 ? liquidValue / target : 0;
@@ -54,6 +56,11 @@ export function EmergencyFundCheck({ funds, monthlyExpenseBasisIncome }: Emergen
           ? `Your liquid/debt funds (₹${(liquidValue / 100000).toFixed(1)}L) cover 6+ months of expenses.`
           : `You need ₹${(Math.max(0, target - liquidValue) / 100000).toFixed(1)}L more in liquid funds to cover 6 months.`}
       </p>
+      {usingDefaultMonthlyExpenses ? (
+        <p className="font-body text-xs mt-2" style={{ color: 'hsl(var(--text-tertiary))' }}>
+          Based on estimated monthly expenses of ₹50,000 (default assumption).
+        </p>
+      ) : null}
     </div>
   );
 }

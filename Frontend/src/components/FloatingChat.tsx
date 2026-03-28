@@ -27,8 +27,14 @@ export function FloatingChat() {
     };
   }, [widgetState]);
 
-  // 🚨 IMPORTANT: condition AFTER hooks (you already fixed this 👍)
-  if (location.pathname === "/mentor") return null;
+  // IMPORTANT: condition AFTER hooks — pages with embedded sidebar chat skip the floating widget
+  if (
+    location.pathname === "/mentor" ||
+    location.pathname === "/analyze/report" ||
+    location.pathname === "/demo"
+  ) {
+    return null;
+  }
 
   if (widgetState === "hidden") return null;
 

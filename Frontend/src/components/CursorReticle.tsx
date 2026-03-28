@@ -94,6 +94,7 @@ export default function CursorReticle() {
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onEnterInteractive);
       document.removeEventListener("mouseout", onLeaveInteractive);
+      gsap.killTweensOf([el, ...corners]);
     };
   }, []);
 

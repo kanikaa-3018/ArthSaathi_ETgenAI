@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
 
 interface WealthGapChartProps {
   currentPath: { year: number; value: number }[];
@@ -56,6 +57,15 @@ export function WealthGapChart({
           : base * Math.pow(1 + optRate, i),
     }));
   }, [currentPath, optimizedPath, assumptions]);
+
+  if (!currentPath?.length || currentPath.length < 2) {
+    return (
+      <NoDataCard
+        title="Wealth Projection"
+        description="Insufficient data for wealth projection."
+      />
+    );
+  }
 
   const filtered = data.filter((d) => d.year <= years);
   const gap =
