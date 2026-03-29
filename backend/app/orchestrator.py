@@ -25,6 +25,7 @@ from app.agents.benchmark import BenchmarkAgent
 from app.agents.projection import ProjectionAgent
 from app.agents.health import HealthAgent
 from app.agents.advisor import AdvisorAgent
+from app.compliance import COMPLIANCE_DISCLAIMER
 from app.utils import normalize_cas_data, mask_pan
 
 
@@ -204,6 +205,7 @@ def _assemble_response(
 
     return {
         "status": "success",
+        "compliance_disclaimer": COMPLIANCE_DISCLAIMER,
         "processing_time_ms": processing_ms,
         "investor": {
             "name": investor_info.get("name") or "Investor",

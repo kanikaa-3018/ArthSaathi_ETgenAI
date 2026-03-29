@@ -171,7 +171,7 @@ def compare_regimes(
     old_taxable = max(0.0, gross_old_base - old_deductions)
     old_tax = _old_regime_tax(old_taxable)
     old_cess = old_tax * 0.04
-    old_total = round(old_tax + old_cess)
+    old_total = round(old_tax + old_cess, 2)
 
     new_std = 75000.0
     new_deductions = new_std
@@ -179,7 +179,7 @@ def compare_regimes(
     new_taxable = max(0.0, gross_salary - new_deductions)
     new_tax = _new_regime_tax(new_taxable)
     new_cess = new_tax * 0.04
-    new_total = round(new_tax + new_cess)
+    new_total = round(new_tax + new_cess, 2)
 
     if old_total <= new_total:
         recommendation = "old"
@@ -221,8 +221,8 @@ def compare_regimes(
             "other_deductions": round(other_old),
             "total_deductions": round(old_deductions),
             "taxable_income": round(old_taxable),
-            "tax_before_cess": round(old_tax),
-            "cess_4pct": round(old_cess),
+            "tax_before_cess": round(old_tax, 2),
+            "cess_4pct": round(old_cess, 2),
             "total_tax": old_total,
             "slab_breakdown": _old_slab_breakdown(old_taxable, old_tax),
         },
@@ -231,8 +231,8 @@ def compare_regimes(
             "standard_deduction": new_std,
             "total_deductions": new_deductions,
             "taxable_income": round(new_taxable),
-            "tax_before_cess": round(new_tax),
-            "cess_4pct": round(new_cess),
+            "tax_before_cess": round(new_tax, 2),
+            "cess_4pct": round(new_cess, 2),
             "total_tax": new_total,
             "slab_breakdown": _new_slab_breakdown(new_taxable, new_tax),
         },

@@ -191,7 +191,17 @@ async def stream_chat_events(
             full = (resp.choices[0].message.content or "").strip()
             for i in range(0, len(full), 48):
                 yield ("token", json.dumps({"content": full[i : i + 48]}))
-            yield ("done", json.dumps({"content": full, "provider": "openai"}))
+            yield (
+                "done",
+                json.dumps(
+                    {
+                        "content": full,
+                        "llm_provider": "openai",
+                        "llm_model": settings.OPENAI_CHAT_MODEL,
+                        "provider": "openai",
+                    },
+                ),
+            )
             return
         except Exception as e:
             logger.warning("OpenAI chat failed, trying next provider: %s", e, exc_info=True)

@@ -16,6 +16,7 @@ export interface ApiErrorPayload {
 
 export interface AnalysisData {
   status: string;
+  compliance_disclaimer?: string;
   processing_time_ms: number;
   investor: {
     name: string;
@@ -198,6 +199,7 @@ export interface GoalCalculateResponse {
     rule: string;
     note: string;
   };
+  compliance_disclaimer?: string;
 }
 
 /** Slab-wise tax breakdown from backend `tax_regime.compare_regimes`. */
@@ -232,6 +234,7 @@ export interface TaxRegimeCompareResponse {
   savings: number;
   savings_display: string;
   tips: string[];
+  compliance_disclaimer?: string;
 }
 
 /** POST /api/tax/insights */
