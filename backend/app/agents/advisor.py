@@ -138,10 +138,11 @@ class AdvisorAgent(BaseAgent):
     async def _call_openai(self, user_message: str):
         try:
             from openai import OpenAI
+            model_id = settings.OPENAI_CHAT_MODEL or "gpt-4o"
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
-            self.emit_progress("Using GPT-4o for analysis…", step=2, total_steps=2)
+            self.emit_progress(f"Using OpenAI ({model_id}) for analysis…", step=2, total_steps=2)
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model=model_id,
                 max_tokens=1500,
                 temperature=0.3,
                 messages=[
@@ -151,18 +152,19 @@ class AdvisorAgent(BaseAgent):
             )
             return response.choices[0].message.content, "gpt4o"
         except Exception as e:
-            self.emit_warning(f"GPT-4o failed: {e}")
+            self.emit_warning(f"OpenAI advisor call failed: {e}")
             return None, "gpt4o"
 
     async def _call_gemini(self, user_message: str):
         try:
             import google.generativeai as genai
+            model_id = settings.GEMINI_CHAT_MODEL or "gemini-2.0-flash"
             genai.configure(api_key=settings.GOOGLE_API_KEY)
             model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
+                model_name=model_id,
                 system_instruction=SYSTEM_PROMPT,
             )
-            self.emit_progress("Using Gemini for analysis…", step=2, total_steps=2)
+            self.emit_progress(f"Using Gemini ({model_id}) for analysis…", step=2, total_steps=2)
             response = model.generate_content(
                 user_message,
                 generation_config={"temperature": 0.3, "max_output_tokens": 1500},

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -249,14 +249,6 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
   const [result, setResult] = useState<TaxRegimeCompareResponse | null>(null);
 
   const elss = useMemo(() => elssFromPortfolio(data.funds), [data.funds]);
-
-  useEffect(() => {
-    const hraVal = parseAmountField(hraAnnual);
-    const rentVal = parseAmountField(rentAnnual);
-    if (hraVal > 0 && rentVal === 0) {
-      setRentAnnual(hraAnnual);
-    }
-  }, [hraAnnual]);
 
   const compare = async () => {
     setLoading(true);

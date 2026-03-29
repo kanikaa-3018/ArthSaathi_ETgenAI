@@ -22,6 +22,24 @@ CORE_ISINS = [
 
 BASE_W = [8.8, 8.2, 7.6, 7.0, 6.4, 5.2, 4.8, 4.4, 4.0, 3.6, 3.3, 3.0, 2.7]
 
+
+def normalize_weights_to_100(rows: list) -> list:
+    """
+    Scale holdings weights so they sum to 100 (percentage points).
+    Overlap/concentration logic assumes 0–100 weights per fund holdings block.
+    """
+    if not rows:
+        return rows
+    total = sum(float(r["weight"]) for r in rows)
+    if total <= 0:
+        return rows
+    factor = 100.0 / total
+    scaled = [{**r, "weight": round(float(r["weight"]) * factor, 2)} for r in rows]
+    s = sum(float(r["weight"]) for r in scaled[:-1])
+    scaled[-1]["weight"] = round(max(0.0, 100.0 - s), 2)
+    return scaled
+
+
 # Illustrative Nifty-heavy weights for index funds (not live index replication).
 NIFTY50_TOP = [
     {"isin": "INE002A01018", "name": "Reliance Industries", "weight": 9.1},
@@ -46,7 +64,7 @@ def block_large_cap(seed: int) -> list:
         w = BASE_W[i] + ((seed * 3 + i * 7) % 10) * 0.07 - 0.25
         w = max(1.8, min(10.2, round(w, 2)))
         out.append({"isin": isin, "name": name, "weight": w})
-    return out
+    return normalize_weights_to_100(out)
 
 
 def block_mid_cap(seed: int) -> list:
@@ -56,14 +74,15 @@ def block_mid_cap(seed: int) -> list:
         w = base + ((seed + i) % 7) * 0.12
         w = max(1.2, min(3.2, round(w, 2)))
         out.append({"isin": isin, "name": name, "weight": w})
-    return out
+    return normalize_weights_to_100(out)
 
 
 def block_index(_seed: int) -> list:
-    return [
+    raw = [
         {"isin": r["isin"], "name": r["name"], "weight": round(r["weight"], 2)}
         for r in NIFTY50_TOP
     ]
+    return normalize_weights_to_100(raw)
 
 
 MID_CAP = {"120503", "120505", "125494", "120837"}

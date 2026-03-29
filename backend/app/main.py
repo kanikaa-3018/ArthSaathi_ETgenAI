@@ -25,6 +25,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
+from app.compliance import COMPLIANCE_DISCLAIMER
 from app.config import settings
 from app.auth import (
     authenticate_user,
@@ -300,9 +301,7 @@ def goals_calculate(body: GoalsCalculateBody, current_user=Depends(get_current_u
         inflation_rate=body.inflation_rate,
         monthly_expenses_override=body.monthly_expenses_override,
     )
-    result["compliance_disclaimer"] = (
-        "Educational guidance only — not SEBI-registered advice."
-    )
+    result["compliance_disclaimer"] = COMPLIANCE_DISCLAIMER
     return JSONResponse(content=result)
 
 
@@ -345,9 +344,7 @@ def tax_regime_compare(body: TaxRegimeBody):
         education_loan_interest_80e=body.education_loan_interest_80e,
         other_old_regime_deductions=body.other_old_regime_deductions,
     )
-    result["compliance_disclaimer"] = (
-        "Educational guidance only — not SEBI-registered advice."
-    )
+    result["compliance_disclaimer"] = COMPLIANCE_DISCLAIMER
     return JSONResponse(content=result)
 
 
@@ -527,13 +524,7 @@ def get_sample():
     # Minimal placeholder response if sample file not yet generated
     return JSONResponse(content={
         "status": "success",
-        "compliance_disclaimer": (
-            "This report is AI-generated financial analysis for educational and informational purposes only. "
-            "It does not constitute investment advice, tax advice, or a recommendation to buy, sell, or hold any security. "
-            "ArthSaathi is not a SEBI-registered investment advisor. "
-            "Past performance does not guarantee future results. "
-            "Consult a SEBI-registered investment advisor before making financial decisions."
-        ),
+        "compliance_disclaimer": COMPLIANCE_DISCLAIMER,
         "processing_time_ms": 0,
         "investor": {"name": "Sample Investor", "email": "", "pan_masked": "ABCDE****F"},
         "portfolio_summary": {

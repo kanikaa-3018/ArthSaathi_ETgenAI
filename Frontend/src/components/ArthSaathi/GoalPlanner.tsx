@@ -55,7 +55,8 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
   const [err, setErr] = useState<string | null>(null);
   const prevOpen = useRef(open);
   const debounceTimerRef = useRef<number | null>(null);
-  const calcInFlightRef = useRef(false);
+  /** Monotonic id so only the latest calculate() updates UI when requests overlap. */
+  const calcRequestIdRef = useRef(0);
 
   const defaults = useMemo(
     () => ({
@@ -112,13 +113,16 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       }
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as GoalCalculateResponse;
+      if (reqId !== calcRequestIdRef.current) return;
       setResult(json);
     } catch (e) {
+      if (reqId !== calcRequestIdRef.current) return;
       setErr(e instanceof Error ? e.message : "Failed");
       setResult(null);
     } finally {
-      calcInFlightRef.current = false;
-      setLoading(false);
+      if (reqId === calcRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [
     goalType,
