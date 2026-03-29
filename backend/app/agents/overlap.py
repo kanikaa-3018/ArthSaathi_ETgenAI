@@ -4,9 +4,10 @@ Uses data/holdings.json (curated static dataset) — no external calls at runtim
 """
 import json
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from app.agents.base import BaseAgent
+from app.utils import normalize_amfi_code
 
 _HOLDINGS_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "holdings.json")
 _HOLDINGS_CACHE: Optional[Dict[str, Any]] = None
@@ -23,6 +24,30 @@ def _load_holdings() -> Dict[str, Any]:
     except (FileNotFoundError, json.JSONDecodeError):
         _HOLDINGS_CACHE = {}
     return _HOLDINGS_CACHE or {}
+
+
+def _holdings_for_amfi(
+    holdings_db: Dict[str, Any],
+    amfi_raw: Any,
+) -> Optional[List[Dict]]:
+    """Resolve holdings.json entry; try normalized and alternate string keys."""
+    if amfi_raw is None or amfi_raw == "":
+        return None
+    candidates = [
+        normalize_amfi_code(amfi_raw),
+        str(amfi_raw).strip(),
+    ]
+    seen: set[str] = set()
+    ordered = []
+    for c in candidates:
+        if c and c not in seen:
+            seen.add(c)
+            ordered.append(c)
+    for key in ordered:
+        block = holdings_db.get(key)
+        if block is not None:
+            return block
+    return None
 
 
 def _weighted_overlap(holdings_a: List[Dict], holdings_b: List[Dict]) -> float:
@@ -48,6 +73,27 @@ def _overlap_level(pct: float) -> str:
 
 def _is_equity(fund: Dict[str, Any]) -> bool:
     cat = (fund.get("category") or "").lower()
+    # Pure debt / liquid sleeves (exclude from stock overlap)
+    if any(
+        k in cat
+        for k in (
+            "liquid fund",
+            "overnight fund",
+            "money market",
+            "gilt fund",
+            "credit risk",
+            "corporate bond",
+            "banking and psu",
+            "ultra short duration",
+            "low duration",
+            "short duration",
+            "medium to long duration",
+            "dynamic bond",
+            "floater",
+        )
+    ):
+        return False
+
     return (
         "equity" in cat
         or "elss" in cat
@@ -60,7 +106,19 @@ def _is_equity(fund: Dict[str, Any]) -> bool:
         or "contra" in cat
         or "value" in cat
         or "large & mid" in cat
-    ) and "debt" not in cat and "liquid" not in cat
+        or "hybrid" in cat
+        or "balanced" in cat
+        or "arbitrage" in cat
+        or "index fund" in cat
+        or "sectoral" in cat
+        or "thematic" in cat
+        or "equity savings" in cat
+        or "multi asset" in cat
+        or "dynamic asset" in cat
+        or "solution oriented" in cat
+        or "retirement fund" in cat
+        or "children" in cat
+    ) and "debt" not in cat
 
 
 class OverlapAgent(BaseAgent):
@@ -109,8 +167,8 @@ class OverlapAgent(BaseAgent):
                 amfi_a = fund_a.get("amfi_code") or ""
                 amfi_b = fund_b.get("amfi_code") or ""
 
-                h_a = holdings_db.get(amfi_a)
-                h_b = holdings_db.get(amfi_b)
+                h_a = _holdings_for_amfi(holdings_db, amfi_a)
+                h_b = _holdings_for_amfi(holdings_db, amfi_b)
 
                 if h_a is None or h_b is None:
                     matrix.append({
@@ -181,7 +239,7 @@ class OverlapAgent(BaseAgent):
 
         for fund in equity_funds:
             amfi = fund.get("amfi_code") or ""
-            holdings = holdings_db.get(amfi) or []
+            holdings = _holdings_for_amfi(holdings_db, amfi) or []
             fund_value = fund.get("current_value") or 0
             if total_equity_value == 0:
                 continue

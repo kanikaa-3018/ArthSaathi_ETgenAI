@@ -4,7 +4,28 @@
  */
 export function isEquityForOverlap(category: string | undefined): boolean {
   const cat = (category || "").toLowerCase();
-  const looksEquity =
+
+  if (
+    [
+      "liquid fund",
+      "overnight fund",
+      "money market",
+      "gilt fund",
+      "credit risk",
+      "corporate bond",
+      "banking and psu",
+      "ultra short duration",
+      "low duration",
+      "short duration",
+      "medium to long duration",
+      "dynamic bond",
+      "floater",
+    ].some((k) => cat.includes(k))
+  ) {
+    return false;
+  }
+
+  return (
     cat.includes("equity") ||
     cat.includes("elss") ||
     cat.includes("large cap") ||
@@ -15,8 +36,18 @@ export function isEquityForOverlap(category: string | undefined): boolean {
     cat.includes("focused") ||
     cat.includes("contra") ||
     cat.includes("value") ||
-    cat.includes("large & mid");
-  if (!looksEquity) return false;
-  if (cat.includes("debt") || cat.includes("liquid")) return false;
-  return true;
+    cat.includes("large & mid") ||
+    cat.includes("hybrid") ||
+    cat.includes("balanced") ||
+    cat.includes("arbitrage") ||
+    cat.includes("index fund") ||
+    cat.includes("sectoral") ||
+    cat.includes("thematic") ||
+    cat.includes("equity savings") ||
+    cat.includes("multi asset") ||
+    cat.includes("dynamic asset") ||
+    cat.includes("solution oriented") ||
+    cat.includes("retirement fund") ||
+    cat.includes("children")
+  );
 }

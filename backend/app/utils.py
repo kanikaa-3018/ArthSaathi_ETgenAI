@@ -66,6 +66,22 @@ def parse_date(value) -> Optional[date]:
 # CAS data normalisation
 # ---------------------------------------------------------------------------
 
+
+def normalize_amfi_code(raw: Any) -> str:
+    """
+    Canonical AMFI scheme code for API URLs and holdings.json keys.
+    Trims whitespace; strips leading zeros on pure-digit codes (PDFs may vary).
+    """
+    if raw is None:
+        return ""
+    s = str(raw).strip()
+    if not s:
+        return ""
+    if s.isdigit():
+        return str(int(s))
+    return s
+
+
 # Transaction types that produce negative cashflows (money OUT from investor)
 _NEGATIVE_TYPES = {
     "PURCHASE", "PURCHASE_SIP",
@@ -154,7 +170,9 @@ def normalize_cas_data(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
 
             fund = {
                 "scheme_name": scheme.get("scheme") or scheme.get("scheme_name") or "Unknown",
-                "amfi_code": str(scheme.get("amfi") or scheme.get("amfi_code") or ""),
+                "amfi_code": normalize_amfi_code(
+                    scheme.get("amfi") or scheme.get("amfi_code") or "",
+                ),
                 "folio": folio_number,
                 "amc": amc,
                 "is_direct": is_direct,

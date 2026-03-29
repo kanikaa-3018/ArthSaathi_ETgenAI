@@ -42,27 +42,84 @@ def _load_benchmark_map() -> Dict[str, Any]:
     return _bm_map_cache or {}
 
 
+def _pick_longest_map_match(cat: str, mapping: Dict[str, Any]) -> Optional[Dict[str, str]]:
+    """
+    Prefer the longest category key that appears as a substring of `cat`.
+    Avoids matching \"Mid Cap\" inside \"Large & Mid Cap\" before the right rule.
+    """
+    best: Optional[Dict[str, str]] = None
+    best_len = -1
+    for key, val in mapping.items():
+        kl = key.lower()
+        if kl not in cat:
+            continue
+        if len(key) > best_len:
+            best_len = len(key)
+            if isinstance(val, dict) and "name" in val and "amfi_code" in val:
+                best = {"name": str(val["name"]), "amfi_code": str(val["amfi_code"])}
+    return best
+
+
 def _map_category_to_benchmark(category: str) -> Optional[Dict[str, str]]:
     """Return {name, amfi_code} for a fund category, or None for debt."""
     cat = category.lower()
 
-    # Debt/cash → skip benchmark
-    if any(k in cat for k in ["debt", "liquid", "overnight", "money market", "gilt", "credit risk"]):
+    # Debt/cash → skip benchmark (keep in sync with overlap debt exclusions where sensible)
+    if any(
+        k in cat
+        for k in [
+            "debt",
+            "liquid fund",
+            "overnight fund",
+            "money market",
+            "gilt",
+            "credit risk",
+            "corporate bond",
+            "floater",
+            "ultra short duration",
+            "low duration",
+            "short duration",
+            "medium duration",
+            "long duration",
+            "dynamic bond",
+            "banking and psu",
+            "bond fund",
+        ]
+    ):
         return None
 
-    bm_map = _load_benchmark_map()
-    # Try loaded JSON first
-    for key, val in bm_map.items():
-        if key.lower() in cat:
-            return val
+    picked = _pick_longest_map_match(cat, _load_benchmark_map())
+    if picked:
+        return picked
 
-    # Fall back to static map
-    for key, val in _DEFAULT_BENCHMARK_MAP.items():
-        if key.lower() in cat:
-            return val
+    picked = _pick_longest_map_match(cat, _DEFAULT_BENCHMARK_MAP)
+    if picked:
+        return picked
 
-    # Unknown equity → Nifty 500 catch-all
-    if "equity" in cat or "fund" in cat:
+    # Labels often missing from benchmark_map.json — run AFTER maps so
+    # "Large & Mid Cap" matches Nifty LargeMidcap 250, not the "mid cap" needle.
+    extra_rules: List[tuple] = [
+        ("index fund", {"name": "Nifty 50 TRI", "amfi_code": "120716"}),
+        ("etf", {"name": "Nifty 50 TRI", "amfi_code": "120716"}),
+        ("nifty 50", {"name": "Nifty 50 TRI", "amfi_code": "120716"}),
+        ("nifty 100", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("hybrid", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("balanced", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("multi asset", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("dynamic asset", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("sectoral", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("thematic", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("fof", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("fund of fund", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("solution oriented", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+        ("retirement", {"name": "Nifty 500 TRI", "amfi_code": "147625"}),
+    ]
+    for needle, bench in extra_rules:
+        if needle in cat:
+            return bench
+
+    # Broad equity sleeve only — avoid "… Fund" debt names that lack "equity" but contain "fund"
+    if "equity" in cat:
         return {"name": "Nifty 500 TRI", "amfi_code": "147625"}
 
     return None
@@ -124,6 +181,12 @@ class BenchmarkAgent(BaseAgent):
                 if isinstance(d, date) and (first_date is None or d < first_date):
                     first_date = d
 
+            # CAS sometimes omits txn history rows; use oldest NAV in mfapi history as horizon proxy
+            if first_date is None:
+                nh = fund.get("nav_history") or []
+                if nh:
+                    first_date = nh[-1].get("date")
+
             # Benchmark CAGR from investor's first transaction to today
             fund_xirr_rate = (fund.get("xirr") or {}).get("rate")
             bm_cagr: Optional[float] = None
@@ -135,7 +198,7 @@ class BenchmarkAgent(BaseAgent):
                 nav_start = NAVAgent.nav_on_date(hist, first_date)
                 nav_end = hist[0]["nav"] if hist else None  # newest nav
 
-                if nav_start and nav_end and days > 30:
+                if nav_start and nav_end and days >= 14:
                     bm_cagr = _compute_cagr(nav_start, nav_end, days)
 
             if bm_cagr is not None and fund_xirr_rate is not None:

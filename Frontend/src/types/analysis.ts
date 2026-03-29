@@ -87,8 +87,10 @@ export interface AnalysisData {
     matrix: Array<{
       fund_a: string;
       fund_b: string;
-      overlap: number;
+      overlap: number | null;
       level: string;
+      /** Backend sets false when holdings.json has no data for a fund in the pair */
+      holdings_available?: boolean;
     }>;
     top_concentrated_stocks: Array<{
       name: string;
