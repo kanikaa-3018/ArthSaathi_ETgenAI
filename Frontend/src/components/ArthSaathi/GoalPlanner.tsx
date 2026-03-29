@@ -71,8 +71,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       window.clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
-    if (calcInFlightRef.current) return;
-    calcInFlightRef.current = true;
+    const reqId = ++calcRequestIdRef.current;
     setLoading(true);
     setErr(null);
     try {
