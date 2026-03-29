@@ -143,7 +143,12 @@ export function SummaryCards({
           {card.sub2 && (
             <p
               className="font-mono mt-0.5 text-[13px] tabular-nums"
-              style={{ color: sub2Color }}
+              style={{
+                color:
+                  card.sub2Color ??
+                  sub2Color ??
+                  "hsl(var(--text-secondary))",
+              }}
             >
               {card.sub2}
             </p>

@@ -303,10 +303,13 @@ export default function Dashboard() {
       <p className="section-label mt-12">Tools</p>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <AnimatedContent distance={30} direction="vertical" duration={0.6} delay={0.1}>
-          <Link to="/tax" className="block h-full">
-            <SpotlightCard
-              className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
-              spotlightColor="rgba(248, 113, 113, 0.08)"
+          <SpotlightCard
+            className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
+            spotlightColor="rgba(248, 113, 113, 0.08)"
+          >
+            <Link
+              to="/tax"
+              className="block h-full rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-[hsl(213,60%,56%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--bg-primary))]"
             >
               <p className="font-mono text-[10px] tabular-nums text-text-muted">01</p>
               <div className="mt-2 h-0.5 w-full bg-[hsl(213,60%,56%)]" />
@@ -319,14 +322,17 @@ export default function Dashboard() {
               <p className="font-syne mt-2 text-xs leading-relaxed text-text-secondary">
                 Compare old and new tax regimes. See which saves more.
               </p>
-            </SpotlightCard>
-          </Link>
+            </Link>
+          </SpotlightCard>
         </AnimatedContent>
         <AnimatedContent distance={30} direction="vertical" duration={0.6} delay={0.2}>
-          <Link to="/fire" className="block h-full">
-            <SpotlightCard
-              className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
-              spotlightColor="rgba(255, 180, 50, 0.08)"
+          <SpotlightCard
+            className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
+            spotlightColor="rgba(255, 180, 50, 0.08)"
+          >
+            <Link
+              to="/fire"
+              className="block h-full rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-[hsl(44,96%,56%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--bg-primary))]"
             >
               <p className="font-mono text-[10px] tabular-nums text-text-muted">02</p>
               <div className="mt-2 h-0.5 w-full bg-[hsl(44,96%,56%)]" />
@@ -339,14 +345,17 @@ export default function Dashboard() {
               <p className="font-syne mt-2 text-xs leading-relaxed text-text-secondary">
                 Set a retirement or education goal. Get a SIP roadmap.
               </p>
-            </SpotlightCard>
-          </Link>
+            </Link>
+          </SpotlightCard>
         </AnimatedContent>
         <AnimatedContent distance={30} direction="vertical" duration={0.6} delay={0.3}>
-          <Link to="/mentor" className="block h-full">
-            <SpotlightCard
-              className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
-              spotlightColor="rgba(52, 211, 153, 0.08)"
+          <SpotlightCard
+            className="card-arth block h-full border border-white/[0.06] p-5 transition-colors hover:border-white/[0.12]"
+            spotlightColor="rgba(52, 211, 153, 0.08)"
+          >
+            <Link
+              to="/mentor"
+              className="block h-full rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-[hsl(160,67%,52%)] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--bg-primary))]"
             >
               <p className="font-mono text-[10px] tabular-nums text-text-muted">03</p>
               <div className="mt-2 h-0.5 w-full bg-[hsl(160,67%,52%)]" />
@@ -359,8 +368,8 @@ export default function Dashboard() {
               <p className="font-syne mt-2 text-xs leading-relaxed text-text-secondary">
                 Ask about fees, overlap, tax, or goals — with portfolio context.
               </p>
-            </SpotlightCard>
-          </Link>
+            </Link>
+          </SpotlightCard>
         </AnimatedContent>
       </div>
     </div>

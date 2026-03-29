@@ -1,4 +1,10 @@
-import { useRef, useState, type MouseEventHandler, type ReactNode } from "react";
+import {
+  useRef,
+  useState,
+  type FocusEventHandler,
+  type MouseEventHandler,
+  type ReactNode,
+} from "react";
 
 interface Position {
   x: number;
@@ -29,12 +35,14 @@ export default function SpotlightCard({
     setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const handleFocus = () => {
+  const handleFocusCapture: FocusEventHandler<HTMLDivElement> = () => {
     setIsFocused(true);
     setOpacity(0.32);
   };
 
-  const handleBlur = () => {
+  const handleBlurCapture: FocusEventHandler<HTMLDivElement> = (e) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && divRef.current?.contains(next)) return;
     setIsFocused(false);
     setOpacity(0);
   };
@@ -44,15 +52,21 @@ export default function SpotlightCard({
   };
 
   const handleMouseLeave = () => {
-    setOpacity(0);
+    if (
+      typeof document !== "undefined" &&
+      divRef.current?.contains(document.activeElement)
+    ) {
+      return;
+    }
+    if (!isFocused) setOpacity(0);
   };
 
   return (
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
+      onFocusCapture={handleFocusCapture}
+      onBlurCapture={handleBlurCapture}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`relative overflow-hidden ${className}`}

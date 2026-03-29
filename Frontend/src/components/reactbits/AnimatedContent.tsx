@@ -2,8 +2,6 @@ import { useEffect, useRef, type HTMLAttributes, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export interface AnimatedContentProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   container?: Element | string | null;

@@ -6,6 +6,7 @@ export interface CountUpProps {
   from?: number;
   direction?: "up" | "down";
   delay?: number;
+  /** Spring + end callback duration in seconds; must be finite and > 0 (invalid values fall back to 2). */
   duration?: number;
   className?: string;
   startWhen?: boolean;
@@ -33,8 +34,16 @@ export default function CountUp({
   const ref = useRef<HTMLSpanElement>(null);
   const motionValue = useMotionValue(direction === "down" ? to : from);
 
-  const damping = 20 + 40 * (1 / duration);
-  const stiffness = 100 * (1 / duration);
+  /** Avoid Infinity / unstable springs when duration is 0, negative, or non-finite. */
+  const effectiveDuration =
+    typeof duration === "number" &&
+    Number.isFinite(duration) &&
+    duration > 0
+      ? duration
+      : 2;
+
+  const damping = 20 + 40 * (1 / effectiveDuration);
+  const stiffness = 100 * (1 / effectiveDuration);
 
   const springValue = useSpring(motionValue, {
     damping,
@@ -108,7 +117,7 @@ export default function CountUp({
     delay,
     onStart,
     onEnd,
-    duration,
+    effectiveDuration,
   ]);
 
   useEffect(() => {
