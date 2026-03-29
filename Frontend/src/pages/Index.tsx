@@ -132,6 +132,10 @@ const Index = () => {
               <RebalancingPlan
                 content={data.rebalancing_plan.content}
                 aiGenerated={data.rebalancing_plan.ai_generated}
+                llmProvider={
+                  data.rebalancing_plan.llm_provider ?? data.rebalancing_plan.ai_provider
+                }
+                llmModel={data.rebalancing_plan.llm_model}
               />
 
               {/* Footer */}

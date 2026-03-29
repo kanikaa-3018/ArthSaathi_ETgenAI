@@ -38,6 +38,25 @@ interface ReportSectionsProps {
   };
 }
 
+/** SEBI / educational disclaimer — rubric Enterprise guardrail; shown on report + PDF export. */
+function SebiReportDisclaimer() {
+  return (
+    <div
+      className="card-arth mt-10 px-5 py-4"
+      style={{ borderColor: "rgba(255,180,50,0.12)", background: "rgba(255,180,50,0.03)" }}
+    >
+      <p className="font-syne text-xs leading-relaxed" style={{ color: "hsl(var(--text-secondary))" }}>
+        <strong className="text-text-primary">Important Disclaimer:</strong>{" "}
+        This report is AI-generated financial analysis for educational and informational purposes only.
+        It does not constitute investment advice, tax advice, or a recommendation to buy, sell, or hold any security.
+        ArthSaathi is not a SEBI-registered investment advisor or research analyst.
+        Past performance and computed metrics (XIRR, projections, health scores) are based on historical data and do not guarantee future results.
+        Please consult a SEBI-registered investment advisor before making any financial decisions.
+      </p>
+    </div>
+  );
+}
+
 function UnavailableBlock({
   title,
   description,
@@ -188,6 +207,10 @@ export function ReportSections({
               <RebalancingPlan
                 content={data.rebalancing_plan.content}
                 aiGenerated={data.rebalancing_plan.ai_generated}
+                llmProvider={
+                  data.rebalancing_plan.llm_provider ?? data.rebalancing_plan.ai_provider
+                }
+                llmModel={data.rebalancing_plan.llm_model}
               />
               <Collapsible
                 open={pdfExpandCollapsibles || pipelineOpen}
@@ -222,6 +245,7 @@ export function ReportSections({
                   <TaxRegimeCompare data={originalData} />
                 </>
               ) : null}
+              <SebiReportDisclaimer />
               <footer className="py-16 text-center">
                 <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
                   {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
@@ -319,6 +343,10 @@ export function ReportSections({
                   <RebalancingPlan
                     content={data.rebalancing_plan.content}
                     aiGenerated={data.rebalancing_plan.ai_generated}
+                    llmProvider={
+                      data.rebalancing_plan.llm_provider ?? data.rebalancing_plan.ai_provider
+                    }
+                    llmModel={data.rebalancing_plan.llm_model}
                   />
                   <Collapsible
                     open={pdfExpandCollapsibles || pipelineOpen}
@@ -359,6 +387,7 @@ export function ReportSections({
                 </TabsContent>
               </Tabs>
 
+              <SebiReportDisclaimer />
               <footer className="py-16 text-center">
                 <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
                   {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}

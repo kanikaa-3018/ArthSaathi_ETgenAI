@@ -51,7 +51,7 @@ const agentDefs = [
     delay: 0,
     duration: 2100,
     runMsg: "Parsing CAS statement...",
-    doneMsg: "Found 6 funds across 2 folios",
+    doneMsg: "Found 6 funds across 6 folios",
     severity: "success" as const,
   },
   {
@@ -96,7 +96,7 @@ const agentDefs = [
     delay: 5500,
     duration: 1500,
     runMsg: "Comparing against benchmarks...",
-    doneMsg: "3 of 5 equity funds underperform index",
+    doneMsg: "3 of 6 equity funds underperform index",
     severity: "warning" as const,
   },
   {

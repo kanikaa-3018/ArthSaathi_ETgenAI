@@ -162,7 +162,16 @@ async def stream_chat_events(
                 except Exception:
                     final = full.strip()
                 full = final or full.strip()
-            yield ("done", json.dumps({"content": full, "provider": "anthropic"}))
+            yield (
+                "done",
+                json.dumps(
+                    {
+                        "content": full,
+                        "llm_provider": "anthropic",
+                        "llm_model": settings.ANTHROPIC_MODEL,
+                    },
+                ),
+            )
             return
         except Exception as e:
             logger.warning("Anthropic chat stream failed, trying next provider: %s", e, exc_info=True)
@@ -214,11 +223,25 @@ async def stream_chat_events(
             full = (response.text or "").strip()
             for i in range(0, len(full), 48):
                 yield ("token", json.dumps({"content": full[i : i + 48]}))
-            yield ("done", json.dumps({"content": full, "provider": "gemini"}))
+            yield (
+                "done",
+                json.dumps(
+                    {
+                        "content": full,
+                        "llm_provider": "google",
+                        "llm_model": settings.GEMINI_CHAT_MODEL,
+                    },
+                ),
+            )
             return
         except Exception as e:
             logger.warning("Gemini chat failed, using rule engine: %s", e, exc_info=True)
 
     full = rule_based_chat(user_message, portfolio_context)
     yield ("token", json.dumps({"content": full}))
-    yield ("done", json.dumps({"content": full, "provider": "rule_engine"}))
+    yield (
+        "done",
+        json.dumps(
+            {"content": full, "llm_provider": "rule_engine", "llm_model": "deterministic"},
+        ),
+    )

@@ -12,10 +12,20 @@ import {
 import { Calculator, ChevronDown, ChevronUp } from "lucide-react";
 import { api } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
-import type { AnalysisData, TaxRegimeCompareResponse } from "@/types/analysis";
+import type {
+  AnalysisData,
+  TaxRegimeCompareResponse,
+  TaxSlabBreakdown,
+} from "@/types/analysis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 function elssFromPortfolio(funds: AnalysisData["funds"]): number {
   return funds
@@ -32,6 +42,163 @@ function parseAmountField(raw: string): number {
   const digits = raw.replace(/\D/g, "");
   const n = Number(digits);
   return Number.isFinite(n) ? n : 0;
+}
+
+function formatInrAbs(n: number): string {
+  if (!Number.isFinite(n)) return "₹0";
+  return `₹${Math.abs(Math.round(n)).toLocaleString("en-IN")}`;
+}
+
+function num(v: unknown): number {
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/** Single line in the verifiable tax worksheet (Prompt 16C). */
+function Row({
+  label,
+  value,
+  negative,
+  bold,
+  accent,
+}: {
+  label: string;
+  value: number;
+  negative?: boolean;
+  bold?: boolean;
+  accent?: boolean;
+}) {
+  const formatted = `${negative ? "−" : ""}${formatInrAbs(value)}`;
+  return (
+    <div className={cn("flex justify-between gap-4", bold && "font-semibold")}>
+      <span className="text-text-secondary">{label}</span>
+      <span
+        className={cn(
+          "text-right font-mono text-xs tabular-nums",
+          accent ? "text-accent" : negative ? "text-[hsl(var(--negative))]" : "text-text-primary",
+        )}
+      >
+        {formatted}
+      </span>
+    </div>
+  );
+}
+
+function SlabRows({ breakdown }: { breakdown: TaxSlabBreakdown | undefined }) {
+  if (!breakdown?.rows?.length) return null;
+  return (
+    <div className="space-y-1 border-t border-white/[0.06] pt-2 mt-2">
+      <p className="font-syne text-[11px] font-medium text-text-muted">Slab-wise tax</p>
+      {breakdown.rows.map((r, i) => (
+        <div
+          key={`${r.label}-${i}`}
+          className="flex justify-between gap-3 pl-1 font-mono text-[11px] tabular-nums text-text-tertiary"
+        >
+          <span className="min-w-0">
+            {r.label}
+            <span className="text-text-muted"> @ {r.rate_pct}%</span>
+          </span>
+          <span className="shrink-0 text-text-secondary">{formatInrAbs(r.tax)}</span>
+        </div>
+      ))}
+      {typeof breakdown.pre_rebate_tax === "number" ? (
+        <Row label="Sum of slab taxes (pre-rebate)" value={breakdown.pre_rebate_tax} bold />
+      ) : null}
+      {breakdown.rebate_87a_applied ? (
+        <p className="font-syne text-[10px] leading-relaxed text-text-muted pt-1">
+          Rebate u/s 87A in this illustrative model (old regime: taxable ≤ ₹5L; new regime: taxable ≤ ₹12L).
+          “Tax (before cess)” below is after that rebate.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function TaxCalculationBreakdown({ result }: { result: TaxRegimeCompareResponse }) {
+  const o = result.old_regime;
+  const nr = result.new_regime;
+  const lta = num(o.lta_exemption);
+  const grossAfterLta = num(o.gross_after_lta);
+
+  return (
+    <Collapsible className="group mt-6 card-arth overflow-hidden border border-white/[0.06]">
+      <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 px-5 py-3 text-left transition-colors hover:bg-white/[0.02]">
+        <span className="section-label">Calculation breakdown</span>
+        <ChevronDown className="h-4 w-4 shrink-0 text-text-muted transition-transform group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="grid grid-cols-1 gap-6 border-t border-white/[0.06] px-5 pb-5 pt-4 md:grid-cols-2">
+          <div>
+            <p className="font-syne text-sm font-medium text-text-primary mb-3">Old regime</p>
+            <div className="space-y-1 font-mono text-xs tabular-nums">
+              <Row label="Gross salary" value={num(o.gross_income)} />
+              {lta > 0 ? (
+                <>
+                  <Row label="LTA exemption (Section 10(5), illustrative)" value={lta} negative />
+                  <Row label="Income after LTA" value={grossAfterLta} bold />
+                </>
+              ) : null}
+              {num(o.standard_deduction) > 0 ? (
+                <Row label="Standard deduction" value={num(o.standard_deduction)} negative />
+              ) : null}
+              {num(o.hra_exemption) > 0 ? (
+                <Row label="HRA exemption" value={num(o.hra_exemption)} negative />
+              ) : null}
+              {num(o.section_80c) > 0 ? (
+                <Row label="Section 80C (incl. ELSS from portfolio in model)" value={num(o.section_80c)} negative />
+              ) : null}
+              {num(o.section_80ccd1b) > 0 ? (
+                <Row label="Section 80CCD(1B) NPS" value={num(o.section_80ccd1b)} negative />
+              ) : null}
+              {num(o.home_loan_24b) > 0 ? (
+                <Row label="Home loan interest (24(b))" value={num(o.home_loan_24b)} negative />
+              ) : null}
+              {num(o.section_80d) > 0 ? (
+                <Row label="Section 80D" value={num(o.section_80d)} negative />
+              ) : null}
+              {num(o.education_loan_80e) > 0 ? (
+                <Row label="Education loan interest (80E)" value={num(o.education_loan_80e)} negative />
+              ) : null}
+              {num(o.other_deductions) > 0 ? (
+                <Row label="Other old-regime deductions" value={num(o.other_deductions)} negative />
+              ) : null}
+              <div className="border-t border-white/[0.06] pt-1 mt-1">
+                <Row label="Taxable income" value={num(o.taxable_income)} bold />
+              </div>
+              <SlabRows breakdown={o.slab_breakdown} />
+              <div className="border-t border-white/[0.06] pt-1 mt-2 space-y-1">
+                <Row label="Tax (before cess)" value={num(o.tax_before_cess)} />
+                <Row label="Health & education cess 4%" value={num(o.cess_4pct)} />
+                <div className="border-t border-white/[0.06] pt-1 mt-1">
+                  <Row label="Total tax (old regime)" value={num(o.total_tax)} bold accent />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="font-syne text-sm font-medium text-text-primary mb-3">New regime</p>
+            <div className="space-y-1 font-mono text-xs tabular-nums">
+              <Row label="Gross salary" value={num(nr.gross_income)} />
+              {num(nr.standard_deduction) > 0 ? (
+                <Row label="Standard deduction" value={num(nr.standard_deduction)} negative />
+              ) : null}
+              <div className="border-t border-white/[0.06] pt-1 mt-1">
+                <Row label="Taxable income" value={num(nr.taxable_income)} bold />
+              </div>
+              <SlabRows breakdown={nr.slab_breakdown} />
+              <div className="border-t border-white/[0.06] pt-1 mt-2 space-y-1">
+                <Row label="Tax (before cess)" value={num(nr.tax_before_cess)} />
+                <Row label="Health & education cess 4%" value={num(nr.cess_4pct)} />
+                <div className="border-t border-white/[0.06] pt-1 mt-1">
+                  <Row label="Total tax (new regime)" value={num(nr.total_tax)} bold accent />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }
 
 function InrField({
@@ -129,8 +296,8 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
   const chartData =
     result != null
       ? [
-          { name: "Old regime", tax: result.old_regime.total_tax as number },
-          { name: "New regime", tax: result.new_regime.total_tax as number },
+          { name: "Old regime", tax: result.old_regime.total_tax },
+          { name: "New regime", tax: result.new_regime.total_tax },
         ]
       : [];
 
@@ -160,6 +327,7 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
       </button>
 
       {open ? (
+        <>
         <div className="mt-6 grid gap-8 lg:grid-cols-2">
           <div className="space-y-6">
             {elss > 0 ? (
@@ -313,6 +481,8 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
             )}
           </div>
         </div>
+        {result ? <TaxCalculationBreakdown result={result} /> : null}
+        </>
       ) : null}
     </div>
   );

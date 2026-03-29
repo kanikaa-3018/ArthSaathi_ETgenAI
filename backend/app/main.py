@@ -442,7 +442,7 @@ async def analyze_test(request: Request, current_user=Depends(get_current_user))
         # Emit parser done (skip actual parsing)
         event_queue.put_nowait(AgentEvent(
             agent="parser_agent", status="completed",
-            message="Loaded fixture: sample_cas_parsed.json (6 funds, 2 folios)",
+            message="Loaded fixture: sample_cas_parsed.json (6 funds, 6 folios)",
             severity="success", step=1, total_steps=1,
         ))
 
@@ -556,7 +556,7 @@ def get_sample():
             "total_current_value": 3245670.0,
             "total_invested": 2640000.0,
             "total_funds": 6,
-            "total_folios": 2,
+            "total_folios": 6,
             "equity_allocation_pct": 82.3,
             "debt_allocation_pct": 17.7,
             "regular_plan_count": 4,
@@ -590,6 +590,8 @@ def get_sample():
         "rebalancing_plan": {
             "ai_generated": False,
             "ai_provider": "rule_engine",
+            "llm_provider": "rule_engine",
+            "llm_model": "deterministic",
             "content": "## What's Working Well\n\nSample analysis. Upload your CAS to get a personalized plan.\n\n## The Biggest Problem\n\nRegular plans are costing ₹40,697/year.\n\n## Three Things to Do This Week\n\nSwitch to direct plans.\n\n## What This Saves You\n\n₹23,900/year.",
         },
     })

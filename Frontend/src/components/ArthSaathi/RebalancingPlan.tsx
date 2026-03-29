@@ -4,11 +4,15 @@ import { Info, Sparkles } from "lucide-react";
 interface RebalancingPlanProps {
   content: string;
   aiGenerated: boolean;
+  llmProvider?: string | null;
+  llmModel?: string | null;
 }
 
 export function RebalancingPlan({
   content,
   aiGenerated,
+  llmProvider,
+  llmModel,
 }: RebalancingPlanProps) {
   const { ref, visible } = useScrollReveal();
 
@@ -88,7 +92,7 @@ export function RebalancingPlan({
       />
 
       <div className="p-8">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <h2 className="font-display text-[22px] font-semibold text-primary-light">
             Rebalancing Plan
           </h2>
@@ -110,6 +114,13 @@ export function RebalancingPlan({
               Generated using rules-based analysis
             </span>
           )}
+          {llmProvider ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/[0.08] px-2 py-0.5 font-mono text-[10px] text-text-muted">
+              {llmProvider === "rule_engine"
+                ? "Rule Engine"
+                : `AI: ${llmModel || llmProvider}`}
+            </span>
+          ) : null}
         </div>
 
         <div>{rendered}</div>

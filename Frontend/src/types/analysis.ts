@@ -130,6 +130,9 @@ export interface AnalysisData {
   rebalancing_plan: {
     ai_generated: boolean;
     ai_provider: string;
+    /** Normalized cascade id: anthropic | openai | google | rule_engine */
+    llm_provider?: string;
+    llm_model?: string;
     content: string;
   };
 }
@@ -197,10 +200,34 @@ export interface GoalCalculateResponse {
   };
 }
 
+/** Slab-wise tax breakdown from backend `tax_regime.compare_regimes`. */
+export interface TaxSlabBreakdown {
+  rows: Array<{ label: string; rate_pct: number; tax: number }>;
+  pre_rebate_tax?: number;
+  rebate_87a_applied?: boolean;
+  tax_after_rebate?: number;
+}
+
 /** POST /api/tax/regime-compare */
 export interface TaxRegimeCompareResponse {
-  old_regime: Record<string, number>;
-  new_regime: Record<string, number>;
+  old_regime: {
+    total_tax: number;
+    taxable_income?: number;
+    gross_income?: number;
+    cess_4pct?: number;
+    tax_before_cess?: number;
+    slab_breakdown?: TaxSlabBreakdown;
+    [key: string]: unknown;
+  };
+  new_regime: {
+    total_tax: number;
+    taxable_income?: number;
+    gross_income?: number;
+    cess_4pct?: number;
+    tax_before_cess?: number;
+    slab_breakdown?: TaxSlabBreakdown;
+    [key: string]: unknown;
+  };
   recommendation: string;
   savings: number;
   savings_display: string;

@@ -10,7 +10,7 @@ from app.agents.base import BaseAgent
 from app.config import settings
 from app.utils import format_inr
 
-SYSTEM_PROMPT = """You are a SEBI-registered-investment-advisor-grade portfolio analyst reviewing an Indian mutual fund portfolio. You have been given the complete quantitative analysis — XIRR, overlap, expense drag, benchmark alpha, health score, and wealth gap projection. Your job is to produce a clear, actionable rebalancing plan.
+SYSTEM_PROMPT = """You are an educational portfolio analyst reviewing an Indian mutual fund portfolio (not a SEBI-registered investment advisor). You have been given the complete quantitative analysis — XIRR, overlap, expense drag, benchmark alpha, health score, and wealth gap projection. Your job is to produce a clear, actionable rebalancing plan.
 
 RULES:
 1. Begin with: "This analysis is for educational purposes. Consult a SEBI-registered investment advisor before making changes."
@@ -59,6 +59,17 @@ def _serialize_for_llm(analysis: Dict[str, Any]) -> str:
     return json.dumps(summary, default=str, ensure_ascii=False)
 
 
+def _llm_routing_meta(provider: str) -> tuple[str, str]:
+    """Rubric / API: normalized provider id + concrete model id for UI badge."""
+    if provider == "claude":
+        return "anthropic", settings.ANTHROPIC_MODEL or "claude"
+    if provider == "gpt4o":
+        return "openai", "gpt-4o"
+    if provider == "gemini":
+        return "google", "gemini-2.0-flash"
+    return "rule_engine", "deterministic"
+
+
 class AdvisorAgent(BaseAgent):
     """
     LLM-powered rebalancing advisor.
@@ -97,9 +108,12 @@ class AdvisorAgent(BaseAgent):
             ai_generated = True
 
         self.emit_completed("Rebalancing plan ready", severity="success")
+        llm_provider, llm_model = _llm_routing_meta(provider)
         return {
             "ai_generated": ai_generated,
             "ai_provider": provider,
+            "llm_provider": llm_provider,
+            "llm_model": llm_model,
             "content": content,
         }
 

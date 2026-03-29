@@ -25,6 +25,78 @@ def _old_regime_tax(taxable: float) -> float:
     return tax
 
 
+def _old_regime_slab_rows(taxable: float) -> List[Dict[str, Any]]:
+    """Slab tax before 87A rebate — for transparent step-by-step UI."""
+    rows: List[Dict[str, Any]] = []
+    if taxable <= 250000:
+        rows.append({"label": "₹0 – ₹2.5L", "rate_pct": 0, "tax": 0.0})
+        return rows
+    if taxable > 250000:
+        band = min(taxable, 500000) - 250000
+        rows.append({"label": "₹2.5L – ₹5L", "rate_pct": 5, "tax": round(band * 0.05, 2)})
+    if taxable > 500000:
+        band = min(taxable, 1000000) - 500000
+        rows.append({"label": "₹5L – ₹10L", "rate_pct": 20, "tax": round(band * 0.20, 2)})
+    if taxable > 1000000:
+        band = taxable - 1000000
+        rows.append({"label": "Above ₹10L", "rate_pct": 30, "tax": round(band * 0.30, 2)})
+    return rows
+
+
+def _old_slab_breakdown(taxable: float, tax_after_rebate: float) -> Dict[str, Any]:
+    rows = _old_regime_slab_rows(taxable)
+    pre = round(sum(float(r["tax"]) for r in rows), 2)
+    return {
+        "rows": rows,
+        "pre_rebate_tax": pre,
+        "rebate_87a_applied": taxable <= 500000 and pre > 0,
+        "tax_after_rebate": round(tax_after_rebate, 2),
+    }
+
+
+def _new_regime_slab_rows(taxable: float) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    if taxable <= 1200000:
+        rows.append(
+            {
+                "label": "Taxable ≤ ₹12L (model — nil tax / rebate)",
+                "rate_pct": 0,
+                "tax": 0.0,
+            },
+        )
+        return rows
+    slab_defs: List[tuple[float, float, str]] = [
+        (400000, 0.00, "₹0 – ₹4L"),
+        (400000, 0.05, "₹4L – ₹8L"),
+        (400000, 0.10, "₹8L – ₹12L"),
+        (400000, 0.15, "₹12L – ₹16L"),
+        (400000, 0.20, "₹16L – ₹20L"),
+        (400000, 0.25, "₹20L – ₹24L"),
+        (float("inf"), 0.30, "Above ₹24L"),
+    ]
+    remaining = taxable
+    for width, rate, label in slab_defs:
+        chunk = min(remaining, width)
+        if chunk > 0:
+            pct = 30 if rate >= 0.299 else int(round(rate * 100))
+            rows.append({"label": label, "rate_pct": pct, "tax": round(chunk * rate, 2)})
+        remaining -= chunk
+        if remaining <= 0:
+            break
+    return rows
+
+
+def _new_slab_breakdown(taxable: float, income_tax_pre_cess: float) -> Dict[str, Any]:
+    rows = _new_regime_slab_rows(taxable)
+    pre = round(sum(float(r["tax"]) for r in rows), 2)
+    return {
+        "rows": rows,
+        "pre_rebate_tax": pre,
+        "rebate_87a_applied": taxable <= 1200000 and income_tax_pre_cess == 0,
+        "tax_after_rebate": round(income_tax_pre_cess, 2),
+    }
+
+
 def _new_regime_tax(taxable: float) -> float:
     if taxable <= 1200000:
         return 0.0
@@ -152,6 +224,7 @@ def compare_regimes(
             "tax_before_cess": round(old_tax),
             "cess_4pct": round(old_cess),
             "total_tax": old_total,
+            "slab_breakdown": _old_slab_breakdown(old_taxable, old_tax),
         },
         "new_regime": {
             "gross_income": gross_salary,
@@ -161,6 +234,7 @@ def compare_regimes(
             "tax_before_cess": round(new_tax),
             "cess_4pct": round(new_cess),
             "total_tax": new_total,
+            "slab_breakdown": _new_slab_breakdown(new_taxable, new_tax),
         },
         "recommendation": recommendation,
         "savings": savings,

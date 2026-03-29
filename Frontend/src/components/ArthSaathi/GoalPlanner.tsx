@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Target } from "lucide-react";
 import {
   Area,
@@ -49,8 +49,10 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
   const [monthlySip, setMonthlySip] = useState(25000);
   const [customAmount, setCustomAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [autoCalcPending, setAutoCalcPending] = useState(false);
   const [result, setResult] = useState<GoalCalculateResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const prevOpen = useRef(open);
 
   const defaults = useMemo(
     () => ({
@@ -60,7 +62,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     [data.portfolio_summary.total_current_value, data.portfolio_xirr.rate],
   );
 
-  const calculate = async () => {
+  const calculate = useCallback(async () => {
     setLoading(true);
     setErr(null);
     try {
@@ -102,7 +104,42 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    goalType,
+    targetYear,
+    currentAge,
+    monthlyIncome,
+    monthlySip,
+    customAmount,
+    defaults.pv,
+    defaults.xirr,
+  ]);
+
+  useEffect(() => {
+    const justOpened = open && !prevOpen.current;
+    prevOpen.current = open;
+    if (!open || justOpened) return;
+
+    setAutoCalcPending(true);
+    const t = window.setTimeout(() => {
+      void calculate().finally(() => setAutoCalcPending(false));
+    }, 600);
+    return () => {
+      window.clearTimeout(t);
+      setAutoCalcPending(false);
+    };
+  }, [
+    open,
+    goalType,
+    targetYear,
+    currentAge,
+    monthlyIncome,
+    monthlySip,
+    customAmount,
+    defaults.pv,
+    defaults.xirr,
+    calculate,
+  ]);
 
   const onTrackPct = result
     ? Math.min(
@@ -272,9 +309,14 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
             </label>
           </div>
 
-          <Button type="button" onClick={() => void calculate()} disabled={loading} className="w-full sm:w-auto">
-            {loading ? "Calculating…" : "Calculate"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" onClick={() => void calculate()} disabled={loading} className="w-full sm:w-auto">
+              {loading ? "Calculating…" : "Calculate"}
+            </Button>
+            {autoCalcPending ? (
+              <span className="font-syne text-xs text-text-muted">Updating…</span>
+            ) : null}
+          </div>
 
           {err ? <p className="text-xs text-red-400">{err}</p> : null}
 

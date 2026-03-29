@@ -48,6 +48,10 @@ export function MentorChat({
   const [streaming, setStreaming] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastLlmRoute, setLastLlmRoute] = useState<{
+    provider: string;
+    model: string;
+  } | null>(null);
   const [autoSpeak, setAutoSpeak] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const accRef = useRef("");
@@ -75,6 +79,7 @@ export function MentorChat({
     setMessages([{ role: "assistant", content: greeting }]);
     setStreaming("");
     setError(null);
+    setLastLlmRoute(null);
   }, [analysisKey, analysis, guestChatLocked]);
 
   useEffect(() => {
@@ -101,6 +106,7 @@ export function MentorChat({
       setInput("");
       setLoading(true);
       setError(null);
+      setLastLlmRoute(null);
       accRef.current = "";
       setStreaming("");
       const headers: Record<string, string> = {
@@ -144,10 +150,20 @@ export function MentorChat({
             }
             if (ev.event === "done") {
               try {
-                const j = JSON.parse(ev.data) as { content?: string };
+                const j = JSON.parse(ev.data) as {
+                  content?: string;
+                  llm_provider?: string;
+                  llm_model?: string;
+                };
                 if (j.content) {
                   accRef.current = j.content;
                   setStreaming(j.content);
+                }
+                if (j.llm_provider) {
+                  setLastLlmRoute({
+                    provider: j.llm_provider,
+                    model: j.llm_model ?? "",
+                  });
                 }
               } catch {
                 /* ignore */
@@ -374,6 +390,12 @@ export function MentorChat({
           <Send className="h-4 w-4" />
         </Button>
       </form>
+      {lastLlmRoute ? (
+        <p className="px-3 pb-1 font-mono text-[10px]" style={{ color: "hsl(var(--text-tertiary))" }}>
+          Mentor routing: {lastLlmRoute.provider}
+          {lastLlmRoute.model ? ` · ${lastLlmRoute.model}` : ""}
+        </p>
+      ) : null}
       <p
         className="px-3 pb-3 font-body text-xs"
         style={{ color: "hsl(var(--text-tertiary))" }}

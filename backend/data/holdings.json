@@ -1,146 +1,2414 @@
 {
   "118989": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 9.8},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 8.5},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.1},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 7.2},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 6.9},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.1},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.8},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.5},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 3.2},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 2.9}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.55
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.44
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.63
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.82
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.71
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.3
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.69
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.78
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.17
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.56
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.05
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.24
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.73
+    }
   ],
   "100033": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 9.2},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 8.8},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.5},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 7.4},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 6.5},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.5},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 4.0},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.7},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 3.1},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 2.7}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.76
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 7.95
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.84
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.03
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.22
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.51
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.9
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.29
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.38
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.77
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.26
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.75
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.94
+    }
   ],
-  "120503": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 10.1},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 9.3},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 8.7},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 8.0},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.1},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.3},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 4.0},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.6},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 3.3},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 3.0}
+  "119096": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.97
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.16
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.35
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.24
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.43
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.02
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.11
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.5
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.89
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.98
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.47
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.96
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.45
+    }
   ],
-  "100769": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 7.5},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 7.0},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 6.5},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 6.0},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 5.5},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 5.0},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.0},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.5},
-    {"isin": "INE434A01013", "name": "Wipro", "weight": 3.0},
-    {"isin": "INE028A01039", "name": "Bank of Baroda", "weight": 2.5}
+  "112277": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.18
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.37
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.56
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.75
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.64
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.23
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.62
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.71
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.1
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.49
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.68
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.17
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.66
+    }
   ],
-  "119598": [
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 9.5},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.9},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 8.2},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 7.6},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.0},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 5.2},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.8},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 4.2},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 3.5},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.0}
+  "118825": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.69
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.58
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.77
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.96
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.15
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.44
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.83
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.22
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.31
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.7
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.19
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.38
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.87
+    }
   ],
   "112090": [
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 10.2},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 8.0},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 7.5},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 7.0},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 6.5},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 5.5},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.5},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 4.0},
-    {"isin": "INE030A01027", "name": "L&T", "weight": 3.8},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.5}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.9
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.09
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.98
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.17
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.36
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 4.95
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.04
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.43
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.82
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.91
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.4
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.89
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.08
+    }
+  ],
+  "103174": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.11
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.3
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.49
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.38
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.57
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.16
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.55
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.64
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.03
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.42
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.61
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.1
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.59
+    }
+  ],
+  "120503": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.62
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.51
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.7
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.89
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.78
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.37
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.76
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.15
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.24
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.63
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.12
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.31
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.8
+    }
+  ],
+  "125494": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.83
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.02
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.91
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.1
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.29
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.58
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.97
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.36
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.75
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.84
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.33
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.82
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.01
+    }
+  ],
+  "122639": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.04
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.23
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.42
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.31
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.5
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.09
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.18
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.57
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.96
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.35
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.54
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.03
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.52
+    }
+  ],
+  "118834": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.55
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.44
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.63
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.82
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.71
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.3
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.69
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.78
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.17
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.56
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.05
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.24
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.73
+    }
+  ],
+  "118828": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.76
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 7.95
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.84
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.03
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.22
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.51
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.9
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.29
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.38
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.77
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.26
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.75
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.94
+    }
+  ],
+  "120716": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.97
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.16
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.35
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.24
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.43
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.02
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.11
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.5
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.89
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.98
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.47
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.96
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.45
+    }
+  ],
+  "100672": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.18
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.37
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.56
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.75
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.64
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.23
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.62
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.71
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.1
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.49
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.68
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.17
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.66
+    }
+  ],
+  "119097": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.69
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.58
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.77
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.96
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.15
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.44
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.83
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.22
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.31
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.7
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.19
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.38
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.87
+    }
+  ],
+  "100769": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.9
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.09
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.98
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.17
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.36
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 4.95
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.04
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.43
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.82
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.91
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.4
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.89
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.08
+    }
+  ],
+  "119598": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.11
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.3
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.49
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.38
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.57
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.16
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.55
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.64
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.03
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.42
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.61
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.1
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.59
+    }
   ],
   "148618": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 11.0},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 10.5},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 9.0},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 8.0},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.5},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 5.0},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 4.5},
-    {"isin": "INE434A01013", "name": "Wipro", "weight": 4.0},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.5},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 3.0}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.62
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.51
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.7
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.89
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.78
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.37
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.76
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.15
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.24
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.63
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.12
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.31
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.8
+    }
   ],
   "135781": [
-    {"isin": "INE001A01036", "name": "ITC", "weight": 8.5},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.0},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 6.5},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 6.0},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 5.5},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 5.0},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 4.5},
-    {"isin": "INE030A01027", "name": "L&T", "weight": 4.0},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.5},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.0}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.83
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.02
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.91
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.1
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.29
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.58
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.97
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.36
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.75
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.84
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.33
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.82
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.01
+    }
   ],
   "125497": [
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 9.0},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 8.5},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.5},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 7.0},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 6.5},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 5.0},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.5},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 4.0},
-    {"isin": "INE430A01016", "name": "Power Grid", "weight": 3.5},
-    {"isin": "INE121A01024", "name": "Bajaj Finance", "weight": 3.0}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.04
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.23
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.42
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.31
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.5
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.09
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.18
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.57
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.96
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.35
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.54
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.03
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.52
+    }
   ],
   "118278": [
-    {"isin": "INE467B01029", "name": "TCS", "weight": 9.0},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 8.5},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.0},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 7.5},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 7.0},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.5},
-    {"isin": "INE434A01013", "name": "Wipro", "weight": 4.0},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.5},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.0},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 2.8}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.55
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.44
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.63
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.82
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.71
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.3
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.69
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.78
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.17
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.56
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.05
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.24
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.73
+    }
   ],
   "101539": [
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 12.0},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 11.0},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 9.5},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 9.0},
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 8.0},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 5.0},
-    {"isin": "INE434A01013", "name": "Wipro", "weight": 4.5},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 4.0},
-    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 3.5},
-    {"isin": "INE154A01025", "name": "HUL", "weight": 3.0}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.76
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 7.95
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.84
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.03
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.22
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.51
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.9
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.29
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.38
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.77
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.26
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.75
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.94
+    }
   ],
   "119027": [
-    {"isin": "INE585B01010", "name": "Reliance Industries", "weight": 9.0},
-    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.0},
-    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 7.5},
-    {"isin": "INE009A01021", "name": "Infosys", "weight": 7.0},
-    {"isin": "INE361B01024", "name": "SBI", "weight": 6.5},
-    {"isin": "INE467B01029", "name": "TCS", "weight": 6.0},
-    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 4.5},
-    {"isin": "INE030A01027", "name": "L&T", "weight": 4.0},
-    {"isin": "INE001A01036", "name": "ITC", "weight": 3.5},
-    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.0}
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.97
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.16
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.35
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.24
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.43
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.02
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.11
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.5
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.89
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.98
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.47
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.96
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.45
+    }
+  ],
+  "120684": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.18
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.37
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.56
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.75
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.64
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.23
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.62
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.71
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.1
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.49
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.68
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.17
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.66
+    }
+  ],
+  "105758": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.69
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.58
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.77
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.96
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.15
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.44
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.83
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.22
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.31
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.7
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.19
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.38
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.87
+    }
+  ],
+  "120823": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.9
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.09
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.98
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.17
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.36
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 4.95
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.04
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.43
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.82
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.91
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.4
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.89
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.08
+    }
+  ],
+  "146819": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.11
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.3
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.49
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.38
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.57
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.16
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.55
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.64
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.03
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.42
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.61
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.1
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.59
+    }
+  ],
+  "112268": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.62
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.51
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.7
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.89
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.78
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.37
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.76
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.15
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.24
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.63
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.12
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.31
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.8
+    }
+  ],
+  "100460": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.83
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.02
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.91
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.1
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.29
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.58
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.97
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.36
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.75
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.84
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.33
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.82
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.01
+    }
+  ],
+  "135800": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.04
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.23
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.42
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.31
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.5
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.09
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.18
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.57
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.96
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.35
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.54
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.03
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.52
+    }
+  ],
+  "147744": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.55
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.44
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.63
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.82
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.71
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.3
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.69
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.78
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.17
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.56
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.05
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.24
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.73
+    }
+  ],
+  "118862": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.76
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 7.95
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.84
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.03
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.22
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.51
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.9
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.29
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.38
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.77
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.26
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.75
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.94
+    }
+  ],
+  "102009": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.97
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.16
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.35
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.24
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.43
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.02
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.11
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.5
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.89
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.98
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.47
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.96
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.45
+    }
+  ],
+  "115876": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 9.18
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.37
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.56
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.75
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.64
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.23
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.62
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.71
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.1
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.49
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.68
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.17
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.66
+    }
+  ],
+  "148481": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.69
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.58
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.77
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 6.96
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.15
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 5.44
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 4.83
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.22
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 4.31
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.7
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.19
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 3.38
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 2.87
+    }
+  ],
+  "101206": [
+    {
+      "isin": "INE002A01018",
+      "name": "Reliance Industries",
+      "weight": 8.9
+    },
+    {
+      "isin": "INE040A01034",
+      "name": "HDFC Bank",
+      "weight": 8.09
+    },
+    {
+      "isin": "INE009A01021",
+      "name": "Infosys",
+      "weight": 7.98
+    },
+    {
+      "isin": "INE467B01029",
+      "name": "TCS",
+      "weight": 7.17
+    },
+    {
+      "isin": "INE062A01020",
+      "name": "ICICI Bank",
+      "weight": 6.36
+    },
+    {
+      "isin": "INE528G01035",
+      "name": "Kotak Mahindra Bank",
+      "weight": 4.95
+    },
+    {
+      "isin": "INE860A01027",
+      "name": "Axis Bank",
+      "weight": 5.04
+    },
+    {
+      "isin": "INE090A01021",
+      "name": "Bharti Airtel",
+      "weight": 4.43
+    },
+    {
+      "isin": "INE001A01036",
+      "name": "ITC",
+      "weight": 3.82
+    },
+    {
+      "isin": "INE154A01025",
+      "name": "HUL",
+      "weight": 3.91
+    },
+    {
+      "isin": "INE361B01024",
+      "name": "SBI",
+      "weight": 3.4
+    },
+    {
+      "isin": "INE030A01027",
+      "name": "L&T",
+      "weight": 2.89
+    },
+    {
+      "isin": "INE434A01013",
+      "name": "Wipro",
+      "weight": 3.08
+    }
   ]
 }

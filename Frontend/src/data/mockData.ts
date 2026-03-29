@@ -11,7 +11,7 @@ export const mockData = {
     total_current_value: 3245670,
     total_invested: 2640000,
     total_funds: 6,
-    total_folios: 2,
+    total_folios: 6,
     equity_allocation_pct: 82.3,
     debt_allocation_pct: 17.7,
     regular_plan_count: 4,
@@ -430,6 +430,8 @@ export const mockData = {
   rebalancing_plan: {
     ai_generated: true,
     ai_provider: "claude",
+    llm_provider: "anthropic",
+    llm_model: "claude-sonnet-4-20250514",
     content:
       "This analysis is for educational purposes. Consult a SEBI-registered investment advisor before making changes.\n\n## What's Working Well\n\nYour Parag Parikh Flexi Cap Fund is the standout — 18.91% XIRR against a 14.45% benchmark, with a low 0.63% TER in the direct plan. Your debt allocation through HDFC Short Term Debt is sensible at 0.38% TER.\n\n## The Biggest Problem\n\nYou own two large-cap funds — HDFC Top 100 and ICICI Bluechip — that share 45.2% of their holdings. Both underperform the Nifty 50 index. You are paying ~1.8% TER for the privilege of underperforming a 0.20% index fund. These two funds cost you ₹12,082 per year in excess fees.\n\n## Three Things to Do This Week\n\n1. Redeem HDFC Top 100 (₹7.89 lakh) and invest in a Nifty 50 index fund (direct plan, TER ~0.20%). This eliminates overlap and saves ₹12,800/year.\n\n2. Switch ICICI Bluechip and SBI Small Cap from regular to direct plans on the AMC websites. Saves ₹8,391/year combined.\n\n3. Once your oldest Axis ELSS units complete the 3-year lock-in, redeem and redirect SIPs to a better-performing direct-plan ELSS fund.\n\n## What This Saves You\n\nIndex fund switch: ₹12,800/year. Direct plan conversions: ₹8,391/year. ELSS redirect: ₹2,710/year. Total: ₹23,900/year. Over 10 years at portfolio growth rate: approximately ₹3.78 lakh stays in your portfolio.",
   },

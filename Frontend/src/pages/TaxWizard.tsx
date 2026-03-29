@@ -71,6 +71,8 @@ const stubData: AnalysisData = {
   rebalancing_plan: {
     ai_generated: false,
     ai_provider: "rule_engine",
+    llm_provider: "rule_engine",
+    llm_model: "deterministic",
     content: "",
   },
 };
