@@ -4,7 +4,7 @@ User settings and profile management.
 import time
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.auth import (
     _verify_password,
@@ -81,8 +81,18 @@ class UserProfile(BaseModel):
 class UpdateProfileRequest(BaseModel):
     """Update user profile."""
 
-    full_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    avatar_url: Optional[str] = Field(None, max_length=500)
+    full_name: Optional[str] = Field(default=None, max_length=100)
+    avatar_url: Optional[str] = Field(default=None, max_length=500)
+
+    @field_validator("full_name", "avatar_url", mode="before")
+    @classmethod
+    def strip_optional_strings(cls, v: object) -> object:
+        if v is None:
+            return None
+        if isinstance(v, str):
+            s = v.strip()
+            return s if s else None
+        return v
 
 
 class ChangePasswordRequest(BaseModel):
@@ -158,12 +168,9 @@ def update_user_profile(username: str, data: UpdateProfileRequest, email: str = 
         users.append(user)
 
     if data.full_name is not None:
-        stripped = data.full_name.strip()
-        if stripped:
-            user["full_name"] = stripped
+        user["full_name"] = data.full_name
     if data.avatar_url is not None:
-        stripped_a = data.avatar_url.strip()
-        user["avatar_url"] = stripped_a if stripped_a else ""
+        user["avatar_url"] = data.avatar_url or ""
 
     user["updated_at"] = int(time.time())
     _save_users(users)
@@ -182,8 +189,6 @@ def update_user_profile(username: str, data: UpdateProfileRequest, email: str = 
 def change_password(username: str, current_password: str, new_password: str, email: str = "") -> bool:
     """Change user password."""
     users = _load_users()
-    user = None
-
     user = _find_user_record(users, username, email)
 
     if not user:
@@ -230,8 +235,6 @@ def update_user_preferences(
 ) -> UserPreferences:
     """Update user preferences."""
     users = _load_users()
-    user = None
-
     user = _find_user_record(users, username, email)
 
     if not user:
@@ -250,7 +253,9 @@ def update_user_preferences(
         users.append(user)
 
     existing_prefs: Dict[str, Any] = dict(user.get("preferences") or _default_preferences())
-    patch = data.model_dump(exclude_unset=True)
+    raw_patch = data.model_dump(exclude_unset=True)
+    # Omit None so JSON null does not wipe keys when merging partial updates.
+    patch = {k: v for k, v in raw_patch.items() if v is not None}
     merged: Dict[str, Any] = {**existing_prefs, **patch}
     user["preferences"] = merged
     user["updated_at"] = int(time.time())
