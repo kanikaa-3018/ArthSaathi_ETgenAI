@@ -1,5 +1,6 @@
 import { useState, useRef, DragEvent } from "react";
 import { Upload, X, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type UploadErrorCode =
   | "INVALID_FILE_TYPE"
@@ -10,6 +11,11 @@ interface HeroUploadProps {
   onAnalyze: (payload: { file: File; password: string }) => void;
   onSampleData: () => void;
   onValidationError?: (errorCode: UploadErrorCode) => void;
+  /**
+   * `app` — inside AuthGuard shell (sidebar / mobile header). Compact header, no duplicate wordmark.
+   * `marketing` — full hero (e.g. dev Index page).
+   */
+  variant?: "app" | "marketing";
 }
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -18,6 +24,7 @@ export function HeroUpload({
   onAnalyze,
   onSampleData,
   onValidationError,
+  variant = "marketing",
 }: HeroUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
@@ -59,57 +66,103 @@ export function HeroUpload({
     if (f) validateAndSetFile(f);
   };
 
+  const isApp = variant === "app";
+
   return (
-    <section className="min-h-screen flex items-center justify-center relative px-4">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-primary-dark">
+    <section
+      className={cn(
+        "relative flex w-full flex-col",
+        isApp
+          ? "px-0 pb-6 pt-0 sm:pb-8 sm:pt-1 md:mx-auto md:max-w-[560px]"
+          : "min-h-screen items-center justify-center px-4",
+      )}
+    >
+      <div
+        className={cn(
+          "absolute inset-0 bg-primary-dark",
+          isApp && "rounded-none opacity-90 md:opacity-100",
+        )}
+      >
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse at center, hsl(220 20% 10%) 0%, hsl(220 25% 6%) 70%)",
+            background: isApp
+              ? "linear-gradient(180deg, hsl(220 22% 8%) 0%, hsl(220 25% 6%) 55%)"
+              : "radial-gradient(ellipse at center, hsl(220 20% 10%) 0%, hsl(220 25% 6%) 70%)",
           }}
         />
-        <div
-          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full opacity-[0.04]"
-          style={{
-            background:
-              "radial-gradient(circle, hsl(213 60% 56%), transparent 70%)",
-            filter: "blur(60px)",
-          }}
-        />
+        {!isApp ? (
+          <div
+            className="absolute top-1/4 left-1/3 h-96 w-96 rounded-full opacity-[0.04]"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(213 60% 56%), transparent 70%)",
+              filter: "blur(60px)",
+            }}
+          />
+        ) : null}
       </div>
 
-      <div className="relative z-10 text-center max-w-[600px] w-full">
-        <h1
-          className="font-display text-5xl font-bold text-primary-light tracking-tight"
-          style={{ letterSpacing: "-0.02em" }}
-        >
-          ArthSaathi
-        </h1>
-        <p
-          className="font-body text-lg text-tertiary-light mt-2"
-          style={{ color: "hsl(var(--text-tertiary))" }}
-        >
-          (अर्थसाथी)
-        </p>
-        <p
-          className="font-body text-[17px] mt-6 leading-relaxed"
-          style={{ color: "hsl(var(--text-secondary))" }}
-        >
-          Your AI-powered financial companion. Upload your CAS statement and
-          watch specialized agents analyze your portfolio in real time.
-        </p>
+      <div
+        className={cn(
+          "relative z-10 w-full text-left",
+          !isApp && "max-w-[600px] text-center",
+        )}
+      >
+        {isApp ? (
+          <>
+            <p className="section-label mb-2">Portfolio X-Ray</p>
+            <h1
+              className="font-fraunces text-[clamp(1.35rem,4.2vw,1.75rem)] leading-snug text-text-primary"
+              style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+            >
+              Upload your CAS statement
+            </h1>
+            <p
+              className="font-syne mt-2 max-w-[28rem] text-[13px] leading-relaxed sm:text-sm"
+              style={{ color: "hsl(var(--text-secondary))" }}
+            >
+              Password-protected CAMS / KFin PDF. Nine agents run in parallel to
+              produce your full report.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1
+              className="font-display text-5xl font-bold tracking-tight text-primary-light"
+              style={{ letterSpacing: "-0.02em" }}
+            >
+              ArthSaathi
+            </h1>
+            <p
+              className="font-body mt-2 text-lg text-tertiary-light"
+              style={{ color: "hsl(var(--text-tertiary))" }}
+            >
+              (अर्थसाथी)
+            </p>
+            <p
+              className="font-body mt-6 text-[17px] leading-relaxed"
+              style={{ color: "hsl(var(--text-secondary))" }}
+            >
+              Your AI-powered financial companion. Upload your CAS statement and
+              watch specialized agents analyze your portfolio in real time.
+            </p>
+          </>
+        )}
 
-        {/* Upload Card */}
         <div
-          className="card-arth mt-10 p-8 max-w-[500px] mx-auto text-left"
+          className={cn(
+            "card-arth mx-auto text-left",
+            isApp ? "mt-6 p-4 sm:mt-8 sm:p-6" : "mt-10 max-w-[500px] p-8",
+          )}
           style={{ borderRadius: "16px" }}
         >
-          {/* Dropzone */}
           {!file ? (
             <div
-              className="rounded-lg p-8 flex flex-col items-center cursor-pointer transition-all duration-200"
+              className={cn(
+                "flex cursor-pointer flex-col items-center rounded-lg transition-all duration-200",
+                isApp ? "p-6 sm:p-8" : "p-8",
+              )}
               style={{
                 border: dragging
                   ? "2px dashed hsl(var(--accent))"
@@ -125,14 +178,14 @@ export function HeroUpload({
               onClick={() => inputRef.current?.click()}
             >
               <Upload
-                size={40}
+                size={isApp ? 32 : 40}
                 style={{ color: "hsl(var(--text-tertiary))" }}
               />
               <p
-                className="font-body text-sm mt-3"
+                className="font-body mt-3 text-center text-sm"
                 style={{ color: "hsl(var(--text-secondary))" }}
               >
-                Drop your CAS PDF here or click to browse
+                Drop your CAS PDF here or tap to browse
               </p>
               <input
                 ref={inputRef}
@@ -150,8 +203,8 @@ export function HeroUpload({
               className="flex items-center gap-3 rounded-lg p-3"
               style={{ background: "hsl(var(--bg-tertiary))" }}
             >
-              <FileText size={20} className="text-accent flex-shrink-0" />
-              <div className="flex-1 min-w-0">
+              <FileText size={20} className="flex-shrink-0 text-accent" />
+              <div className="min-w-0 flex-1">
                 <p className="font-body text-sm text-primary-light truncate">
                   {file.name}
                 </p>
@@ -163,24 +216,24 @@ export function HeroUpload({
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setFile(null);
                   setError(null);
                 }}
-                className="p-1 rounded hover:bg-elevated-dark transition-colors"
+                className="rounded p-1 transition-colors hover:bg-elevated-dark"
               >
                 <X size={16} style={{ color: "hsl(var(--text-tertiary))" }} />
               </button>
             </div>
           )}
 
-          {/* Password */}
           <input
             type="password"
             placeholder="Enter password (usually your PAN)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full mt-4 px-4 py-3 rounded-lg font-body text-sm text-primary-light placeholder:text-tertiary-light outline-none transition-all duration-200 focus:accent-glow"
+            className="font-body placeholder:text-tertiary-light mt-4 w-full rounded-lg px-4 py-3 text-sm text-primary-light outline-none transition-all duration-200 focus:accent-glow"
             style={{
               background: "hsl(var(--bg-tertiary))",
               border: "1px solid rgba(255,255,255,0.06)",
@@ -193,23 +246,23 @@ export function HeroUpload({
             }}
           />
           <p
-            className="font-body text-xs mt-2"
+            className="font-body mt-2 text-xs"
             style={{ color: "hsl(var(--text-tertiary))" }}
           >
             Your CAS password is typically your PAN number (e.g., ABCDE1234F)
           </p>
 
-          {error && (
+          {error ? (
             <p
-              className="font-body text-xs mt-3"
+              className="font-body mt-3 text-xs"
               style={{ color: "hsl(var(--negative))" }}
             >
               {error}
             </p>
-          )}
+          ) : null}
 
-          {/* Analyze Button */}
           <button
+            type="button"
             onClick={() => {
               if (!file) return;
               if (!password.trim()) {
@@ -223,7 +276,7 @@ export function HeroUpload({
               onAnalyze({ file, password: password.trim() });
             }}
             disabled={!file}
-            className="w-full mt-5 py-3 rounded-lg font-body text-[15px] font-semibold text-white bg-accent-btn transition-all duration-200 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+            className="bg-accent-btn mt-5 w-full rounded-lg py-3 font-body text-[15px] font-semibold text-white transition-all duration-200 hover:-translate-y-px active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             style={{
               boxShadow: file ? "0 4px 12px rgba(74,144,217,0.3)" : "none",
             }}
@@ -231,14 +284,13 @@ export function HeroUpload({
             Analyze
           </button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 mt-5">
+          <div className="mt-5 flex items-center gap-3">
             <div
-              className="flex-1 h-px"
+              className="h-px flex-1"
               style={{ background: "rgba(255,255,255,0.06)" }}
             />
             <span
-              className="font-body text-xs px-3 py-1 rounded-full"
+              className="rounded-full px-3 py-1 font-body text-xs"
               style={{
                 color: "hsl(var(--text-tertiary))",
                 background: "hsl(var(--bg-secondary))",
@@ -247,15 +299,15 @@ export function HeroUpload({
               or
             </span>
             <div
-              className="flex-1 h-px"
+              className="h-px flex-1"
               style={{ background: "rgba(255,255,255,0.06)" }}
             />
           </div>
 
-          {/* Sample Data */}
           <button
+            type="button"
             onClick={onSampleData}
-            className="w-full mt-5 py-2.5 rounded-lg font-body text-sm font-medium transition-all duration-200 active:scale-[0.98]"
+            className="mt-5 w-full rounded-lg py-2.5 font-body text-sm font-medium transition-all duration-200 active:scale-[0.98]"
             style={{
               color: "hsl(var(--text-secondary))",
               border: "1px solid rgba(255,255,255,0.1)",

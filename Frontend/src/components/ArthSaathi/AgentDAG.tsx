@@ -248,7 +248,7 @@ export function AgentDAG({ events, mode = "live", className }: AgentDAGProps) {
   return (
     <div
       className={cn(
-        "h-[560px] w-full rounded-lg border border-white/10 overflow-hidden",
+        "h-[min(480px,58dvh)] w-full sm:h-[520px] lg:h-[560px] rounded-lg border border-white/10 overflow-hidden",
         className,
       )}
       style={{ background: "hsla(220, 20%, 8%, 0.5)" }}

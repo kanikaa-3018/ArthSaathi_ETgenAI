@@ -46,8 +46,8 @@ export default function ProblemSection() {
             `+=${Math.max(1, track.scrollWidth - window.innerWidth)}`,
           snap: {
             snapTo: 1 / (PANEL_COUNT - 1),
-            duration: 0.42,
-            ease: "power1.inOut",
+            duration: { min: 0.2, max: 0.4 },
+            ease: "power2.inOut",
           },
         },
       });
@@ -100,11 +100,8 @@ export default function ProblemSection() {
       </div>
 
       <div className="relative h-[78vh] min-h-[560px] overflow-hidden">
-        <div
-          ref={trackRef}
-          className="problem-track flex w-fit h-full items-center"
-        >
-          <div className="problem-panel w-screen h-full flex items-start relative pt-12 md:pt-14">
+        <div ref={trackRef} className="problem-track flex w-[200vw] h-full items-center">
+          <div className="problem-panel flex-shrink-0 w-[calc(200vw/3)] h-full flex items-start relative pt-12 md:pt-14">
             <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
               <div className="max-w-[420px]">
               <p className="section-label mb-4">Finding 01</p>
@@ -217,7 +214,7 @@ export default function ProblemSection() {
             </div>
           </div>
 
-          <div className="problem-panel w-screen h-full flex items-start relative pt-12 md:pt-14">
+          <div className="problem-panel flex-shrink-0 w-[calc(200vw/3)] h-full flex items-start relative pt-12 md:pt-14">
             <div className="mx-auto w-full max-w-6xl px-6 md:px-10 flex justify-end">
               <div className="text-right max-w-[400px]">
               <p className="section-label mb-4">Finding 03</p>

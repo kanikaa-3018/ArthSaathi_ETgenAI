@@ -11,9 +11,9 @@ export default function AnalyzeUpload() {
   const reportHint = (location.state as UploadLocationState | null)?.reportHint;
 
   return (
-    <div className="min-h-screen bg-primary-dark">
+    <div className="bg-primary-dark">
       {reportHint ? (
-        <div className="max-w-[1120px] mx-auto px-4 pt-3">
+        <div className="-mt-1 mb-3 max-w-[1120px]">
           <div
             className="rounded-md px-4 py-3 font-body text-sm"
             style={{
@@ -27,21 +27,9 @@ export default function AnalyzeUpload() {
           </div>
         </div>
       ) : null}
-      <div className="max-w-[1120px] mx-auto px-4 pt-4">
-        <button
-          onClick={() => navigate("/")}
-          className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
-          style={{
-            color: "hsl(var(--text-secondary))",
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "transparent",
-          }}
-        >
-          ← Back to Landing
-        </button>
-      </div>
 
       <HeroUpload
+        variant="app"
         onAnalyze={({ file, password }) => {
           setUpload(file, password);
           navigate("/analyze/processing");

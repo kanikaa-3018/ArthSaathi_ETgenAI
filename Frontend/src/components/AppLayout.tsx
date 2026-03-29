@@ -43,11 +43,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const mainMarginLeft = isMobile ? 0 : sidebarExpanded ? 240 : 56;
   const isDemoRoute = location.pathname === "/demo";
   const demoGuest = isDemoRoute && !sessionLoading && !session;
-  /** Sidebar MentorChat owns chat on /demo and /analyze/report — no duplicate floating widget. */
+  /** Full-page mentor has its own UI; demo guests have no session for chat. */
   const showFloatingChat =
-    location.pathname !== "/mentor" &&
-    location.pathname !== "/analyze/report" &&
-    location.pathname !== "/demo";
+    location.pathname !== "/mentor" && !(isDemoRoute && demoGuest);
+
+  /** Tighter shell padding so upload / processing don’t stack past 100vh and bounce-scroll. */
+  const analyzeShell =
+    location.pathname === "/analyze" || location.pathname === "/analyze/processing";
 
   return (
     <div className="min-h-screen" style={{ background: "hsl(var(--bg-primary))" }}>
@@ -61,21 +63,42 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       />
 
       {isMobile ? (
-        <button
-          type="button"
-          className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-[hsl(var(--bg-secondary))] text-text-muted hover:bg-white/[0.04]"
-          aria-label="Open menu"
-          onClick={() => setMobileOpen(true)}
+        <header
+          className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between px-4"
+          style={{
+            background: "hsl(var(--bg-primary))",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
         >
-          <Menu size={20} strokeWidth={1.5} />
-        </button>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted hover:text-text-secondary hover:bg-white/[0.04]"
+            aria-label="Open menu"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu size={20} strokeWidth={1.5} />
+          </button>
+
+          <span
+            className="font-fraunces text-sm text-text-primary"
+            style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+          >
+            ArthSaathi
+          </span>
+
+          <div className="w-9" aria-hidden />
+        </header>
       ) : null}
 
       <main
         className={isMobile ? "min-h-screen pt-14 transition-[margin] duration-200" : "min-h-screen transition-[margin] duration-200"}
         style={{ marginLeft: mainMarginLeft }}
       >
-        <div className="mx-auto max-w-[1200px] px-6 py-6">{children}</div>
+        <div
+          className={`mx-auto max-w-[1200px] px-6 ${analyzeShell ? "py-3 md:py-5" : "py-6"}`}
+        >
+          {children}
+        </div>
       </main>
 
       {showFloatingChat ? <FloatingChat /> : null}

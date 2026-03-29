@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Maximize2, Minus, X } from "lucide-react";
+import { Maximize2, MessageCircle, Minus, X } from "lucide-react";
 import { MentorChat } from "@/components/ArthSaathi/MentorChat";
 import { useAnalysis } from "@/context/analysis-context";
+import { useSession } from "@/context/session-context";
 
 type WidgetState = "collapsed" | "expanded" | "hidden";
 
@@ -10,10 +11,13 @@ export function FloatingChat() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = useAnalysis();
+  const { session, loading: sessionLoading } = useSession();
   const [widgetState, setWidgetState] = useState<WidgetState>("collapsed");
   const panelRef = useRef<HTMLDivElement | null>(null);
 
-  // Keyboard: Escape collapses
+  const guestChatLocked =
+    location.pathname === "/demo" && (sessionLoading || !session);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && widgetState === "expanded") {
@@ -27,57 +31,41 @@ export function FloatingChat() {
     };
   }, [widgetState]);
 
-  // IMPORTANT: condition AFTER hooks — pages with embedded sidebar chat skip the floating widget
-  if (
-    location.pathname === "/mentor" ||
-    location.pathname === "/analyze/report" ||
-    location.pathname === "/demo"
-  ) {
+  if (location.pathname === "/mentor") {
     return null;
   }
 
   if (widgetState === "hidden") return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
-      {/* Collapsed */}
+    <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50">
       {widgetState === "collapsed" && (
         <button
+          type="button"
           onClick={() => setWidgetState("expanded")}
-          className="flex items-center gap-2 h-9 px-4 rounded-lg font-syne text-[13px] text-text-secondary transition-all duration-200"
+          className="flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105"
           style={{
-            background: "hsl(220 20% 12%)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "hsl(var(--accent))",
+            boxShadow: "0 4px 20px hsla(213, 60%, 56%, 0.3)",
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
-          }}
+          aria-label="Open AI Mentor"
         >
-          <span
-            className="w-1 h-1 rounded-full shrink-0"
-            style={{ background: "hsl(var(--accent))" }}
-          />
-          Mentor
+          <MessageCircle className="h-5 w-5 text-white" />
         </button>
       )}
 
-      {/* Expanded */}
       {widgetState === "expanded" && (
         <div
           ref={panelRef}
-          className="flex flex-col rounded-xl overflow-hidden"
+          className="flex flex-col rounded-xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-200"
           style={{
-            width: "min(400px, calc(100vw - 24px))",
-            height: "min(520px, 70vh)",
+            width: "min(380px, calc(100vw - 32px))",
+            height: "min(500px, 65vh)",
             background: "hsl(220 20% 8%)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
           }}
         >
-          {/* Header */}
           <div
             className="h-10 flex items-center justify-between px-4 shrink-0"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
@@ -88,6 +76,7 @@ export function FloatingChat() {
 
             <div className="flex items-center gap-1">
               <button
+                type="button"
                 onClick={() => {
                   setWidgetState("collapsed");
                   navigate("/mentor");
@@ -99,6 +88,7 @@ export function FloatingChat() {
               </button>
 
               <button
+                type="button"
                 onClick={() => setWidgetState("collapsed")}
                 className="w-7 h-7 flex items-center justify-center text-text-muted hover:text-text-secondary transition-colors"
                 title="Minimize"
@@ -107,6 +97,7 @@ export function FloatingChat() {
               </button>
 
               <button
+                type="button"
                 onClick={() => setWidgetState("hidden")}
                 className="w-7 h-7 flex items-center justify-center text-text-muted hover:text-text-secondary transition-colors"
                 title="Close"
@@ -116,9 +107,12 @@ export function FloatingChat() {
             </div>
           </div>
 
-          {/* Body */}
-          <div className="flex-1 min-h-0 overflow-hidden">
-            <MentorChat analysis={state.result ?? null} />
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <MentorChat
+              analysis={state.result ?? null}
+              guestChatLocked={guestChatLocked}
+              layout="column"
+            />
           </div>
         </div>
       )}
