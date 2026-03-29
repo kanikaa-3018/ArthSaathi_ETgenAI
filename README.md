@@ -16,13 +16,38 @@ The system combines deterministic financial computation with a real-time multi-a
 
 ### Screenshots
 
-*Add the following screenshots for best impact:*
 
-* Portfolio Upload Screen
-* Agent Pipeline Visualization
-* Analysis Dashboard (XIRR, overlap, health score)
-* What-If Simulation
-* AI Mentor Chat
+
+<table>
+    <tr> 
+        <td align="center" width="33%">
+            <strong>CAS Upload</strong><br />
+            <img src="docs/screenshots/upload-cas-pdf.png" alt="CAS upload screen" />
+        </td>
+        <td align="center" width="33%">
+            <strong>Analysis Pipeline</strong><br />
+            <img src="docs/screenshots/analysis-pipeline.png" alt="Real-time agent pipeline" />
+        </td>
+        <td align="center" width="33%">
+            <strong>Dashboard</strong><br />
+            <img src="docs/screenshots/dashboard.png" alt="Portfolio dashboard" />
+        </td>
+    </tr>
+    <tr>
+        <td align="center" width="33%">
+            <strong>Portfolio X-Ray</strong><br />
+            <img src="docs/screenshots/portfolio-xray.png" alt="Portfolio x-ray report" />
+        </td>
+        <td align="center" width="33%">
+            <strong>AI Mentor</strong><br />
+            <img src="docs/screenshots/AI-mentor.png" alt="AI mentor chat interface" />
+        </td>
+        <td align="center" width="33%">
+            <strong>Tax Planner</strong><br />
+            <img src="docs/screenshots/tax-calculator.png" alt="Tax calculator and planner" />
+        </td>
+    </tr>
+</table>
 
 ---
 
