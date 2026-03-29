@@ -157,19 +157,22 @@ class AdvisorAgent(BaseAgent):
 
     async def _call_gemini(self, user_message: str):
         try:
-            import google.generativeai as genai
+            from google import genai
+            from google.genai import types
+
             model_id = settings.GEMINI_CHAT_MODEL or "gemini-2.0-flash"
-            genai.configure(api_key=settings.GOOGLE_API_KEY)
-            model = genai.GenerativeModel(
-                model_name=model_id,
-                system_instruction=SYSTEM_PROMPT,
-            )
+            client = genai.Client(api_key=settings.GOOGLE_API_KEY)
             self.emit_progress(f"Using Gemini ({model_id}) for analysis…", step=2, total_steps=2)
-            response = model.generate_content(
-                user_message,
-                generation_config={"temperature": 0.3, "max_output_tokens": 1500},
+            response = await client.aio.models.generate_content(
+                model=model_id,
+                contents=user_message,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    temperature=0.3,
+                    max_output_tokens=1500,
+                ),
             )
-            return response.text, "gemini"
+            return (response.text or "").strip(), "gemini"
         except Exception as e:
             self.emit_warning(f"Gemini failed: {e}")
             return None, "gemini"
