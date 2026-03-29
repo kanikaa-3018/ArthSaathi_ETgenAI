@@ -3,7 +3,6 @@ import { useCallback, useRef, useState } from "react";
 import { ChevronDown, Download, Loader2 } from "lucide-react";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { FeeCounter } from "@/components/ArthSaathi/FeeCounter";
-import { EmergencyFundCheck } from "@/components/ArthSaathi/EmergencyFundCheck";
 import { WhatIfToggle } from "@/components/ArthSaathi/WhatIfToggle";
 import { SummaryCards } from "@/components/ArthSaathi/SummaryCards";
 import { HealthScore } from "@/components/ArthSaathi/HealthScore";
@@ -13,9 +12,6 @@ import { WealthGapChart } from "@/components/ArthSaathi/WealthGapChart";
 import { OverlapMatrix } from "@/components/ArthSaathi/OverlapMatrix";
 import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
-import { GoalPlanner } from "@/components/ArthSaathi/GoalPlanner";
-import { TaxInsights } from "@/components/ArthSaathi/TaxInsights";
-import { TaxRegimeCompare } from "@/components/ArthSaathi/TaxRegimeCompare";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -253,12 +249,6 @@ export function ReportSections({
                   >
                     AI Plan
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="planning"
-                    className="shrink-0 rounded-none border-b-2 border-transparent px-4 font-syne text-xs text-text-muted transition-colors hover:text-text-secondary data-[state=active]:border-[hsl(var(--accent))] data-[state=active]:bg-transparent data-[state=active]:text-white"
-                  >
-                    Planning
-                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-6 space-y-8">
@@ -334,17 +324,6 @@ export function ReportSections({
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
-                </TabsContent>
-
-                <TabsContent value="planning" className="mt-6 space-y-8">
-                  <EmergencyFundCheck funds={originalData.funds} />
-                  {showPlannerAndTax ? (
-                    <>
-                      <GoalPlanner data={data} />
-                      <TaxInsights data={data} />
-                      <TaxRegimeCompare data={originalData} />
-                    </>
-                  ) : null}
                 </TabsContent>
               </Tabs>
 
