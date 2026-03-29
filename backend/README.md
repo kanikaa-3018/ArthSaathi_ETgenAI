@@ -80,7 +80,7 @@ Create `backend/.env` if you need to override defaults (see `app/config.py`):
 - LLM keys — optional for advisor/chat features (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`)
 - `ANTHROPIC_MODEL`, `OPENAI_CHAT_MODEL`, `GEMINI_CHAT_MODEL` — optional; defaults match `app/config.py` (change if your API account uses different model IDs)
 
-**Note:** Mentor chat uses the `google-generativeai` PyPI package (`import google.generativeai`). Google has announced deprecation in favour of `google-genai`; upgrade paths should be tracked from [Google’s Gemini API docs](https://ai.google.dev/gemini-api/docs) when you migrate.
+**Note:** Gemini (advisor + mentor chat) uses the **`google-genai`** package (`from google import genai`). See [Gemini API docs](https://ai.google.dev/gemini-api/docs).
 
 ---
 

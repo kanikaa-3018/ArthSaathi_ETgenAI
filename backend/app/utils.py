@@ -5,6 +5,8 @@ from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 import re
 
+from app.amfi_resolver import resolve_amfi_and_category
+
 
 # ---------------------------------------------------------------------------
 # INR formatting (server-side, for AI advisor fallback text)
@@ -168,9 +170,22 @@ def normalize_cas_data(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "balance": float(txn.get("balance") or 0),
                 })
 
+            scheme_name = scheme.get("scheme") or scheme.get("scheme_name") or "Unknown"
+            isin_raw = (scheme.get("isin") or "").strip().upper()
+            raw_cat = scheme.get("category") or ""
+            amfi_resolved, cat_resolved = resolve_amfi_and_category(
+                scheme_name,
+                isin_raw or None,
+                normalize_amfi_code(
+                    scheme.get("amfi") or scheme.get("amfi_code") or "",
+                ),
+                raw_cat,
+            )
             fund = {
-                "scheme_name": scheme.get("scheme") or scheme.get("scheme_name") or "Unknown",
-                "amfi_code": normalize_amfi_code(
+                "scheme_name": scheme_name,
+                "isin": isin_raw,
+                "amfi_code": amfi_resolved
+                or normalize_amfi_code(
                     scheme.get("amfi") or scheme.get("amfi_code") or "",
                 ),
                 "folio": folio_number,
@@ -182,8 +197,7 @@ def normalize_cas_data(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "current_value": current_value,
                 "invested_value": total_invested,
                 "transactions": transactions,
-                # Filled in later by other agents:
-                "category": scheme.get("category") or "",
+                "category": cat_resolved or raw_cat,
             }
             funds.append(fund)
 

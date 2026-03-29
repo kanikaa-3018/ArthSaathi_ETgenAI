@@ -5,7 +5,7 @@ SDK references (verify when upgrading majors):
 - Anthropic: async stream via ``async for event in stream`` + ``content_block_delta`` / ``text_delta``
   (see anthropic Python SDK streaming docs).
 - OpenAI: ``AsyncOpenAI.chat.completions.create`` (Responses API not used here).
-- Google Generative AI: ``GenerativeModel.start_chat`` for multi-turn history.
+- Google Gemini: ``google.genai`` ``Client.aio.models.generate_content`` with multi-turn ``contents``.
 """
 from __future__ import annotations
 
@@ -206,29 +206,39 @@ async def stream_chat_events(
         except Exception as e:
             logger.warning("OpenAI chat failed, trying next provider: %s", e, exc_info=True)
 
-    # 3) Gemini with multi-turn history (start_chat)
+    # 3) Gemini (google-genai SDK) — multi-turn via contents list
     if settings.GOOGLE_API_KEY:
         try:
-            import google.generativeai as genai
+            from google import genai
+            from google.genai import types
 
-            genai.configure(api_key=settings.GOOGLE_API_KEY)
-            model = genai.GenerativeModel(
-                model_name=settings.GEMINI_CHAT_MODEL,
-                system_instruction=system,
-            )
-            gemini_hist: List[Dict[str, Any]] = []
+            model_id = settings.GEMINI_CHAT_MODEL or "gemini-2.0-flash"
+            client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+            gemini_contents: List[types.Content] = []
             for h in history[-10:]:
                 role = h.get("role")
-                content = h.get("content", "")
+                content = (h.get("content") or "").strip()
+                if not content:
+                    continue
                 if role == "user":
-                    gemini_hist.append({"role": "user", "parts": [content]})
+                    gemini_contents.append(
+                        types.Content(role="user", parts=[types.Part.from_text(text=content)])
+                    )
                 elif role == "assistant":
-                    gemini_hist.append({"role": "model", "parts": [content]})
-
-            chat = model.start_chat(history=gemini_hist)
-            response = await chat.send_message_async(
-                user_message,
-                generation_config={"temperature": 0.35, "max_output_tokens": 800},
+                    gemini_contents.append(
+                        types.Content(role="model", parts=[types.Part.from_text(text=content)])
+                    )
+            gemini_contents.append(
+                types.Content(role="user", parts=[types.Part.from_text(text=user_message)])
+            )
+            response = await client.aio.models.generate_content(
+                model=model_id,
+                contents=gemini_contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system,
+                    temperature=0.35,
+                    max_output_tokens=800,
+                ),
             )
             full = (response.text or "").strip()
             for i in range(0, len(full), 48):
