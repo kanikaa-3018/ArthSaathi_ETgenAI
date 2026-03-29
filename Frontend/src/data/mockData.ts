@@ -11,7 +11,7 @@ export const mockData = {
     total_current_value: 3245670,
     total_invested: 2640000,
     total_funds: 6,
-    total_folios: 6,
+    total_folios: 4,
     equity_allocation_pct: 82.3,
     debt_allocation_pct: 17.7,
     regular_plan_count: 4,

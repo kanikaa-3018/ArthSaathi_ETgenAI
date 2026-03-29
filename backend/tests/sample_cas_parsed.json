@@ -11,7 +11,7 @@
   },
   "folios": [
     {
-      "folio": "11111111/11",
+      "folio": "12345678/89",
       "amc": "HDFC Asset Management Company Ltd",
       "schemes": [
         {
@@ -78,7 +78,7 @@
       ]
     },
     {
-      "folio": "22222222/22",
+      "folio": "98765432/21",
       "amc": "ICICI Prudential Asset Management Company Ltd.",
       "schemes": [
         {
@@ -121,11 +121,11 @@
       ]
     },
     {
-      "folio": "33333333/33",
-      "amc": "SBI Funds Management Private Limited",
+      "folio": "55667788/10",
+      "amc": "SBI Funds Management Pvt Ltd",
       "schemes": [
         {
-          "scheme": "SBI Large Cap Fund - Regular Plan - Growth",
+          "scheme": "SBI Bluechip Fund - Regular Plan - Growth",
           "amfi": "119096",
           "advisor": "ARN-99001",
           "close": 201.4,
@@ -188,7 +188,7 @@
       ]
     },
     {
-      "folio": "98765432/21",
+      "folio": "11223344/56",
       "amc": "Axis Asset Management Co. Ltd.",
       "schemes": [
         {
@@ -235,13 +235,7 @@
               "balance": 82.53
             }
           ]
-        }
-      ]
-    },
-    {
-      "folio": "44444444/44",
-      "amc": "Mirae Asset Investment Managers (India) Private Limited",
-      "schemes": [
+        },
         {
           "scheme": "Mirae Asset Large & Midcap Fund - Direct Plan - Growth",
           "amfi": "118834",
@@ -270,13 +264,7 @@
               "balance": 81.1
             }
           ]
-        }
-      ]
-    },
-    {
-      "folio": "55555555/55",
-      "amc": "UTI Asset Management Company Ltd",
-      "schemes": [
+        },
         {
           "scheme": "UTI Nifty 50 Index Fund - Direct Plan - Growth",
           "amfi": "120716",

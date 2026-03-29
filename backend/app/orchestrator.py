@@ -27,6 +27,14 @@ from app.agents.health import HealthAgent
 from app.agents.advisor import AdvisorAgent
 from app.utils import normalize_cas_data, mask_pan
 
+COMPLIANCE_DISCLAIMER = (
+    "This report is AI-generated financial analysis for educational and informational purposes only. "
+    "It does not constitute investment advice, tax advice, or a recommendation to buy, sell, or hold any security. "
+    "ArthSaathi is not a SEBI-registered investment advisor. "
+    "Past performance does not guarantee future results. "
+    "Consult a SEBI-registered investment advisor before making financial decisions."
+)
+
 
 async def run_pipeline(
     file_bytes: bytes,
@@ -204,6 +212,7 @@ def _assemble_response(
 
     return {
         "status": "success",
+        "compliance_disclaimer": COMPLIANCE_DISCLAIMER,
         "processing_time_ms": processing_ms,
         "investor": {
             "name": investor_info.get("name") or "Investor",

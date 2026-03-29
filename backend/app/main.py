@@ -85,41 +85,6 @@ def root():
     return {"message": "ArthSaathi Backend Running 🚀", "version": settings.APP_VERSION}
 
 
-@app.get("/api/auth/debug")
-def auth_debug(authorization: str = Header(default=None)):
-    """Debug endpoint to show token validation info. Remove in production."""
-    debug_info = {
-        "has_auth_header": bool(authorization),
-        "header_format_ok": bool(authorization and authorization.lower().startswith("bearer ")),
-        "supabase_config": {
-            "url_configured": bool(settings.SUPABASE_URL),
-            "jwt_secret_configured": bool(settings.SUPABASE_JWT_SECRET),
-            "anon_key_configured": bool(settings.SUPABASE_ANON_KEY),
-        },
-    }
-    
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization.split(" ", 1)[1]
-        debug_info["token"] = {
-            "length": len(token),
-            "is_jwt": token.count(".") == 2,
-            "first_50": token[:50] + "..." if len(token) > 50 else token,
-        }
-        
-        # Try to decode
-        if token.count(".") == 2:
-            try:
-                import jwt as pyjwt
-                header = pyjwt.get_unverified_header(token)
-                payload = pyjwt.decode(token, options={"verify_signature": False})
-                debug_info["token"]["header"] = header
-                debug_info["token"]["payload"] = {k: v for k, v in payload.items() if k not in ["email_verified"]}
-            except Exception as e:
-                debug_info["token"]["decode_error"] = str(e)
-    
-    return JSONResponse(content=debug_info)
-
-
 # ---------------------------------------------------------------------------
 # Auth (new feature)
 # ---------------------------------------------------------------------------
@@ -313,6 +278,11 @@ class GoalsCalculateBody(BaseModel):
     portfolio_value: float
     portfolio_xirr: float
     inflation_rate: float = 0.06
+    monthly_expenses_override: float | None = Field(
+        None,
+        ge=0,
+        description="Optional monthly retirement expenses; if omitted, defaults to 50% of monthly_income.",
+    )
 
 
 @app.post("/api/goals/calculate")
@@ -328,6 +298,10 @@ def goals_calculate(body: GoalsCalculateBody, current_user=Depends(get_current_u
         portfolio_value=body.portfolio_value,
         portfolio_xirr=body.portfolio_xirr,
         inflation_rate=body.inflation_rate,
+        monthly_expenses_override=body.monthly_expenses_override,
+    )
+    result["compliance_disclaimer"] = (
+        "Educational guidance only — not SEBI-registered advice."
     )
     return JSONResponse(content=result)
 
@@ -370,6 +344,9 @@ def tax_regime_compare(body: TaxRegimeBody):
         lta_exemption_annual=body.lta_exemption_annual,
         education_loan_interest_80e=body.education_loan_interest_80e,
         other_old_regime_deductions=body.other_old_regime_deductions,
+    )
+    result["compliance_disclaimer"] = (
+        "Educational guidance only — not SEBI-registered advice."
     )
     return JSONResponse(content=result)
 
@@ -442,7 +419,7 @@ async def analyze_test(request: Request, current_user=Depends(get_current_user))
         # Emit parser done (skip actual parsing)
         event_queue.put_nowait(AgentEvent(
             agent="parser_agent", status="completed",
-            message="Loaded fixture: sample_cas_parsed.json (6 funds, 6 folios)",
+            message="Loaded fixture: sample_cas_parsed.json (6 funds, 4 folios)",
             severity="success", step=1, total_steps=1,
         ))
 
@@ -550,13 +527,20 @@ def get_sample():
     # Minimal placeholder response if sample file not yet generated
     return JSONResponse(content={
         "status": "success",
+        "compliance_disclaimer": (
+            "This report is AI-generated financial analysis for educational and informational purposes only. "
+            "It does not constitute investment advice, tax advice, or a recommendation to buy, sell, or hold any security. "
+            "ArthSaathi is not a SEBI-registered investment advisor. "
+            "Past performance does not guarantee future results. "
+            "Consult a SEBI-registered investment advisor before making financial decisions."
+        ),
         "processing_time_ms": 0,
         "investor": {"name": "Sample Investor", "email": "", "pan_masked": "ABCDE****F"},
         "portfolio_summary": {
             "total_current_value": 3245670.0,
             "total_invested": 2640000.0,
             "total_funds": 6,
-            "total_folios": 6,
+            "total_folios": 4,
             "equity_allocation_pct": 82.3,
             "debt_allocation_pct": 17.7,
             "regular_plan_count": 4,

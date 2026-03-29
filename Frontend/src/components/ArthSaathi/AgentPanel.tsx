@@ -51,7 +51,7 @@ const agentDefs = [
     delay: 0,
     duration: 2100,
     runMsg: "Parsing CAS statement...",
-    doneMsg: "Found 6 funds across 6 folios",
+    doneMsg: "Found 6 funds across 4 folios",
     severity: "success" as const,
   },
   {

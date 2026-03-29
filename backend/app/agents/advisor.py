@@ -64,9 +64,9 @@ def _llm_routing_meta(provider: str) -> tuple[str, str]:
     if provider == "claude":
         return "anthropic", settings.ANTHROPIC_MODEL or "claude"
     if provider == "gpt4o":
-        return "openai", "gpt-4o"
+        return "openai", settings.OPENAI_CHAT_MODEL or "gpt-4o"
     if provider == "gemini":
-        return "google", "gemini-2.0-flash"
+        return "google", settings.GEMINI_CHAT_MODEL or "gemini-2.0-flash"
     return "rule_engine", "deterministic"
 
 

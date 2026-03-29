@@ -1,4 +1,4 @@
-"""Regenerate holdings.json with 30+ AMFI keys and overlapping large-cap ISINs (PS16 / rubric)."""
+"""Regenerate holdings.json — PS9 / Prompt 17E: 30+ funds, mid-cap & index variants."""
 from __future__ import annotations
 
 import json
@@ -22,8 +22,25 @@ CORE_ISINS = [
 
 BASE_W = [8.8, 8.2, 7.6, 7.0, 6.4, 5.2, 4.8, 4.4, 4.0, 3.6, 3.3, 3.0, 2.7]
 
+# Illustrative Nifty-heavy weights for index funds (not live index replication).
+NIFTY50_TOP = [
+    {"isin": "INE002A01018", "name": "Reliance Industries", "weight": 9.1},
+    {"isin": "INE040A01034", "name": "HDFC Bank", "weight": 8.0},
+    {"isin": "INE009A01021", "name": "Infosys", "weight": 5.8},
+    {"isin": "INE467B01029", "name": "TCS", "weight": 5.2},
+    {"isin": "INE062A01020", "name": "ICICI Bank", "weight": 4.6},
+    {"isin": "INE528G01035", "name": "Kotak Mahindra Bank", "weight": 3.4},
+    {"isin": "INE860A01027", "name": "Axis Bank", "weight": 3.1},
+    {"isin": "INE090A01021", "name": "Bharti Airtel", "weight": 2.9},
+    {"isin": "INE018A01030", "name": "Larsen & Toubro", "weight": 2.5},
+    {"isin": "INE154A01025", "name": "HUL", "weight": 2.2},
+    {"isin": "INE001A01036", "name": "ITC", "weight": 2.1},
+    {"isin": "INE021A01026", "name": "Asian Paints", "weight": 1.9},
+    {"isin": "INE296A01032", "name": "Maruti Suzuki", "weight": 1.8},
+]
 
-def block(seed: int) -> list:
+
+def block_large_cap(seed: int) -> list:
     out = []
     for i, (isin, name) in enumerate(CORE_ISINS):
         w = BASE_W[i] + ((seed * 3 + i * 7) % 10) * 0.07 - 0.25
@@ -32,21 +49,43 @@ def block(seed: int) -> list:
     return out
 
 
-def main() -> None:
-    codes = [
+def block_mid_cap(seed: int) -> list:
+    out = []
+    for i, (isin, name) in enumerate(CORE_ISINS):
+        base = 1.5 + (i % 5) * 0.25
+        w = base + ((seed + i) % 7) * 0.12
+        w = max(1.2, min(3.2, round(w, 2)))
+        out.append({"isin": isin, "name": name, "weight": w})
+    return out
+
+
+def block_index(_seed: int) -> list:
+    return [
+        {"isin": r["isin"], "name": r["name"], "weight": round(r["weight"], 2)}
+        for r in NIFTY50_TOP
+    ]
+
+
+MID_CAP = {"120503", "120505", "125494", "120837"}
+INDEX_FUNDS = {"120716", "120684"}
+
+CODES = sorted(
+    {
         "118989",
         "100033",
         "119096",
         "112277",
         "118825",
         "112090",
-        "103174",
         "120503",
+        "120505",
         "125494",
+        "120837",
         "122639",
-        "118834",
         "118828",
         "120716",
+        "120684",
+        "118834",
         "100672",
         "119097",
         "100769",
@@ -57,8 +96,7 @@ def main() -> None:
         "118278",
         "101539",
         "119027",
-        "120684",
-        "105758",
+        "103174",
         "120823",
         "146819",
         "112268",
@@ -70,10 +108,22 @@ def main() -> None:
         "115876",
         "148481",
         "101206",
-    ]
+        "105758",
+    }
+)
+
+
+def main() -> None:
     backend = Path(__file__).resolve().parents[1]
     out_path = backend / "data" / "holdings.json"
-    obj = {c: block(j) for j, c in enumerate(codes)}
+    obj: dict = {}
+    for j, code in enumerate(CODES):
+        if code in INDEX_FUNDS:
+            obj[code] = block_index(j)
+        elif code in MID_CAP:
+            obj[code] = block_mid_cap(j)
+        else:
+            obj[code] = block_large_cap(j)
     out_path.write_text(json.dumps(obj, indent=2) + "\n", encoding="utf-8")
     print(len(obj), "funds ->", out_path)
 

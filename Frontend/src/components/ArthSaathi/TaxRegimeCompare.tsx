@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -250,6 +250,14 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
 
   const elss = useMemo(() => elssFromPortfolio(data.funds), [data.funds]);
 
+  useEffect(() => {
+    const hraVal = parseAmountField(hraAnnual);
+    const rentVal = parseAmountField(rentAnnual);
+    if (hraVal > 0 && rentVal === 0) {
+      setRentAnnual(hraAnnual);
+    }
+  }, [hraAnnual]);
+
   const compare = async () => {
     setLoading(true);
     setErr(null);
@@ -352,12 +360,26 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                 onChange={setHraAnnual}
                 placeholder="2,40,000"
               />
-              <InrField
-                label="Rent paid (annual)"
-                value={rentAnnual}
-                onChange={setRentAnnual}
-                placeholder="3,00,000"
-              />
+              {parseAmountField(hraAnnual) > 0 && parseAmountField(rentAnnual) === 0 ? (
+                <div
+                  className="px-3 py-2 rounded-lg text-xs font-syne"
+                  style={{
+                    background: "rgba(255,180,50,0.08)",
+                    border: "1px solid rgba(255,180,50,0.15)",
+                    color: "hsl(var(--warning))",
+                  }}
+                >
+                  Enter annual rent paid to calculate HRA exemption. Without rent, HRA deduction = ₹0.
+                </div>
+              ) : null}
+              <div className="ml-1 space-y-3 border-l-2 border-[hsl(var(--accent))]/25 pl-3">
+                <InrField
+                  label="Rent paid for HRA exemption (annual)"
+                  value={rentAnnual}
+                  onChange={setRentAnnual}
+                  placeholder="3,00,000"
+                />
+              </div>
               <InrField
                 label="LTA exemption (annual, old regime)"
                 value={ltaAnnual}

@@ -25,6 +25,7 @@ def compute_goal(
     portfolio_xirr: float,
     inflation_rate: float = 0.06,
     retirement_age: int = 55,
+    monthly_expenses_override: Optional[float] = None,
 ) -> Dict[str, Any]:
     """
     Returns the JSON shape expected by POST /api/goals/calculate.
@@ -35,7 +36,10 @@ def compute_goal(
 
     # --- Resolve target_amount by goal_type --------------------------------
     if goal_type == "retirement":
-        monthly_expenses = monthly_income * 0.5
+        if monthly_expenses_override is not None and monthly_expenses_override > 0:
+            monthly_expenses = float(monthly_expenses_override)
+        else:
+            monthly_expenses = monthly_income * 0.5
         annual_expenses_today = monthly_expenses * 12
         annual_expenses_at_retirement = annual_expenses_today * (
             (1 + inflation_rate) ** years_to_retire
@@ -111,6 +115,18 @@ def compute_goal(
 
     forward_rate = r
     monthly_growth_rate = monthly_growth_eff
+
+    retirement_target_expl = (
+        "Retirement corpus = 25 × annual expenses at retirement age, with expenses inflated from "
+        + (
+            "submitted monthly retirement expenses (override)."
+            if goal_type == "retirement"
+            and monthly_expenses_override is not None
+            and monthly_expenses_override > 0
+            else "50% of current monthly income (default when no override is sent)."
+        )
+    )
+
     # Year-end snapshots (monthly compounding loop; one row per year-end)
     yearly_roadmap: list[dict[str, Any]] = []
     if years_remaining > 0:
@@ -179,9 +195,7 @@ def compute_goal(
                 "Uses submitted portfolio_xirr as a flat annual return for all future years — standard in hackathon specs "
                 "but economically naive; real planning uses scenarios."
             ),
-            "retirement_target": (
-                "Retirement corpus = 25 × annual expenses at retirement age, with expenses inflated from 50% of current monthly income."
-            ),
+            "retirement_target": retirement_target_expl,
             "sip_future_value": (
                 "SIP FV matches the roadmap: m=(1+r)^(1/12)-1, monthly deposit then growth "
                 "(annuity due): SIP × ((1+m)^n-1)/m × (1+m)."

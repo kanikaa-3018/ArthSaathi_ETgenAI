@@ -48,11 +48,14 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
   const [monthlyIncome, setMonthlyIncome] = useState(150000);
   const [monthlySip, setMonthlySip] = useState(25000);
   const [customAmount, setCustomAmount] = useState("");
+  const [monthlyExpensesRetirement, setMonthlyExpensesRetirement] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoCalcPending, setAutoCalcPending] = useState(false);
   const [result, setResult] = useState<GoalCalculateResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const prevOpen = useRef(open);
+  const debounceTimerRef = useRef<number | null>(null);
+  const calcInFlightRef = useRef(false);
 
   const defaults = useMemo(
     () => ({
@@ -63,6 +66,12 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
   );
 
   const calculate = useCallback(async () => {
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    if (calcInFlightRef.current) return;
+    calcInFlightRef.current = true;
     setLoading(true);
     setErr(null);
     try {
@@ -78,6 +87,12 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       };
       if (goalType === "custom" && customAmount) {
         body.target_amount = Number(customAmount.replace(/,/g, ""));
+      }
+      if (goalType === "retirement" && monthlyExpensesRetirement.trim()) {
+        const me = Number(monthlyExpensesRetirement.replace(/,/g, ""));
+        if (Number.isFinite(me) && me > 0) {
+          body.monthly_expenses_override = me;
+        }
       }
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -102,6 +117,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
       setErr(e instanceof Error ? e.message : "Failed");
       setResult(null);
     } finally {
+      calcInFlightRef.current = false;
       setLoading(false);
     }
   }, [
@@ -111,6 +127,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     monthlyIncome,
     monthlySip,
     customAmount,
+    monthlyExpensesRetirement,
     defaults.pv,
     defaults.xirr,
   ]);
@@ -121,11 +138,15 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     if (!open || justOpened) return;
 
     setAutoCalcPending(true);
-    const t = window.setTimeout(() => {
+    debounceTimerRef.current = window.setTimeout(() => {
+      debounceTimerRef.current = null;
       void calculate().finally(() => setAutoCalcPending(false));
     }, 600);
     return () => {
-      window.clearTimeout(t);
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
       setAutoCalcPending(false);
     };
   }, [
@@ -136,6 +157,7 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
     monthlyIncome,
     monthlySip,
     customAmount,
+    monthlyExpensesRetirement,
     defaults.pv,
     defaults.xirr,
     calculate,
@@ -308,6 +330,30 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
               />
             </label>
           </div>
+
+          {goalType === "retirement" ? (
+            <div>
+              <label className="font-syne text-xs text-text-muted mb-1 block">
+                Monthly expenses in retirement (₹)
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs text-text-muted">
+                  ₹
+                </span>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={monthlyExpensesRetirement}
+                  onChange={(e) => setMonthlyExpensesRetirement(e.target.value)}
+                  placeholder="1,50,000"
+                  className="h-10 w-full max-w-md rounded-lg border border-white/10 bg-[hsl(var(--bg-tertiary))] pl-7 pr-3 font-mono text-sm text-text-primary"
+                />
+              </div>
+              <p className="font-syne text-[10px] text-text-muted mt-1">
+                Leave blank to use 50% of current income for the retirement corpus target.
+              </p>
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap items-center gap-3">
             <Button type="button" onClick={() => void calculate()} disabled={loading} className="w-full sm:w-auto">
