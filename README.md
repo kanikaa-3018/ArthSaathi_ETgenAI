@@ -12,7 +12,7 @@ The system combines deterministic financial computation with a real-time multi-a
 
 ### Demo Video
 
-*Add your demo video link here (YouTube / Drive / Loom)*
+Video Link : [Drive](https://drive.google.com/file/d/1sigbAe63tIZcwVk_NUg-UaNbT_oHlA8M/view?usp=sharing)
 
 ### Screenshots
 
@@ -314,7 +314,7 @@ pnpm dev
 Open:
 
 ```
-http://localhost:5173
+http://localhost:8080
 ```
 
 ---
@@ -391,8 +391,8 @@ ArthSaathi significantly improves the accessibility and usability of financial i
 
 ## Documentation
 
-* ARCHITECTURE.md - Detailed system design
-* IMPACT_MODEL.md - Quantitative impact analysis
+* [ARCHITECTURE.md](https://github.com/kanikaa-3018/ArthSaathi_ETgenAI/blob/main/ARCHITECTURE.md) - Detailed system design
+* [IMPACT_MODEL.md](https://github.com/kanikaa-3018/ArthSaathi_ETgenAI/blob/main/IMPACT_MODEL.md) - Quantitative impact analysis
 
 ---
 
