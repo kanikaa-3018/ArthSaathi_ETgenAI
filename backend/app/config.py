@@ -51,5 +51,20 @@ class Settings(BaseSettings):
     # Legacy HS256 — Dashboard → API → JWT signing / shared secret (NOT the anon key)
     SUPABASE_JWT_SECRET: Optional[str] = None
 
+    def validate_auth_config(self) -> str:
+        """Return warning/help message if auth not properly configured."""
+        if not self.SUPABASE_URL and not self.SUPABASE_JWT_SECRET:
+            return (
+                "⚠️  AUTH CONFIG: Neither SUPABASE_URL nor SUPABASE_JWT_SECRET set. "
+                "Google OAuth and manual register/login will not validate Supabase JWTs. "
+                "Set SUPABASE_URL (from Supabase dashboard) and optionally SUPABASE_JWT_SECRET."
+            )
+        if self.SUPABASE_URL and not self.SUPABASE_JWT_SECRET:
+            return (
+                "ℹ️  AUTH CONFIG: Using ES256 (JWKS from SUPABASE_URL). "
+                "If you need HS256 support, also set SUPABASE_JWT_SECRET."
+            )
+        return ""
+
 
 settings = Settings()

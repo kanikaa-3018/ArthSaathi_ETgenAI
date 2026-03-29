@@ -154,11 +154,20 @@ def _decode_supabase_hs256(token: str, secret: str) -> Optional[Dict[str, Any]]:
 
 def _is_allowed_supabase_issuer(issuer: str) -> bool:
     """Allow only the configured Supabase project issuer."""
+    import logging
+    log = logging.getLogger(__name__)
+    
     configured_base = (settings.SUPABASE_URL or "").strip().rstrip("/")
     if not configured_base:
+        log.debug("Issuer validation: SUPABASE_URL not configured")
         return False
     expected_iss = f"{configured_base}/auth/v1"
-    return issuer.rstrip("/") == expected_iss
+    result = issuer.rstrip("/") == expected_iss
+    if not result:
+        log.debug(f"Issuer validation failed: got={issuer.rstrip('/')}, expected={expected_iss}")
+    else:
+        log.debug(f"Issuer validation passed: {issuer}")
+    return result
 
 
 def _decode_supabase_es256(token: str) -> Optional[Dict[str, Any]]:
@@ -255,46 +264,67 @@ def get_user_from_supabase_jwt(token: str) -> Optional[Dict[str, Any]]:
     - HS256: set SUPABASE_JWT_SECRET (trimmed; no stray quotes in .env).
     - ES256: set SUPABASE_URL to https://<ref>.supabase.co (same as frontend).
     """
+    import logging
+    log = logging.getLogger(__name__)
+    
     if not token:
         return None
     try:
         import jwt as pyjwt
         from jwt import PyJWTError
     except ImportError:
+        log.warning("JWT validation requested but pyjwt not installed")
         return None
 
     # Some auth providers may issue opaque tokens. If token is not JWT-like,
     # validate via Supabase Auth API when configured.
     if token.count(".") != 2:
+        log.debug(f"Token is not JWT-like (dots={token.count('.')}), attempting Supabase API fallback")
         return _fetch_supabase_user(token)
 
     try:
         header = pyjwt.get_unverified_header(token)
-    except PyJWTError:
+    except PyJWTError as e:
+        log.debug(f"Failed to parse JWT header: {e}")
         return None
 
     try:
         alg = header.get("alg")
         secret = (settings.SUPABASE_JWT_SECRET or "").strip().strip('"').strip("'")
+        has_es256_config = bool((settings.SUPABASE_URL or "").strip())
+        
+        log.debug(f"JWT validation: alg={alg}, has_hs256_secret={bool(secret)}, has_es256_config={has_es256_config}")
 
         payload: Optional[Dict[str, Any]] = None
         if alg == "HS256" and secret:
+            log.debug("Attempting HS256 validation...")
             payload = _decode_supabase_hs256(token, secret)
+            if payload:
+                log.debug(f"HS256 validation succeeded, role={payload.get('role')}")
         elif alg == "ES256":
+            log.debug("Attempting ES256 validation...")
             payload = _decode_supabase_es256(token)
+            if payload:
+                log.debug(f"ES256 validation succeeded, role={payload.get('role')}")
         else:
+            log.debug(f"Unknown algorithm: {alg}, trying fallback methods...")
             if secret:
                 payload = _decode_supabase_hs256(token, secret)
             if not payload:
                 payload = _decode_supabase_es256(token)
 
         if not payload:
+            log.debug("JWT validation failed - no valid payload")
             return None
         if payload.get("role") == "service_role":
+            log.debug("Rejecting service_role token")
             return None
-        return _claims_to_user(payload)
-    except Exception:
+        user = _claims_to_user(payload)
+        log.debug(f"Supabase JWT validation succeeded: {user}")
+        return user
+    except Exception as e:
         # Never bubble auth decoding issues as 500s from protected routes.
+        log.warning(f"Supabase JWT validation exception: {e}")
         return None
 
 
