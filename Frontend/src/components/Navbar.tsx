@@ -32,62 +32,57 @@ export default function Navbar() {
     const nav = navRef.current;
     if (!nav) return;
 
-    const refArray = [
-      wordmarkRef.current,
-      centerRef.current,
-      btnRef.current,
-    ].filter(Boolean);
-    const tl = gsap.timeline({ delay: 0.1 });
-    gsap.set(refArray, { opacity: 0, y: -8 });
-
-    if (wordmarkRef.current) {
-      tl.to(
+    const ctx = gsap.context(() => {
+      const refArray = [
         wordmarkRef.current,
-        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-        0.3,
-      );
-    }
-    if (centerRef.current) {
-      tl.to(
         centerRef.current,
-        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-        0.45,
-      );
-    }
-    if (btnRef.current) {
-      tl.to(
         btnRef.current,
-        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-        0.55,
-      );
-    }
+      ].filter(Boolean);
+      const tl = gsap.timeline({ delay: 0.1 });
+      gsap.set(refArray, { opacity: 0, y: -8 });
 
-    const trigger = ScrollTrigger.create({
-      start: "top -80px",
-      onEnter: () => {
-        gsap.to(nav, {
-          backgroundColor: "hsla(220,25%,6%,0.88)",
-          borderBottomColor: "hsl(220 10% 20%)",
-          backdropFilter: "blur(14px) saturate(1.4)",
-          duration: 0.5,
-          ease: "cubic-bezier(0.16,1,0.3,1)",
-        });
-      },
-      onLeaveBack: () => {
-        gsap.to(nav, {
-          backgroundColor: "transparent",
-          borderBottomColor: "transparent",
-          backdropFilter: "none",
-          duration: 0.5,
-        });
-      },
-    });
+      if (wordmarkRef.current) {
+        tl.to(
+          wordmarkRef.current,
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          0.3,
+        );
+      }
+      if (centerRef.current) {
+        tl.to(
+          centerRef.current,
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          0.45,
+        );
+      }
+      if (btnRef.current) {
+        tl.to(
+          btnRef.current,
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          0.55,
+        );
+      }
 
-    return () => {
-      trigger.kill(false);
-      tl.kill();
-      gsap.killTweensOf(nav);
-    };
+      // HackOrbit-MITS-Frontend: no trigger + onUpdate(self.scroll()) — works with Lenis.
+      ScrollTrigger.create({
+        start: "top -80px",
+        onUpdate: (self) => {
+          const el = navRef.current;
+          if (!el) return;
+          if (self.scroll() > 80) {
+            el.style.background = "hsla(220,25%,6%,0.88)";
+            el.style.borderBottomColor = "hsl(220 10% 20%)";
+            el.style.backdropFilter = "blur(14px) saturate(1.4)";
+          } else {
+            el.style.background = "transparent";
+            el.style.borderBottomColor = "transparent";
+            el.style.backdropFilter = "none";
+          }
+        },
+      });
+    }, navRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
