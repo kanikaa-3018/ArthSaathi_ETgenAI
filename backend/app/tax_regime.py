@@ -82,7 +82,8 @@ def compare_regimes(
     total_80d = min(section_80d, 100000)
     total_80ccd = min(section_80ccd1b, 50000)
     total_24b = min(home_loan_interest, 200000)
-    total_80e = min(max(0.0, education_loan_interest_80e), 500000.0)
+    # 80E: education-loan interest has no statutory cap; only ensure non-negative.
+    total_80e = max(0.0, education_loan_interest_80e)
     other_old = min(max(0.0, other_old_regime_deductions), 150000.0)
 
     old_deductions = (
