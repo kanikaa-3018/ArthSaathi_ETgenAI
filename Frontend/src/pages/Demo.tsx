@@ -70,11 +70,6 @@ export default function Demo() {
             </div>
           }
           footerLabel="ArthSaathi Demo (Sample Dataset) — UI Preview for ET AI Hackathon 2026"
-          showFallbacks={{
-            benchmarkUnavailable: true,
-            overlapUnavailable: true,
-            projectionUnavailable: false,
-          }}
         />
       </div>
     </div>

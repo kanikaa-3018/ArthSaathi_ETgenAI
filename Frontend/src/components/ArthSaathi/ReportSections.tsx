@@ -10,6 +10,7 @@ import { FundTable } from "@/components/ArthSaathi/FundTable";
 import { ExpenseCallout } from "@/components/ArthSaathi/ExpenseCallout";
 import { WealthGapChart } from "@/components/ArthSaathi/WealthGapChart";
 import { OverlapMatrix } from "@/components/ArthSaathi/OverlapMatrix";
+import { BenchmarkSection } from "@/components/ArthSaathi/BenchmarkSection";
 import { AssetAllocation } from "@/components/ArthSaathi/AssetAllocation";
 import { RebalancingPlan } from "@/components/ArthSaathi/RebalancingPlan";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
@@ -286,7 +287,9 @@ export function ReportSections({
                       title="Benchmark Comparison Unavailable"
                       description="Benchmark comparison is currently available for equity categories only."
                     />
-                  ) : null}
+                  ) : (
+                    <BenchmarkSection funds={data.funds} />
+                  )}
                   <AssetAllocation
                     equityPct={data.portfolio_summary.equity_allocation_pct}
                     debtPct={data.portfolio_summary.debt_allocation_pct}

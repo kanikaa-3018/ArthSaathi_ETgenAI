@@ -40,7 +40,8 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
       const key = [a, b].sort().join("\0");
       if (seen.has(key)) continue;
       seen.add(key);
-      const ov = m.overlap ?? 0;
+      if (m.overlap == null || Number.isNaN(m.overlap)) continue;
+      const ov = m.overlap;
       if (ov <= 0) continue;
       rows.push({ fund_a_short: a, fund_b_short: b, overlap: ov });
     }
@@ -48,11 +49,25 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
     return rows.slice(0, 5);
   }, [data.matrix, equityFunds]);
 
+  const hasNumericOverlap = useMemo(
+    () => data.matrix.some((m) => typeof m.overlap === "number" && m.overlap > 0),
+    [data.matrix],
+  );
+
   if (equityFunds.length < 2) {
     return (
       <NoDataCard
         title="Overlap Analysis"
         description="Need at least 2 equity funds to compute overlap."
+      />
+    );
+  }
+
+  if (!hasNumericOverlap) {
+    return (
+      <NoDataCard
+        title="Overlap analysis"
+        description="Holdings data is not available in our dataset for these fund codes, so pairwise overlap cannot be calculated. Concentration below may be limited. Coverage expands as we add more schemes to holdings data."
       />
     );
   }
@@ -68,7 +83,8 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
         (shortFundName(m.fund_b).includes(a.slice(0, 8)) &&
           shortFundName(m.fund_a).includes(b.slice(0, 8))),
     );
-    return pair?.overlap ?? 0;
+    if (!pair || pair.overlap == null || Number.isNaN(pair.overlap)) return null;
+    return pair.overlap;
   };
 
   return (
@@ -154,14 +170,16 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
                 const isDiag = ri === ci;
                 const style = isDiag
                   ? { bg: "transparent", color: "hsl(var(--text-tertiary))" }
-                  : overlapBg(overlap ?? 0);
+                  : overlap == null
+                    ? { bg: "hsl(var(--bg-tertiary))", color: "hsl(var(--text-muted))" }
+                    : overlapBg(overlap);
                 return (
                   <div
                     key={`${ri}-${ci}`}
                     className="flex items-center justify-center rounded-md font-mono-dm text-xs tabular-nums p-3 transition-transform duration-150 hover:scale-105"
                     style={{ background: style.bg, color: style.color }}
                   >
-                    {isDiag ? "—" : `${overlap?.toFixed(1)}%`}
+                    {isDiag ? "—" : overlap == null ? "N/A" : `${overlap.toFixed(1)}%`}
                   </div>
                 );
               })}
