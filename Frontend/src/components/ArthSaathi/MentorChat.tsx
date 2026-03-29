@@ -226,7 +226,10 @@ export function MentorChat({
         ) : null}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 font-body text-sm">
+      <div
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-3 font-body text-sm"
+        data-lenis-prevent
+      >
         {messages.map((m, i) => (
           <div
             key={`${i}-${m.role}-${m.content.slice(0, 12)}`}

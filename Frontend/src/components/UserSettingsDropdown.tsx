@@ -16,23 +16,28 @@ interface UserSettingsDropdownProps {
   email: string;
   initial: string;
   expanded?: boolean;
+  /** e.g. close mobile drawer after Settings / Sign out */
+  onMenuAction?: () => void;
 }
 
 export function UserSettingsDropdown({
   email,
   initial,
   expanded = true,
+  onMenuAction,
 }: UserSettingsDropdownProps) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSettings = () => {
     setIsOpen(false);
+    onMenuAction?.();
     navigate("/settings");
   };
 
   const handleSignOut = async () => {
     setIsOpen(false);
+    onMenuAction?.();
     await signOut();
     navigate("/login");
   };

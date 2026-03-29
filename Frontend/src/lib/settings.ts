@@ -1,8 +1,22 @@
-import { getAccessToken } from "./auth";
+import type { User } from "@supabase/supabase-js";
+import { getAccessToken, getUser } from "./auth";
+
+const PROFILE_UPDATED = "arthsaathi:profile-updated";
+
+function notifyProfileUpdated(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(PROFILE_UPDATED));
+  }
+}
+
+/** Subscribe to profile changes (e.g. after Settings save). Returns unsubscribe. */
+export function onProfileUpdated(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(PROFILE_UPDATED, callback);
+  return () => window.removeEventListener(PROFILE_UPDATED, callback);
+}
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-type SettingsApiMode = "full" | "split" | "auth-only";
-let cachedSettingsApiMode: SettingsApiMode | null = null;
 
 function getApiBases(): string[] {
   return [API_BASE];
@@ -18,53 +32,11 @@ async function fetchSettingsPath(path: string, init: RequestInit): Promise<Respo
   return lastResponse ?? new Response(null, { status: 404, statusText: "Not Found" });
 }
 
-async function detectSettingsApiMode(): Promise<SettingsApiMode> {
-  if (cachedSettingsApiMode) return cachedSettingsApiMode;
-
-  for (const base of getApiBases()) {
-    try {
-      const res = await fetch(`${base}/openapi.json`);
-      if (!res.ok) continue;
-      const spec = await res.json() as { paths?: Record<string, unknown> };
-      const paths = spec.paths || {};
-      if (paths["/api/settings"]) {
-        cachedSettingsApiMode = "full";
-        return cachedSettingsApiMode;
-      }
-      if (paths["/api/settings/profile"] && paths["/api/settings/preferences"]) {
-        cachedSettingsApiMode = "split";
-        return cachedSettingsApiMode;
-      }
-      if (paths["/api/auth/me"]) {
-        cachedSettingsApiMode = "auth-only";
-        return cachedSettingsApiMode;
-      }
-    } catch {
-      // Try next base.
-    }
-  }
-
-  cachedSettingsApiMode = "auth-only";
-  return cachedSettingsApiMode;
-}
-
 async function getAuthMe(headers?: HeadersInit): Promise<{ username: string; email: string }> {
   const authHeaders = headers ?? (await getHeaders());
   const res = await fetchSettingsPath(`/api/auth/me`, { method: "GET", headers: authHeaders });
   if (!res.ok) throw new Error(`Failed to fetch user: ${res.statusText}`);
   return res.json();
-}
-
-function defaultProfileFromMe(me: { username: string; email: string }): UserProfile {
-  const now = Math.floor(Date.now() / 1000);
-  return {
-    username: me.username,
-    email: me.email,
-    full_name: me.username,
-    avatar_url: undefined,
-    created_at: now,
-    updated_at: now,
-  };
 }
 
 function defaultPreferences(): UserPreferences {
@@ -85,6 +57,8 @@ export interface UserProfile {
   avatar_url?: string;
   created_at: number;
   updated_at: number;
+  /** From API: false for OAuth-only accounts (no local password in backend). */
+  can_change_password?: boolean;
 }
 
 export interface UserPreferences {
@@ -212,15 +186,24 @@ export async function updateUserProfile(data: {
   if (res.ok) {
     const profile = (await res.json()) as UserProfile;
     writeLocalSettings(me.email, { ...local, profile });
+    notifyProfileUpdated();
     return profile;
   }
   if (res.status === 404) {
     const profile: UserProfile = {
       ...local.profile,
-      ...payload,
+      full_name:
+        typeof data.full_name === "string"
+          ? data.full_name.trim() || undefined
+          : local.profile.full_name,
+      avatar_url:
+        typeof data.avatar_url === "string"
+          ? data.avatar_url.trim() || undefined
+          : local.profile.avatar_url,
       updated_at: Math.floor(Date.now() / 1000),
     };
     writeLocalSettings(me.email, { ...local, profile });
+    notifyProfileUpdated();
     return profile;
   }
   throw new Error(await readErrorMessage(res, `Failed to update profile: ${res.statusText}`));
@@ -248,10 +231,14 @@ export async function updateUserPreferences(
   const headers = await getHeaders();
   const me = await getAuthMe(headers);
   const local = readLocalSettings(me.email, me.username);
+  const payload: UserPreferences = {
+    ...local.preferences,
+    ...data,
+  };
   const res = await fetchSettingsPath(`/api/settings/preferences`, {
     method: "PUT",
     headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
   if (res.ok) {
     const preferences = (await res.json()) as UserPreferences;
@@ -284,53 +271,97 @@ export async function changePassword(data: {
   return res.json();
 }
 
-export async function getAllSettings(): Promise<UserSettings> {
+/** Result of loading settings; `apiReachable` is false when the backend has no /api/settings routes (e.g. old `main` without merged PR). */
+export type LoadedUserSettings = {
+  settings: UserSettings;
+  apiReachable: boolean;
+};
+
+export async function getAllSettings(): Promise<LoadedUserSettings> {
   const headers = await getHeaders();
   const me = await getAuthMe(headers);
   const local = readLocalSettings(me.email, me.username);
-  const mode = await detectSettingsApiMode();
 
-  if (mode === "full") {
-    const res = await fetchSettingsPath(`/api/settings`, {
-      method: "GET",
-      headers,
-    });
-    if (res.ok) {
-      const settings = (await res.json()) as UserSettings;
-      writeLocalSettings(me.email, settings);
-      return settings;
-    }
-    if (res.status !== 404) {
-      throw new Error(`Failed to fetch settings: ${res.statusText}`);
-    }
-    return local;
-  }
-
-  if (mode === "split") {
-    const [profileRes, preferencesRes] = await Promise.all([
-      fetchSettingsPath(`/api/settings/profile`, { method: "GET", headers }),
-      fetchSettingsPath(`/api/settings/preferences`, { method: "GET", headers }),
-    ]);
-
-    if (profileRes.ok && preferencesRes.ok) {
-      const settings = {
-        profile: (await profileRes.json()) as UserProfile,
-        preferences: (await preferencesRes.json()) as UserPreferences,
-      };
-      writeLocalSettings(me.email, settings);
-      return settings;
-    }
-    const profile = profileRes.ok
-      ? ((await profileRes.json()) as UserProfile)
-      : local.profile;
-    const preferences = preferencesRes.ok
-      ? ((await preferencesRes.json()) as UserPreferences)
-      : local.preferences;
-    const settings = { profile, preferences };
+  const aggregateRes = await fetchSettingsPath(`/api/settings`, { method: "GET", headers });
+  if (aggregateRes.ok) {
+    const settings = (await aggregateRes.json()) as UserSettings;
     writeLocalSettings(me.email, settings);
-    return settings;
+    return { settings, apiReachable: true };
+  }
+  if (aggregateRes.status === 401) {
+    throw new Error("Session expired. Please sign in again.");
+  }
+  if (aggregateRes.status !== 404) {
+    throw new Error(
+      await readErrorMessage(aggregateRes, `Failed to fetch settings: ${aggregateRes.statusText}`),
+    );
   }
 
-  writeLocalSettings(me.email, local);
-  return local;
+  const [profileRes, preferencesRes] = await Promise.all([
+    fetchSettingsPath(`/api/settings/profile`, { method: "GET", headers }),
+    fetchSettingsPath(`/api/settings/preferences`, { method: "GET", headers }),
+  ]);
+
+  if (profileRes.status === 401 || preferencesRes.status === 401) {
+    throw new Error("Session expired. Please sign in again.");
+  }
+
+  if (!profileRes.ok && profileRes.status !== 404) {
+    throw new Error(await readErrorMessage(profileRes, `Failed to fetch profile: ${profileRes.statusText}`));
+  }
+  if (!preferencesRes.ok && preferencesRes.status !== 404) {
+    throw new Error(
+      await readErrorMessage(preferencesRes, `Failed to fetch preferences: ${preferencesRes.statusText}`),
+    );
+  }
+
+  const profile = profileRes.ok ? ((await profileRes.json()) as UserProfile) : local.profile;
+  const preferences = preferencesRes.ok
+    ? ((await preferencesRes.json()) as UserPreferences)
+    : local.preferences;
+
+  const settings = { profile, preferences };
+  writeLocalSettings(me.email, settings);
+  const apiReachable = profileRes.ok || preferencesRes.ok;
+  return { settings, apiReachable };
+}
+
+/** Prefer backend profile `full_name` (Settings) over Supabase `user_metadata` — they are not synced automatically. */
+async function displayNameFromSources(user: User): Promise<string> {
+  const email = user.email || "";
+  const fromMeta =
+    (user.user_metadata?.full_name as string | undefined)?.trim() ||
+    email.split("@")[0] ||
+    "";
+  try {
+    const profile = await getUserProfile();
+    if (profile.full_name?.trim()) return profile.full_name.trim();
+    if (profile.username?.trim()) return profile.username.trim();
+  } catch {
+    // Offline or auth error — fall back to Supabase metadata.
+  }
+  return fromMeta;
+}
+
+/** Greeting / dashboard: uses `/api/settings/profile` when available. */
+export async function resolveDisplayName(): Promise<string> {
+  const user = await getUser();
+  if (!user) return "";
+  return displayNameFromSources(user);
+}
+
+/** Sidebar avatar initial + email: same source order as {@link resolveDisplayName}. */
+export async function resolveSidebarIdentity(): Promise<{
+  email: string;
+  displayName: string;
+  initial: string;
+}> {
+  const user = await getUser();
+  if (!user) {
+    return { email: "", displayName: "", initial: "?" };
+  }
+  const email = user.email || "";
+  const displayName = await displayNameFromSources(user);
+  const initial = (displayName || email || "U").trim().charAt(0).toUpperCase() || "?";
+  return { email, displayName, initial };
 }

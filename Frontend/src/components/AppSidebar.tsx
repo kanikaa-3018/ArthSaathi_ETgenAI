@@ -1,5 +1,5 @@
-import { useEffect, useState, type CSSProperties } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState, type CSSProperties, type ElementType } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compactINR } from "@/lib/format";
-import { fetchMe } from "@/lib/auth";
+import { onProfileUpdated, resolveSidebarIdentity } from "@/lib/settings";
 import { useAnalysis } from "@/context/analysis-context";
 import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
 import {
@@ -23,6 +23,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+/** Vite serves `Frontend/public/logo.webp` at `/logo.webp`. */
+const LOGO_SRC = "/logo.webp";
 
 function healthBadgeStyle(grade: string): CSSProperties {
   const g = (grade || "").toUpperCase();
@@ -44,6 +47,37 @@ export interface AppSidebarProps {
   guestMode?: boolean;
 }
 
+function SidebarLogoMark({ className }: { className?: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <span
+        className={cn(
+          "flex items-center justify-center rounded-lg bg-white/[0.1] font-fraunces text-sm font-bold leading-none text-text-primary",
+          className,
+        )}
+        style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+        aria-hidden
+      >
+        A
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={LOGO_SRC}
+      alt=""
+      width={36}
+      height={36}
+      decoding="async"
+      className={cn("object-contain", className)}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 function NavItem({
   to,
   end,
@@ -56,12 +90,11 @@ function NavItem({
 }: {
   to: string;
   end?: boolean;
-  icon: typeof LayoutDashboard;
+  icon: ElementType<{ size?: number | string; strokeWidth?: number | string; className?: string }>;
   label: string;
   expanded: boolean;
   disabled?: boolean;
   onAfterNavigate?: () => void;
-  /** Treat NavLink as active on these paths (e.g. /demo → highlight Analyze). */
   activateOnPathnames?: string[];
 }) {
   const location = useLocation();
@@ -69,20 +102,24 @@ function NavItem({
     const alsoActive = activateOnPathnames?.includes(location.pathname) ?? false;
     const active = isActive || alsoActive;
     return cn(
-      "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-xs font-syne font-medium",
-      !ex && "justify-center",
+      "group relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-[13px] font-medium leading-snug transition-colors font-syne",
+      !ex && "justify-center px-2",
       disabled && "pointer-events-none opacity-40",
       !disabled &&
         (active
-          ? "bg-white/[0.06] text-[hsl(var(--text-primary))] border-l-2 border-[hsl(var(--accent))]"
-          : "text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-secondary))] hover:bg-white/[0.03] border-l-2 border-transparent"),
+          ? "bg-[hsla(213,60%,56%,0.14)] text-text-primary shadow-[inset_0_0_0_1px_hsla(213,60%,56%,0.22)]"
+          : "text-text-muted hover:bg-white/[0.05] hover:text-text-secondary"),
     );
   };
 
   const inner = (
     <>
-      <Icon size={18} strokeWidth={1.5} className="shrink-0" />
-      {ex ? <span>{label}</span> : null}
+      <Icon
+        size={ex ? 19 : 20}
+        strokeWidth={1.5}
+        className="shrink-0 opacity-90 group-hover:opacity-100"
+      />
+      {ex ? <span className="min-w-0 flex-1 truncate">{label}</span> : null}
     </>
   );
 
@@ -119,6 +156,10 @@ function NavItem({
   return link;
 }
 
+const closeMobileIfNeeded = (isMobile: boolean, onMobileOpenChange: (o: boolean) => void) => {
+  if (isMobile) onMobileOpenChange(false);
+};
+
 export function AppSidebar({
   expanded,
   onToggleExpanded,
@@ -127,7 +168,6 @@ export function AppSidebar({
   isMobile,
   guestMode = false,
 }: AppSidebarProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const { state } = useAnalysis();
   const hasResult = Boolean(state.result);
@@ -141,212 +181,225 @@ export function AppSidebar({
       return;
     }
     let cancelled = false;
-    fetchMe()
-      .then((u) => {
-        if (cancelled) return;
-        const e = u.email || "";
-        setEmail(e);
-        const d = (u.username || e || "U").trim();
-        setInitial(d.charAt(0).toUpperCase());
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setEmail("");
-        setInitial("?");
-      });
+    const load = () => {
+      resolveSidebarIdentity()
+        .then(({ email: e, initial: letter }) => {
+          if (cancelled) return;
+          setEmail(e);
+          setInitial(letter);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setEmail("");
+          setInitial("?");
+        });
+    };
+    load();
+    const off = onProfileUpdated(load);
     return () => {
       cancelled = true;
+      off();
     };
   }, [guestMode]);
 
-  const handleMobileMenuClose = () => {
-    onMobileOpenChange(false);
-  };
-
   const showExpanded = isMobile ? true : expanded;
-  const widthClass = isMobile ? "w-60" : expanded ? "w-60" : "w-14";
+  const collapsedDesktop = !isMobile && !expanded;
+  const widthClass = isMobile ? "w-64" : expanded ? "w-64" : "w-16";
 
   if (isMobile && !mobileOpen) {
     return null;
   }
 
+  const toggleBtnClass =
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-white/[0.08] hover:text-text-secondary";
+
+  const afterNav = () => closeMobileIfNeeded(isMobile, onMobileOpenChange);
+
   const aside = (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-[60] flex h-screen flex-col border-r border-white/[0.06] transition-all duration-200",
+        "fixed left-0 top-0 z-[60] flex h-dvh max-h-screen flex-col border-r border-white/[0.08] shadow-[4px_0_24px_rgba(0,0,0,0.12)] transition-[width] duration-200 ease-out",
         widthClass,
         isMobile && "shadow-2xl",
       )}
       style={{ background: "hsl(var(--sidebar-background))" }}
     >
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-2 py-3">
-        <Link
-          to="/dashboard"
-          className="min-w-0 flex-1 no-underline text-left"
-          onClick={() => isMobile && onMobileOpenChange(false)}
-        >
-          <span
-            className="font-fraunces text-sm text-[hsl(var(--text-primary))] block truncate"
-            style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-          >
-            ArthSaathi
-          </span>
-          {showExpanded ? (
-            <span className="font-syne text-xs text-text-muted">(अर्थसाथी)</span>
-          ) : null}
-        </Link>
-        {!isMobile ? (
+      {collapsedDesktop ? (
+        <div className="flex shrink-0 flex-col items-center gap-2 border-b border-white/[0.08] px-1.5 py-3">
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Link
+                to="/dashboard"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] outline-none ring-offset-2 ring-offset-[hsl(var(--sidebar-background))] transition-colors hover:bg-white/[0.07] focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]"
+                aria-label="ArthSaathi — Dashboard"
+              >
+                <SidebarLogoMark className="h-7 w-7" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="font-syne text-xs">
+              ArthSaathi
+            </TooltipContent>
+          </Tooltip>
           <button
             type="button"
             onClick={onToggleExpanded}
-            className="rounded-md p-1.5 text-text-muted hover:bg-white/[0.06] hover:text-text-secondary"
-            aria-label={expanded ? "Collapse sidebar" : "Expand sidebar"}
+            className={toggleBtnClass}
+            aria-label="Expand sidebar"
           >
-            {expanded ? (
-              <ChevronLeft size={18} strokeWidth={1.5} />
-            ) : (
-              <ChevronRight size={18} strokeWidth={1.5} />
-            )}
+            <ChevronRight size={18} strokeWidth={1.5} />
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => onMobileOpenChange(false)}
-            className="rounded-md p-1.5 text-text-muted hover:bg-white/[0.06]"
-            aria-label="Close menu"
-          >
-            <ChevronLeft size={18} strokeWidth={1.5} />
-          </button>
-        )}
-      </div>
-
-      <nav className="min-h-0 flex-1 overflow-y-auto px-2 py-4">
-        <p
-          className={cn(
-            "font-mono text-xs text-text-muted uppercase tracking-[2px] px-3 mb-1",
-            !showExpanded && "sr-only",
-          )}
-        >
-          Analyze
-        </p>
-        <div className="space-y-0.5 mb-6">
-          <NavItem
+        </div>
+      ) : (
+        <div className="flex shrink-0 items-center gap-2 border-b border-white/[0.08] px-2.5 py-3">
+          <Link
             to="/dashboard"
-            end
-            icon={LayoutDashboard}
-            label="Dashboard"
-            expanded={showExpanded}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
-          <NavItem
-            to="/analyze"
-            icon={Search}
-            label="Portfolio X-Ray"
-            expanded={showExpanded}
-            activateOnPathnames={["/demo"]}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
-          <NavItem
-            to="/analyze/report"
-            icon={ToggleRight}
-            label="What-If"
-            expanded={showExpanded}
-            disabled={!hasResult}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
-        </div>
-
-        <p
-          className={cn(
-            "font-mono text-xs text-text-muted uppercase tracking-[2px] px-3 mb-1",
-            !showExpanded && "sr-only",
+            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-1 no-underline outline-none ring-offset-2 ring-offset-[hsl(var(--sidebar-background))] transition-colors hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))]"
+            onClick={() => closeMobileIfNeeded(isMobile, onMobileOpenChange)}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04]">
+              <SidebarLogoMark className="h-8 w-8" />
+            </div>
+            {showExpanded ? (
+              <div className="min-w-0 flex-1 text-left">
+                <span
+                  className="font-fraunces block truncate text-sm leading-tight text-text-primary"
+                  style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+                >
+                  ArthSaathi
+                </span>
+                <span className="font-syne mt-0.5 block truncate text-[11px] leading-tight text-text-muted">
+                  अर्थसाथी
+                </span>
+              </div>
+            ) : null}
+          </Link>
+          {!isMobile ? (
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              className={toggleBtnClass}
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onMobileOpenChange(false)}
+              className={toggleBtnClass}
+              aria-label="Close menu"
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} />
+            </button>
           )}
-        >
-          Tools
-        </p>
-        <div className="space-y-0.5 mb-6">
-          <NavItem
-            to="/tax"
-            icon={Scale}
-            label="Tax Calculator"
-            expanded={showExpanded}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
-          <NavItem
-            to="/fire"
-            icon={Target}
-            label="FIRE Planner"
-            expanded={showExpanded}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
-          <NavItem
-            to="/mentor"
-            icon={MessageCircle}
-            label="AI Mentor"
-            expanded={showExpanded}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-          />
         </div>
+      )}
 
-        <p
-          className={cn(
-            "section-label px-3 mb-1",
-            !showExpanded && "sr-only",
-          )}
-        >
-          Other
-        </p>
-        <div className="space-y-0.5">
-          {!guestMode ? (
-            <NavItem
-              to="/settings"
-              icon={Settings}
-              label="Settings"
-              expanded={showExpanded}
-              onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
-            />
-          ) : null}
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-2 py-4">
+        <NavItem
+          to="/dashboard"
+          end
+          icon={LayoutDashboard}
+          label="Dashboard"
+          expanded={showExpanded}
+          onAfterNavigate={afterNav}
+        />
+        <NavItem
+          to="/analyze"
+          icon={Search}
+          label="Portfolio X-Ray"
+          expanded={showExpanded}
+          activateOnPathnames={["/demo"]}
+          onAfterNavigate={afterNav}
+        />
+        <NavItem
+          to="/analyze/report"
+          icon={ToggleRight}
+          label="What-If"
+          expanded={showExpanded}
+          disabled={!hasResult}
+          onAfterNavigate={afterNav}
+        />
+
+        <div
+          className="my-4 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent"
+          role="separator"
+        />
+
+        <NavItem
+          to="/tax"
+          icon={Scale}
+          label="Tax Calculator"
+          expanded={showExpanded}
+          onAfterNavigate={afterNav}
+        />
+        <NavItem
+          to="/fire"
+          icon={Target}
+          label="FIRE Planner"
+          expanded={showExpanded}
+          onAfterNavigate={afterNav}
+        />
+        <NavItem
+          to="/mentor"
+          icon={MessageCircle}
+          label="AI Mentor"
+          expanded={showExpanded}
+          onAfterNavigate={afterNav}
+        />
+
+        <div
+          className="my-4 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent"
+          role="separator"
+        />
+        {!guestMode ? (
           <NavItem
-            to="/demo"
-            icon={Play}
-            label="Try Demo"
+            to="/settings"
+            icon={Settings}
+            label="Settings"
             expanded={showExpanded}
-            onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
+            onAfterNavigate={afterNav}
           />
-        </div>
+        ) : null}
+        <NavItem
+          to="/demo"
+          icon={Play}
+          label="Try Demo"
+          expanded={showExpanded}
+          onAfterNavigate={afterNav}
+        />
       </nav>
 
-      <div className="mt-auto shrink-0 border-t border-white/[0.06] p-2 space-y-2">
+      <div className="mt-auto flex shrink-0 flex-col gap-2 border-t border-white/[0.08] p-2.5">
         {!guestMode && hasResult && state.result ? (
           <div
             className={cn(
-              "rounded-lg border border-white/[0.06] bg-white/[0.03] p-2",
+              "rounded-xl border border-white/[0.08] bg-white/[0.03] p-2.5",
               !showExpanded && "hidden",
             )}
           >
-            <p className="font-syne text-xs text-text-muted mb-1">Last analysis</p>
+            <p className="mb-1 font-syne text-xs text-text-muted">Last analysis</p>
             <p className="font-mono-dm text-xs tabular-nums text-text-secondary">
               {state.result.portfolio_summary.total_funds} funds ·{" "}
               {compactINR(state.result.portfolio_summary.total_current_value)}
             </p>
             <span
-              className="mt-1 inline-block rounded border px-1.5 py-0.5 font-mono-dm text-xs tabular-nums"
+              className="mt-1 inline-block rounded-md border px-1.5 py-0.5 font-mono-dm text-xs tabular-nums"
               style={healthBadgeStyle(state.result.health_score.grade)}
             >
               {state.result.health_score.grade} · {state.result.health_score.score}
             </span>
           </div>
         ) : null}
-
         {guestMode ? (
           <div
             className={cn(
-              "flex items-center gap-2 px-1",
+              "flex items-center gap-2",
               !showExpanded && "flex-col gap-2",
             )}
           >
             <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-muted"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.1] font-syne text-xs font-medium text-text-muted"
               title="Guest"
             >
               ?
@@ -355,8 +408,8 @@ export function AppSidebar({
               <Link
                 to="/login"
                 state={{ from: location.pathname }}
-                className="min-w-0 flex-1 rounded-md border border-white/[0.08] px-2 py-1.5 text-center font-syne text-xs font-semibold text-accent hover:bg-white/[0.04] no-underline"
-                onClick={() => isMobile && onMobileOpenChange(false)}
+                className="min-w-0 flex-1 rounded-lg border border-white/[0.1] px-2 py-2 text-center font-syne text-xs font-semibold text-accent transition-colors hover:bg-white/[0.04] no-underline"
+                onClick={() => closeMobileIfNeeded(isMobile, onMobileOpenChange)}
               >
                 Sign in
               </Link>
@@ -366,9 +419,9 @@ export function AppSidebar({
                   <Link
                     to="/login"
                     state={{ from: location.pathname }}
-                    className="rounded-md p-2 text-accent hover:bg-white/[0.04] no-underline inline-flex"
+                    className="inline-flex rounded-lg p-2 text-accent transition-colors hover:bg-white/[0.06] no-underline"
                     aria-label="Sign in"
-                    onClick={() => isMobile && onMobileOpenChange(false)}
+                    onClick={() => closeMobileIfNeeded(isMobile, onMobileOpenChange)}
                   >
                     <LogIn size={18} strokeWidth={1.5} />
                   </Link>
@@ -382,6 +435,7 @@ export function AppSidebar({
             email={email}
             initial={initial}
             expanded={showExpanded}
+            onMenuAction={() => closeMobileIfNeeded(isMobile, onMobileOpenChange)}
           />
         )}
       </div>

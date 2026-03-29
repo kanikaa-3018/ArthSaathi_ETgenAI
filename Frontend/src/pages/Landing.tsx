@@ -54,15 +54,23 @@ export default function Index() {
       <Navbar />
       <HeroSection />
       <DataStrip />
-      <ProblemSection />
+      <div id="problem" className="scroll-mt-[52px]">
+        <ProblemSection />
+      </div>
       <DataStrip />
-      <HowItWorksSection />
+      <div id="how-it-works" className="scroll-mt-[52px]">
+        <HowItWorksSection />
+      </div>
       <DataStrip />
       <DashboardSection />
       <DataStrip />
-      <FeaturesSection />
+      <div id="features" className="scroll-mt-[52px]">
+        <FeaturesSection />
+      </div>
       <DataStrip />
-      <NumbersSection />
+      <div id="impact" className="scroll-mt-[52px]">
+        <NumbersSection />
+      </div>
       <DataStrip />
       <CredibilitySection />
       <DataStrip />

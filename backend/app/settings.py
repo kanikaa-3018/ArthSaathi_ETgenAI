@@ -4,7 +4,7 @@ User settings and profile management.
 import time
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 
 from app.auth import (
     _verify_password,
@@ -26,14 +26,20 @@ def _default_preferences() -> Dict[str, Any]:
 
 
 def _find_user_record(users: list[Dict[str, Any]], username: str, email: str = "") -> Optional[Dict[str, Any]]:
+    """Prefer email match when provided (stable id); then username."""
+    if email:
+        normalized = email.strip().lower()
+        for user in users:
+            if (user.get("email") or "").strip().lower() == normalized:
+                return user
     for user in users:
         if user.get("username") == username:
             return user
-    if email:
-        for user in users:
-            if (user.get("email") or "").strip().lower() == email.strip().lower():
-                return user
     return None
+
+
+def _can_change_password(user: Dict[str, Any]) -> bool:
+    return bool(user.get("password_hash") and user.get("password_salt"))
 
 
 def _get_or_create_user_record(username: str, email: str = "") -> Dict[str, Any]:
@@ -68,6 +74,8 @@ class UserProfile(BaseModel):
     avatar_url: Optional[str] = None
     created_at: int
     updated_at: int
+    # True for local password accounts; False for OAuth-only (no in-app password change).
+    can_change_password: bool = False
 
 
 class UpdateProfileRequest(BaseModel):
@@ -86,14 +94,14 @@ class ChangePasswordRequest(BaseModel):
 
 
 class UpdatePreferencesRequest(BaseModel):
-    """User preferences."""
+    """Partial preferences update; omitted fields keep existing values."""
 
-    email_notifications: bool = True
-    portfolio_updates: bool = True
-    tax_insights: bool = True
-    market_alerts: bool = False
-    theme: str = Field("dark", pattern="^(light|dark)$")
-    currency: str = Field("INR", pattern="^[A-Z]{3}$")
+    email_notifications: Optional[bool] = None
+    portfolio_updates: Optional[bool] = None
+    tax_insights: Optional[bool] = None
+    market_alerts: Optional[bool] = None
+    theme: Optional[str] = Field(None, pattern="^(light|dark)$")
+    currency: Optional[str] = Field(None, pattern="^[A-Z]{3}$")
 
 
 class UserPreferences(BaseModel):
@@ -125,6 +133,7 @@ def get_user_profile(username: str, email: str = "") -> UserProfile:
         avatar_url=user.get("avatar_url"),
         created_at=user.get("created_at", int(time.time())),
         updated_at=user.get("updated_at", user.get("created_at", int(time.time()))),
+        can_change_password=_can_change_password(user),
     )
 
 
@@ -149,9 +158,12 @@ def update_user_profile(username: str, data: UpdateProfileRequest, email: str = 
         users.append(user)
 
     if data.full_name is not None:
-        user["full_name"] = data.full_name.strip()
+        stripped = data.full_name.strip()
+        if stripped:
+            user["full_name"] = stripped
     if data.avatar_url is not None:
-        user["avatar_url"] = data.avatar_url.strip()
+        stripped_a = data.avatar_url.strip()
+        user["avatar_url"] = stripped_a if stripped_a else ""
 
     user["updated_at"] = int(time.time())
     _save_users(users)
@@ -163,6 +175,7 @@ def update_user_profile(username: str, data: UpdateProfileRequest, email: str = 
         avatar_url=user.get("avatar_url"),
         created_at=user.get("created_at", int(time.time())),
         updated_at=user.get("updated_at", int(time.time())),
+        can_change_password=_can_change_password(user),
     )
 
 
@@ -236,23 +249,19 @@ def update_user_preferences(
         }
         users.append(user)
 
-    user["preferences"] = {
-        "email_notifications": data.email_notifications,
-        "portfolio_updates": data.portfolio_updates,
-        "tax_insights": data.tax_insights,
-        "market_alerts": data.market_alerts,
-        "theme": data.theme,
-        "currency": data.currency,
-    }
+    existing_prefs: Dict[str, Any] = dict(user.get("preferences") or _default_preferences())
+    patch = data.model_dump(exclude_unset=True)
+    merged: Dict[str, Any] = {**existing_prefs, **patch}
+    user["preferences"] = merged
     user["updated_at"] = int(time.time())
 
     _save_users(users)
 
     return UserPreferences(
-        email_notifications=data.email_notifications,
-        portfolio_updates=data.portfolio_updates,
-        tax_insights=data.tax_insights,
-        market_alerts=data.market_alerts,
-        theme=data.theme,
-        currency=data.currency,
+        email_notifications=merged["email_notifications"],
+        portfolio_updates=merged["portfolio_updates"],
+        tax_insights=merged["tax_insights"],
+        market_alerts=merged["market_alerts"],
+        theme=merged["theme"],
+        currency=merged["currency"],
     )

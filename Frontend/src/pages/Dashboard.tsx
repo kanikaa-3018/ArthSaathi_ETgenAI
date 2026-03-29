@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useAnalysis } from "@/context/analysis-context";
-import { fetchMe } from "@/lib/auth";
+import { onProfileUpdated, resolveDisplayName } from "@/lib/settings";
 import { formatINR, shortFundName } from "@/lib/format";
 import type { AnalysisData } from "@/types/analysis";
 import AnimatedContent from "@/components/reactbits/AnimatedContent";
@@ -35,11 +35,22 @@ export default function Dashboard() {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    fetchMe()
-      .then((u) =>
-        setUserName(u.username || u.email?.split("@")[0] || ""),
-      )
-      .catch(() => setUserName(""));
+    let cancelled = false;
+    const load = () => {
+      resolveDisplayName()
+        .then((name) => {
+          if (!cancelled) setUserName(name);
+        })
+        .catch(() => {
+          if (!cancelled) setUserName("");
+        });
+    };
+    load();
+    const off = onProfileUpdated(load);
+    return () => {
+      cancelled = true;
+      off();
+    };
   }, []);
 
   const hasAnalysis = Boolean(state.result);

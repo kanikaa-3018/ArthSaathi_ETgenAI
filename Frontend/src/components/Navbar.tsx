@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "@/lib/supabase";
+import { getAppLenis } from "@/lib/appLenis";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ export default function Navbar() {
   const centerRef = useRef<HTMLSpanElement>(null);
   const btnRef = useRef<HTMLAnchorElement>(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +66,6 @@ export default function Navbar() {
         );
       }
 
-      // HackOrbit-MITS-Frontend: no trigger + onUpdate(self.scroll()) — works with Lenis.
       ScrollTrigger.create({
         start: "top -80px",
         onUpdate: (self) => {
@@ -85,6 +87,23 @@ export default function Navbar() {
     return () => ctx.revert();
   }, []);
 
+  const scrollLandingToTop = () => {
+    const lenis = getAppLenis();
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: false });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const onWordmarkActivate = () => {
+    if (loggedIn) {
+      void navigate("/dashboard");
+    } else {
+      scrollLandingToTop();
+    }
+  };
+
   return (
     <nav
       ref={navRef}
@@ -98,13 +117,13 @@ export default function Navbar() {
         ref={wordmarkRef}
         className="font-fraunces text-text-primary text-sm cursor-pointer"
         style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-        onClick={() => navigate("/")}
+        onClick={onWordmarkActivate}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            navigate("/");
+            onWordmarkActivate();
           }
         }}
       >
@@ -112,41 +131,119 @@ export default function Navbar() {
       </span>
 
       <span ref={centerRef} className="hidden md:flex items-center gap-6">
-        <Link
-          to="/dashboard"
-          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
+        <a
+          href="#problem"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
         >
-          Dashboard
-        </Link>
-        <Link
-          to="/tax"
-          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
+          Problem
+        </a>
+        <a
+          href="#how-it-works"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
         >
-          Tax
-        </Link>
-        <Link
-          to="/fire"
-          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
+          How It Works
+        </a>
+        <a
+          href="#features"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
         >
-          FIRE
-        </Link>
-        <Link
-          to="/mentor"
-          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
+          Features
+        </a>
+        <a
+          href="#impact"
+          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
         >
-          Mentor
-        </Link>
+          Impact
+        </a>
       </span>
 
       <div className="flex items-center gap-2">
-        <Link
-          ref={btnRef}
-          to={loggedIn ? "/dashboard" : "/login"}
-          className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97] inline-flex items-center justify-center no-underline"
+        <div className="hidden md:flex items-center gap-2">
+          {!loggedIn ? (
+            <Link
+              to="/demo"
+              className="font-syne text-[13px] text-text-secondary hover:text-text-primary h-[34px] px-4 rounded-[7px] border border-white/[0.06] hover:border-white/[0.12] transition-all inline-flex items-center justify-center no-underline"
+            >
+              View Demo
+            </Link>
+          ) : null}
+          <Link
+            ref={btnRef}
+            to={loggedIn ? "/dashboard" : "/login"}
+            className="font-syne font-semibold text-[13px] bg-accent text-white h-[34px] px-4 rounded-[7px] transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.97] inline-flex items-center justify-center no-underline"
+          >
+            {loggedIn ? "Open App" : "Sign in"}
+          </Link>
+        </div>
+
+        <button
+          type="button"
+          className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg text-text-muted hover:text-text-secondary"
+          onClick={() => setMobileMenuOpen((o) => !o)}
+          aria-expanded={mobileMenuOpen}
+          aria-label={mobileMenuOpen ? "Close menu" : "Menu"}
         >
-          {loggedIn ? "Open App" : "Sign in"}
-        </Link>
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
+
+      {mobileMenuOpen ? (
+        <div
+          className="md:hidden fixed top-[52px] left-0 right-0 z-[99] px-6 py-4 space-y-1"
+          style={{
+            background: "hsl(220 25% 6% / 0.96)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            backdropFilter: "blur(16px)",
+          }}
+        >
+          <a
+            href="#problem"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2.5 font-syne text-sm text-text-secondary hover:text-text-primary no-underline"
+          >
+            Problem
+          </a>
+          <a
+            href="#how-it-works"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2.5 font-syne text-sm text-text-secondary hover:text-text-primary no-underline"
+          >
+            How It Works
+          </a>
+          <a
+            href="#features"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2.5 font-syne text-sm text-text-secondary hover:text-text-primary no-underline"
+          >
+            Features
+          </a>
+          <a
+            href="#impact"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2.5 font-syne text-sm text-text-secondary hover:text-text-primary no-underline"
+          >
+            Impact
+          </a>
+          <div className="pt-3 border-t border-white/[0.06] flex flex-col gap-2">
+            {!loggedIn ? (
+              <Link
+                to="/demo"
+                onClick={() => setMobileMenuOpen(false)}
+                className="font-syne text-sm text-text-secondary py-2 no-underline"
+              >
+                View Demo
+              </Link>
+            ) : null}
+            <Link
+              to={loggedIn ? "/dashboard" : "/login"}
+              onClick={() => setMobileMenuOpen(false)}
+              className="font-syne font-semibold text-sm text-accent py-2 no-underline"
+            >
+              {loggedIn ? "Open App" : "Sign in"}
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 }

@@ -11,6 +11,7 @@ import {
   UserPreferences,
 } from "@/lib/settings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -39,12 +40,15 @@ export default function SettingsPage() {
   const [marketAlerts, setMarketAlerts] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [currency, setCurrency] = useState("INR");
+  /** False when GET /api/settings* all 404 — backend build without user-settings routes (e.g. plain `main` before merge). */
+  const [settingsApiReachable, setSettingsApiReachable] = useState(true);
 
-  // Load settings
+  // Load settings (retry briefly after OAuth redirect while Supabase hydrates the session)
   useEffect(() => {
-    const loadSettings = async () => {
+    const loadSettings = async (attempt = 0): Promise<void> => {
       try {
-        const data = await getAllSettings();
+        const { settings: data, apiReachable } = await getAllSettings();
+        setSettingsApiReachable(apiReachable);
         setSettings(data);
         setProfile(data.profile);
         setPreferences(data.preferences);
@@ -57,23 +61,36 @@ export default function SettingsPage() {
         setMarketAlerts(data.preferences.market_alerts);
         setTheme(data.preferences.theme);
         setCurrency(data.preferences.currency);
+        setLoading(false);
       } catch (err) {
         const message = err instanceof Error ? err.message : "";
         if (message.toLowerCase().includes("session expired")) {
+          if (attempt < 4) {
+            await new Promise((r) => window.setTimeout(r, 400 + attempt * 200));
+            return loadSettings(attempt + 1);
+          }
           navigate("/login", { replace: true, state: { from: "/settings" } });
+          setLoading(false);
           return;
         }
         setMessage({
           type: "error",
           text: "Failed to load settings. Please refresh the page.",
         });
-      } finally {
         setLoading(false);
       }
     };
 
-    loadSettings();
+    void loadSettings();
   }, [navigate]);
+
+  const showPasswordTab = profile?.can_change_password === true;
+
+  useEffect(() => {
+    if (!showPasswordTab && activeTab === "password") {
+      setActiveTab("profile");
+    }
+  }, [showPasswordTab, activeTab]);
 
   const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
@@ -92,7 +109,12 @@ export default function SettingsPage() {
       if (settings) {
         setSettings({ ...settings, profile: updated });
       }
-      showMessage("success", "Profile updated successfully");
+      showMessage(
+        "success",
+        settingsApiReachable
+          ? "Profile updated successfully"
+          : "Profile saved in this browser only. Start the backend from the branch that includes /api/settings (merge your settings PR), then your name will sync to the server.",
+      );
     } catch (err) {
       showMessage(
         "error",
@@ -153,7 +175,12 @@ export default function SettingsPage() {
       if (settings) {
         setSettings({ ...settings, preferences: updated });
       }
-      showMessage("success", "Preferences updated successfully");
+      showMessage(
+        "success",
+        settingsApiReachable
+          ? "Preferences updated successfully"
+          : "Preferences saved in this browser only until the API exposes /api/settings/preferences.",
+      );
     } catch (err) {
       showMessage(
         "error",
@@ -190,51 +217,107 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "hsl(var(--bg-primary))" }}>
+    <div
+      className="min-h-dvh pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+      style={{ background: "hsl(var(--bg-primary))" }}
+    >
       {/* Header */}
-      <div className="border-b border-white/[0.06] mb-8">
-        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center gap-3">
+      <div className="sticky top-0 z-10 border-b border-white/[0.08] bg-[hsl(var(--bg-primary))]/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-4xl items-center gap-2 px-4 py-4 sm:gap-3 sm:px-6 sm:py-6">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-white/[0.06] text-text-muted"
+            className="shrink-0 rounded-xl p-2.5 text-text-muted transition-colors hover:bg-white/[0.06] min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Go back"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={22} />
           </button>
-          <h1 className="text-3xl font-bold text-text-primary">Settings</h1>
+          <h1 className="min-w-0 truncate text-xl font-bold text-text-primary sm:text-3xl">
+            Settings
+          </h1>
         </div>
       </div>
 
+      {!settingsApiReachable ? (
+        <div className="mx-auto mb-4 max-w-4xl px-4 sm:mb-5 sm:px-6">
+          <div className="rounded-xl border border-warning/35 bg-warning/10 px-4 py-3 font-syne text-sm leading-relaxed text-warning">
+            Your backend returned <strong className="text-text-primary">404</strong> for{" "}
+            <code className="rounded bg-black/20 px-1 py-0.5 text-xs text-text-secondary">
+              /api/settings
+            </code>
+            . That usually means the API process is running an older{" "}
+            <code className="text-xs">main.py</code> without user-settings routes.{" "}
+            <strong className="text-text-primary">Restart uvicorn</strong> from the repo copy that
+            includes <code className="text-xs">backend/app/settings.py</code> and the{" "}
+            <code className="text-xs">/api/settings</code> handlers in{" "}
+            <code className="text-xs">main.py</code>, or merge your settings branch into{" "}
+            <code className="text-xs">main</code>. Until then, changes here persist only in{" "}
+            <strong className="text-text-primary">localStorage</strong> for this browser.
+          </div>
+        </div>
+      ) : null}
+
       {/* Message Alert */}
       {message && (
-        <div className="max-w-4xl mx-auto px-6 mb-6">
+        <div className="mx-auto mb-4 max-w-4xl px-4 sm:mb-6 sm:px-6">
           <div
-            className={`flex items-center gap-3 rounded-lg px-4 py-3 ${
+            className={`flex items-start gap-3 rounded-xl px-4 py-3 sm:items-center ${
               message.type === "success"
                 ? "bg-positive/10 border border-positive/30 text-positive"
                 : "bg-negative/10 border border-negative/30 text-negative"
             }`}
           >
-            <CheckCircle size={20} />
+            {message.type === "success" ? (
+              <CheckCircle size={20} className="shrink-0" />
+            ) : (
+              <AlertCircle size={20} className="shrink-0" />
+            )}
             <span className="text-sm font-syne">{message.text}</span>
           </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 pb-12">
+      <div className="mx-auto max-w-4xl px-4 pb-10 sm:px-6 sm:pb-12">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
-            <TabsTrigger value="preferences">Preferences</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsList
+            className={cn(
+              "mb-6 flex h-auto w-full flex-nowrap gap-1 overflow-x-auto rounded-xl bg-white/[0.04] p-1.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:mb-8 sm:grid sm:overflow-visible [&::-webkit-scrollbar]:hidden",
+              showPasswordTab ? "sm:grid-cols-4" : "sm:grid-cols-3",
+            )}
+          >
+            <TabsTrigger
+              value="profile"
+              className="shrink-0 rounded-lg px-3 py-2.5 text-xs font-syne sm:px-3 sm:py-1.5 sm:text-sm"
+            >
+              Profile
+            </TabsTrigger>
+            {showPasswordTab ? (
+              <TabsTrigger
+                value="password"
+                className="shrink-0 rounded-lg px-3 py-2.5 text-xs font-syne sm:px-3 sm:py-1.5 sm:text-sm"
+              >
+                Password
+              </TabsTrigger>
+            ) : null}
+            <TabsTrigger
+              value="preferences"
+              className="shrink-0 rounded-lg px-3 py-2.5 text-xs font-syne sm:px-3 sm:py-1.5 sm:text-sm"
+            >
+              Prefs
+            </TabsTrigger>
+            <TabsTrigger
+              value="account"
+              className="shrink-0 rounded-lg px-3 py-2.5 text-xs font-syne sm:px-3 sm:py-1.5 sm:text-sm"
+            >
+              Account
+            </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile">
-            <div className="rounded-lg border border-white/[0.06] p-6">
-              <h2 className="text-xl font-bold text-text-primary mb-4">
+          <TabsContent value="profile" className="mt-0 sm:mt-2">
+            <div className="rounded-xl border border-white/[0.08] p-4 sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-text-primary sm:text-xl">
                 Profile Information
               </h2>
               <form onSubmit={handleProfileSubmit} className="space-y-4">
@@ -290,7 +373,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="mt-6 px-6 py-2 rounded-lg bg-accent text-white font-syne text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="mt-6 w-full rounded-xl bg-accent px-6 py-3 font-syne text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2.5"
                 >
                   {saving ? "Saving..." : "Save Profile"}
                 </button>
@@ -298,82 +381,87 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
-          {/* Password Tab */}
-          <TabsContent value="password">
-            <div className="rounded-lg border border-white/[0.06] p-6">
-              <h2 className="text-xl font-bold text-text-primary mb-4">
-                Change Password
-              </h2>
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                {/* Current Password */}
-                <div>
-                  <label className="block text-sm font-syne text-text-muted mb-2">
-                    Current Password
-                  </label>
-                  <input
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter your current password"
-                    required
-                    className="w-full px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition"
-                  />
-                </div>
+          {showPasswordTab ? (
+            <TabsContent value="password" className="mt-0 sm:mt-2">
+              <div className="rounded-xl border border-white/[0.08] p-4 sm:p-6">
+                <h2 className="mb-4 text-lg font-bold text-text-primary sm:text-xl">
+                  Change Password
+                </h2>
+                <p className="mb-4 font-syne text-sm text-text-muted">
+                  For accounts created via this app&apos;s legacy email registration (stored password
+                  on the API). Google and Supabase email sign-in do not use this form.
+                </p>
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                  <div>
+                    <label className="mb-2 block font-syne text-sm text-text-muted">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter your current password"
+                      required
+                      autoComplete="current-password"
+                      className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20"
+                    />
+                  </div>
 
-                {/* New Password */}
-                <div>
-                  <label className="block text-sm font-syne text-text-muted mb-2">
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password (min 8 characters)"
-                    required
-                    minLength={8}
-                    className="w-full px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition"
-                  />
-                </div>
+                  <div>
+                    <label className="mb-2 block font-syne text-sm text-text-muted">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password (min 8 characters)"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                      className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20"
+                    />
+                  </div>
 
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-sm font-syne text-text-muted mb-2">
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your new password"
-                    required
-                    minLength={8}
-                    className="w-full px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition"
-                  />
-                </div>
+                  <div>
+                    <label className="mb-2 block font-syne text-sm text-text-muted">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                      className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/20"
+                    />
+                  </div>
 
-                <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 mt-4">
-                  <p className="text-xs text-warning font-syne">
-                    Make sure your password is at least 8 characters long and
-                    combines uppercase, lowercase, and numbers.
-                  </p>
-                </div>
+                  <div className="mt-4 rounded-xl border border-warning/30 bg-warning/10 p-4">
+                    <p className="font-syne text-xs text-warning">
+                      Make sure your password is at least 8 characters long and combines uppercase,
+                      lowercase, and numbers.
+                    </p>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="mt-6 px-6 py-2 rounded-lg bg-accent text-white font-syne text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  {saving ? "Updating..." : "Update Password"}
-                </button>
-              </form>
-            </div>
-          </TabsContent>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="mt-6 w-full rounded-xl bg-accent px-6 py-3 font-syne text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2.5"
+                  >
+                    {saving ? "Updating..." : "Update Password"}
+                  </button>
+                </form>
+              </div>
+            </TabsContent>
+          ) : null}
 
           {/* Preferences Tab */}
-          <TabsContent value="preferences">
-            <div className="rounded-lg border border-white/[0.06] p-6">
-              <h2 className="text-xl font-bold text-text-primary mb-6">
+          <TabsContent value="preferences" className="mt-0 sm:mt-2">
+            <div className="rounded-xl border border-white/[0.08] p-4 sm:p-6">
+              <h2 className="mb-5 text-lg font-bold text-text-primary sm:mb-6 sm:text-xl">
                 Preferences
               </h2>
               <form onSubmit={handlePreferencesSubmit} className="space-y-6">
@@ -383,47 +471,47 @@ export default function SettingsPage() {
                     Notifications
                   </h3>
                   <div className="space-y-3">
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 py-1">
                       <input
                         type="checkbox"
                         checked={emailNotifications}
                         onChange={(e) =>
                           setEmailNotifications(e.target.checked)
                         }
-                        className="w-4 h-4 rounded"
+                        className="h-4 w-4 shrink-0 rounded"
                       />
                       <span className="text-sm text-text-secondary">
                         Email Notifications
                       </span>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 py-1">
                       <input
                         type="checkbox"
                         checked={portfolioUpdates}
                         onChange={(e) => setPortfolioUpdates(e.target.checked)}
-                        className="w-4 h-4 rounded"
+                        className="h-4 w-4 shrink-0 rounded"
                       />
                       <span className="text-sm text-text-secondary">
                         Portfolio Updates
                       </span>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 py-1">
                       <input
                         type="checkbox"
                         checked={taxInsights}
                         onChange={(e) => setTaxInsights(e.target.checked)}
-                        className="w-4 h-4 rounded"
+                        className="h-4 w-4 shrink-0 rounded"
                       />
                       <span className="text-sm text-text-secondary">
                         Tax Insights & Tips
                       </span>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 py-1">
                       <input
                         type="checkbox"
                         checked={marketAlerts}
                         onChange={(e) => setMarketAlerts(e.target.checked)}
-                        className="w-4 h-4 rounded"
+                        className="h-4 w-4 shrink-0 rounded"
                       />
                       <span className="text-sm text-text-secondary">
                         Market Alerts (Beta)
@@ -433,19 +521,19 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Display Settings */}
-                <div className="border-t border-white/[0.06] pt-6">
-                  <h3 className="text-sm font-syne font-semibold text-text-primary mb-3">
+                <div className="border-t border-white/[0.08] pt-6">
+                  <h3 className="mb-3 font-syne text-sm font-semibold text-text-primary">
                     Display
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-syne text-text-muted mb-2">
+                      <label className="mb-2 block font-syne text-sm text-text-muted">
                         Theme
                       </label>
                       <select
                         value={theme}
                         onChange={(e) => setTheme(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition"
+                        className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-text-primary outline-none transition focus:border-accent focus:ring-1 focus:ring-accent/20"
                       >
                         <option value="dark">Dark</option>
                         <option value="light">Light</option>
@@ -453,13 +541,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-syne text-text-muted mb-2">
+                      <label className="mb-2 block font-syne text-sm text-text-muted">
                         Currency
                       </label>
                       <select
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-text-primary focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition"
+                        className="min-h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-text-primary outline-none transition focus:border-accent focus:ring-1 focus:ring-accent/20"
                       >
                         <option value="INR">INR (₹)</option>
                         <option value="USD">USD ($)</option>
@@ -472,7 +560,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="mt-6 px-6 py-2 rounded-lg bg-accent text-white font-syne text-sm font-semibold hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="mt-6 w-full rounded-xl bg-accent px-6 py-3 font-syne text-sm font-semibold text-white transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-2.5"
                 >
                   {saving ? "Saving..." : "Save Preferences"}
                 </button>
@@ -481,9 +569,9 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* Account Tab */}
-          <TabsContent value="account">
-            <div className="rounded-lg border border-white/[0.06] p-6">
-              <h2 className="text-xl font-bold text-text-primary mb-6">
+          <TabsContent value="account" className="mt-0 sm:mt-2">
+            <div className="rounded-xl border border-white/[0.08] p-4 sm:p-6">
+              <h2 className="mb-5 text-lg font-bold text-text-primary sm:mb-6 sm:text-xl">
                 Account Information
               </h2>
               <div className="space-y-4">

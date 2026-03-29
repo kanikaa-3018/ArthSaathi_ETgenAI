@@ -24,20 +24,12 @@ export default function AnalyzeProcessing() {
   const [reviewSecondsLeft, setReviewSecondsLeft] = useState<number | null>(null);
   /** Countdown while dialog is open (until auto-navigate) */
   const [secondsLeft, setSecondsLeft] = useState(Math.ceil(AUTO_CONTINUE_MS / 1000));
+  /** Default to list on small first paint; pipeline is available on all breakpoints (pan/zoom in React Flow). */
   const [viewMode, setViewMode] = useState<"list" | "dag">(() => {
     if (typeof window !== "undefined" && window.innerWidth < 1024) return "list";
     return "dag";
   });
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1023px)");
-    const sync = () => {
-      if (mq.matches) setViewMode("list");
-    };
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
   const navigateTimerRef = useRef<number | null>(null);
   const countdownRef = useRef<number | null>(null);
   const manualSkipRef = useRef(false);
@@ -261,8 +253,8 @@ export default function AnalyzeProcessing() {
   };
 
   return (
-    <div className="min-h-screen bg-primary-dark px-4">
-      <div className="max-w-[1120px] mx-auto pt-4">
+    <div className="bg-primary-dark">
+      <div className="max-w-[1120px] mx-auto pt-1 sm:pt-2">
         <button
           onClick={() => navigate("/analyze")}
           className="font-body text-xs px-3 py-1.5 rounded-md transition-colors"
@@ -276,7 +268,7 @@ export default function AnalyzeProcessing() {
         </button>
       </div>
 
-      <div className="min-h-[90vh] flex items-center justify-center relative">
+      <div className="relative py-2 sm:py-4">
         <div
           className={`w-full max-w-[1120px] transition-opacity duration-300 ${showCompletion ? "opacity-40 pointer-events-none" : ""}`}
         >
@@ -286,7 +278,7 @@ export default function AnalyzeProcessing() {
               (अर्थसाथी)
             </p>
           </div>
-          <div className="hidden lg:flex justify-center gap-2 mb-6">
+          <div className="flex flex-wrap justify-center gap-2 mb-4 sm:mb-6">
             <button
               type="button"
               onClick={() => setViewMode("list")}
