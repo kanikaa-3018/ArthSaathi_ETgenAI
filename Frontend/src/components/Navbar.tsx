@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { gsap } from "gsap";
+import { Button } from "@/components/ui/button";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "@/lib/supabase";
 import { getAppLenis } from "@/lib/appLenis";
@@ -9,7 +10,7 @@ import { getAppLenis } from "@/lib/appLenis";
 export default function Navbar() {
   const navigate = useNavigate();
   const navRef = useRef<HTMLElement>(null);
-  const wordmarkRef = useRef<HTMLSpanElement>(null);
+  const wordmarkRef = useRef<HTMLSpanElement | null>(null);
   const centerRef = useRef<HTMLSpanElement>(null);
   const btnRef = useRef<HTMLAnchorElement>(null);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -115,11 +116,11 @@ export default function Navbar() {
     >
       <span
         ref={wordmarkRef}
-        className="relative z-10 font-fraunces text-text-primary text-sm cursor-pointer"
-        style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+        className="relative z-10 flex cursor-pointer items-center gap-2.5 md:gap-3 select-none"
         onClick={onWordmarkActivate}
         role="button"
         tabIndex={0}
+        aria-label="ArthSaathi — home"
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -127,7 +128,23 @@ export default function Navbar() {
           }
         }}
       >
-        ArthSaathi
+        <picture className="pointer-events-none block h-7 w-7 shrink-0 md:h-8 md:w-8">
+          <source type="image/webp" srcSet="/logo.webp" />
+          <img
+            src="/logo.png"
+            alt=""
+            width={32}
+            height={32}
+            className="h-full w-full object-contain object-center"
+            decoding="async"
+          />
+        </picture>
+        <span
+          className="font-fraunces text-text-primary text-[0.95rem] md:text-[1.05rem] leading-none tracking-tight"
+          style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
+        >
+          ArthSaathi
+        </span>
       </span>
 
       <span
@@ -227,23 +244,37 @@ export default function Navbar() {
           >
             Impact
           </a>
-          <div className="pt-3 border-t border-white/[0.06] flex flex-col gap-2">
+          <div className="pt-3 border-t border-white/[0.06] flex flex-col gap-2.5">
             {!loggedIn ? (
-              <Link
-                to="/demo"
-                onClick={() => setMobileMenuOpen(false)}
-                className="font-syne text-sm text-text-secondary py-2 no-underline"
+              <Button
+                asChild
+                variant="navOutline"
+                size="default"
+                className="w-full justify-center"
               >
-                View Demo
-              </Link>
+                <Link
+                  to="/demo"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="no-underline"
+                >
+                  View Demo
+                </Link>
+              </Button>
             ) : null}
-            <Link
-              to={loggedIn ? "/dashboard" : "/login"}
-              onClick={() => setMobileMenuOpen(false)}
-              className="font-syne font-semibold text-sm text-accent py-2 no-underline"
+            <Button
+              asChild
+              variant="navPrimary"
+              size="default"
+              className="w-full justify-center"
             >
-              {loggedIn ? "Open App" : "Sign in"}
-            </Link>
+              <Link
+                to={loggedIn ? "/dashboard" : "/login"}
+                onClick={() => setMobileMenuOpen(false)}
+                className="no-underline"
+              >
+                {loggedIn ? "Open App" : "Sign in"}
+              </Link>
+            </Button>
           </div>
         </div>
       ) : null}

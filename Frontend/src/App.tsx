@@ -27,7 +27,7 @@ import MentorPage from "./pages/MentorPage";
 import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
-import { scrollDocumentToTop, setAppLenis } from "@/lib/appLenis";
+import { getAppLenis, scrollDocumentToTop, setAppLenis } from "@/lib/appLenis";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +49,10 @@ const App = () => {
     });
 
     setAppLenis(lenis);
+
+    // Lenis + ScrollTrigger: official recipe is ticker RAF + ScrollTrigger.update on scroll only.
+    // scrollerProxy(documentElement) fought default viewport scroller math and pinned the horizontal
+    // Problem strip at the wrong progress (Finding 01 off-screen).
 
     const onLenisScroll = () => {
       ScrollTrigger.update();

@@ -64,12 +64,12 @@ export default function FeaturesSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-14 md:py-20">
-      <div className="mx-auto max-w-[1080px] px-6 md:px-10">
-        <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-[auto_1fr] md:gap-10">
+    <section ref={sectionRef} className="landing-section-pad">
+      <div className="mx-auto max-w-6xl px-6 md:px-10">
+        <div className="mb-14 md:mb-20 grid grid-cols-1 gap-4 md:grid-cols-[auto_1fr] md:gap-10">
           <div className="hidden md:block">
             <span
-              className="font-syne font-medium text-xs text-text-muted uppercase tracking-[4px]"
+              className="section-label !text-[12px] !tracking-[0.2em]"
               style={{
                 writingMode: "vertical-rl",
                 transform: "rotate(180deg)",
@@ -79,16 +79,11 @@ export default function FeaturesSection() {
             </span>
           </div>
           <div>
-            <p className="mb-2 font-syne font-medium text-xs text-text-muted uppercase tracking-[4px] md:hidden">
-              Tools
-            </p>
-            <h2
-              className="font-fraunces text-[26px] leading-tight text-text-primary md:text-[36px]"
-              style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-            >
+            <p className="section-label mb-3 md:hidden">Tools</p>
+            <h2 className="landing-headline max-w-[20ch]">
               Six ways to see your money clearly
             </h2>
-            <p className="mt-2 max-w-[480px] font-syne text-[15px] leading-relaxed text-text-secondary">
+            <p className="mt-4 md:mt-5 max-w-[32rem] font-syne text-[15px] md:text-base leading-relaxed text-text-secondary">
               Each works from a standard CAS statement.
             </p>
           </div>
@@ -105,14 +100,14 @@ export default function FeaturesSection() {
               }`}
             >
               <div className={`h-0.5 w-full ${f.bar} mb-4`} />
-              <p className="font-mono text-xs tracking-[2px] text-text-muted">{f.n}</p>
+              <p className="font-mono text-sm tracking-[2px] text-text-muted">{f.n}</p>
               <h3
-                className="font-fraunces mt-1 mb-3 text-[22px] leading-tight text-text-primary"
+                className="font-fraunces mt-1 mb-3 text-[clamp(1.125rem,1vw+0.9rem,1.375rem)] leading-tight text-text-primary"
                 style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
               >
                 {f.title}
               </h3>
-              <p className="font-syne text-sm leading-relaxed text-text-secondary">{f.body}</p>
+              <p className="font-syne text-[15px] leading-relaxed text-text-secondary">{f.body}</p>
             </div>
           ))}
         </div>
@@ -128,14 +123,14 @@ export default function FeaturesSection() {
               }`}
             >
               <div className={`h-0.5 w-full ${f.bar} mb-4`} />
-              <p className="font-mono text-xs tracking-[2px] text-text-muted">{f.n}</p>
+              <p className="font-mono text-sm tracking-[2px] text-text-muted">{f.n}</p>
               <h3
-                className="font-fraunces mt-1 mb-3 text-[22px] leading-tight text-text-primary"
+                className="font-fraunces mt-1 mb-3 text-[clamp(1.125rem,1vw+0.9rem,1.375rem)] leading-tight text-text-primary"
                 style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
               >
                 {f.title}
               </h3>
-              <p className="font-syne text-sm leading-relaxed text-text-secondary">{f.body}</p>
+              <p className="font-syne text-[15px] leading-relaxed text-text-secondary">{f.body}</p>
             </div>
           ))}
         </div>

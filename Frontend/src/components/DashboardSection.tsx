@@ -45,22 +45,17 @@ export default function DashboardSection() {
   }, []);
 
   return (
-    <section className="py-14 md:py-20">
-      <div className="max-w-[1080px] mx-auto px-6 md:px-10 text-center">
-        <p className="font-syne font-medium text-[12px] text-text-muted uppercase tracking-[3px]">
-          SAMPLE OUTPUT
-        </p>
-        <h2
-          className="font-fraunces text-text-primary text-[28px] md:text-[34px] mt-2 mb-10"
-          style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-        >
+    <section className="landing-section-pad">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
+        <p className="section-label mb-3 md:mb-4">Sample output</p>
+        <h2 className="landing-headline max-w-[22ch] mx-auto mb-12 md:mb-16">
           Every blind spot. Exposed.
         </h2>
       </div>
 
       <div
         ref={cardRef}
-        className="max-w-[960px] mx-auto rounded-xl overflow-hidden"
+        className="max-w-5xl mx-auto px-6 md:px-0 rounded-xl overflow-hidden"
         style={{
           background: "hsl(220 20% 10%)",
           border: "1px solid hsl(220 10% 20%)",
@@ -88,10 +83,10 @@ export default function DashboardSection() {
               style={{ background: "hsla(160,67%,52%,0.9)" }}
             />
           </div>
-          <span className="font-syne text-[12px] text-text-muted">
+          <span className="font-syne text-[14px] text-text-muted">
             ArthSaathi — Portfolio Report
           </span>
-          <span className="font-syne text-xs text-text-muted">
+          <span className="font-syne text-sm text-text-muted">
             Analyzed: Just now
           </span>
         </div>
@@ -121,10 +116,10 @@ export default function DashboardSection() {
                 <span className="font-mono text-[22px] font-bold tabular-nums text-warning sm:text-[26px] md:text-[28px]">
                   41
                 </span>
-                <span className="font-mono text-[11px] tabular-nums text-text-muted sm:text-[13px]">
+                <span className="font-mono text-[13px] tabular-nums text-text-muted sm:text-[15px]">
                   / 100
                 </span>
-                <span className="font-syne font-semibold text-[10px] text-warning tracking-wider mt-1 sm:text-xs">
+                <span className="font-syne font-semibold text-[12px] text-warning tracking-wider mt-1 sm:text-sm">
                   C
                 </span>
               </div>
@@ -137,7 +132,7 @@ export default function DashboardSection() {
             <p className="mt-1 font-mono text-[24px] font-semibold tabular-nums text-negative">
               ₹40,697
             </p>
-            <p className="font-syne text-[12px] text-text-muted">
+            <p className="font-syne text-[14px] text-text-muted">
               <span className="font-mono-dm tabular-nums">1.82%</span> of portfolio
             </p>
           </div>
@@ -148,7 +143,7 @@ export default function DashboardSection() {
             <p className="mt-1 font-mono text-[24px] font-semibold tabular-nums text-warning">
               45.2%
             </p>
-            <p className="font-syne text-[12px] text-text-muted">
+            <p className="font-syne text-[14px] text-text-muted">
               High redundancy
             </p>
           </div>
@@ -182,7 +177,7 @@ export default function DashboardSection() {
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ background: "hsl(0 90% 68%)" }}
               />
-              <span className="font-syne text-xs text-text-muted">
+              <span className="font-syne text-sm text-text-muted">
                 Current
               </span>
             </span>
@@ -191,7 +186,7 @@ export default function DashboardSection() {
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ background: "hsl(160 67% 52%)" }}
               />
-              <span className="font-syne text-xs text-text-muted">
+              <span className="font-syne text-sm text-text-muted">
                 Optimised
               </span>
             </span>
