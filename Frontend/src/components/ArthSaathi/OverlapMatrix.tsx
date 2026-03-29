@@ -123,21 +123,31 @@ export function OverlapMatrix({ data, funds }: OverlapMatrixProps) {
         >
           {/* Header row */}
           <div />
-          {names.map((n) => (
-            <div
-              key={n}
-              className="font-body text-xs text-center px-1 py-2 truncate"
-              style={{ color: "hsl(var(--text-tertiary))" }}
-            >
-              {n.split(" ").slice(0, 2).join(" ")}
-            </div>
-          ))}
+          {equityFunds.map((f) => {
+            const full = f.scheme_name;
+            const label = full.split(" ").slice(0, 3).join(" ");
+            return (
+              <div
+                key={f.amfi_code}
+                className="font-body text-xs text-center px-1 py-2"
+                style={{ color: "hsl(var(--text-tertiary))" }}
+                title={full}
+              >
+                <span className="truncate block max-w-[100px] mx-auto">{label}</span>
+              </div>
+            );
+          })}
 
           {/* Rows */}
           {names.map((rowName, ri) => (
             <Fragment key={rowName}>
-              <div className="font-body text-xs font-medium text-primary-light flex items-center pr-2 truncate">
-                {rowName.split(" ").slice(0, 2).join(" ")}
+              <div
+                className="font-body text-xs font-medium text-primary-light flex items-center pr-2"
+                title={equityFunds[ri]?.scheme_name}
+              >
+                <span className="truncate block max-w-[100px]">
+                  {equityFunds[ri]?.scheme_name.split(" ").slice(0, 3).join(" ") ?? rowName}
+                </span>
               </div>
               {names.map((colName, ci) => {
                 const overlap = getOverlap(rowName, colName);

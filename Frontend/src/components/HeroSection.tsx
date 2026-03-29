@@ -163,7 +163,7 @@ export default function HeroSection() {
         {/* Fee line */}
         <div
           ref={feeLineRef}
-          className="font-fraunces text-negative text-[44px] leading-none tracking-tight tabular-nums md:text-[64px]"
+          className="font-fraunces text-negative text-[32px] leading-none tracking-tight tabular-nums sm:text-[44px] md:text-[64px]"
           style={{
             fontVariationSettings: "'opsz' 144, 'wght' 700",
             letterSpacing: "-0.02em",
@@ -258,7 +258,7 @@ export default function HeroSection() {
       {/* Scroll indicator */}
       <div
         ref={scrollRef}
-        className="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center"
+        className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center md:flex"
       >
         <div className="relative w-[1px] h-[48px] bg-text-muted">
           <div className="scroll-dot absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-text-secondary" />

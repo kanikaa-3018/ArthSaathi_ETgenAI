@@ -114,25 +114,25 @@ export default function Navbar() {
       <span ref={centerRef} className="hidden md:flex items-center gap-6">
         <Link
           to="/dashboard"
-          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
         >
           Dashboard
         </Link>
         <Link
           to="/tax"
-          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
         >
           Tax
         </Link>
         <Link
           to="/fire"
-          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
         >
           FIRE
         </Link>
         <Link
           to="/mentor"
-          className="font-syne text-[13px] text-text-muted hover:text-text-secondary transition-colors no-underline"
+          className="font-syne text-sm text-text-secondary hover:text-text-primary transition-colors no-underline"
         >
           Mentor
         </Link>

@@ -81,15 +81,16 @@ export default function TaxWizard() {
   const hasRealAnalysis = Boolean(state.result);
 
   return (
-    <div className="mx-auto max-w-[720px] px-4 py-8">
-      <div className="mb-8">
+    <div className="mx-auto max-w-[800px] px-4 py-6 sm:px-6">
+      <div className="mb-6">
+        <p className="section-label mb-3">Tool</p>
         <h1
-          className="font-fraunces text-[24px] text-text-primary"
+          className="font-fraunces text-[22px] text-text-primary sm:text-[26px]"
           style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
         >
           Tax calculator
         </h1>
-        <p className="font-syne mt-2 text-sm text-text-secondary">
+        <p className="font-syne mt-2 max-w-lg text-sm text-text-secondary">
           Compare old and new tax regimes. Enter your income details below. LTCG-style estimates from your
           portfolio appear when you have an analysis in session.
         </p>
@@ -97,18 +98,18 @@ export default function TaxWizard() {
 
       {!hasRealAnalysis ? (
         <div
-          className="card-arth mb-6 border px-4 py-3"
+          className="mb-6 rounded-lg px-4 py-2.5"
           style={{
             background: "rgba(255, 180, 50, 0.06)",
-            borderColor: "rgba(255, 180, 50, 0.15)",
+            border: "1px solid rgba(255, 180, 50, 0.12)",
           }}
         >
           <p className="font-syne text-xs text-text-secondary">
             Showing sample data.{" "}
-            <Link to="/analyze" className="text-accent hover:underline">
+            <Link to="/analyze" className="font-medium text-accent hover:underline">
               Upload a CAS
             </Link>{" "}
-            for personalized tax and portfolio-aware inputs.
+            for personalized results.
           </p>
         </div>
       ) : null}

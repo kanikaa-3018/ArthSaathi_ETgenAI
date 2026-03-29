@@ -38,7 +38,7 @@ export function FeeCounter({ annualDrag, variant = 'compact' }: FeeCounterProps)
         </div>
         <span
           className="font-mono-dm text-2xl font-bold text-negative tabular-nums text-center sm:text-right"
-          style={{ textShadow: '0 0 12px rgba(248,113,113,0.4)' }}
+          style={{ textShadow: "0 0 6px hsla(0, 90%, 68%, 0.3)" }}
         >
           ₹{amount.toFixed(2)}
         </span>
@@ -60,7 +60,7 @@ export function FeeCounter({ annualDrag, variant = 'compact' }: FeeCounterProps)
       </span>
       <span
         className="font-mono-dm text-lg font-medium text-negative tabular-nums"
-        style={{ textShadow: '0 0 10px rgba(248,113,113,0.35)' }}
+        style={{ textShadow: "0 0 6px hsla(0, 90%, 68%, 0.3)" }}
       >
         ₹{amount.toFixed(2)}
       </span>

@@ -283,6 +283,20 @@ export function GoalPlanner({ data }: GoalPlannerProps) {
               className="rounded-lg p-4 space-y-3 border border-white/10"
               style={{ background: "rgba(0,0,0,0.2)" }}
             >
+              <div className="grid grid-cols-2 gap-3">
+                <div className="card-arth p-3">
+                  <p className="section-label">Extra monthly SIP</p>
+                  <p className="font-mono text-xl text-text-primary tabular-nums mt-1">
+                    {result.gap_analysis.additional_sip_display}
+                  </p>
+                </div>
+                <div className="card-arth p-3">
+                  <p className="section-label">Inflation-adjusted target</p>
+                  <p className="font-mono text-xl text-text-primary tabular-nums mt-1">
+                    {result.goal.inflation_adjusted_display}
+                  </p>
+                </div>
+              </div>
               <p className="font-body text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
                 Goal ({result.goal.type}):{" "}
                 <strong className="font-mono-dm tabular-nums text-text-primary">

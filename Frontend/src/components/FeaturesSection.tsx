@@ -94,7 +94,7 @@ export default function FeaturesSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 border-border-faint md:grid-cols-3 md:border-b-0">
+        <div className="grid grid-cols-1 border-border-faint md:grid-cols-2 lg:grid-cols-3 md:border-b-0">
           {FEATURES.slice(0, 3).map((f, i) => (
             <div
               key={f.n}
@@ -117,7 +117,7 @@ export default function FeaturesSection() {
           ))}
         </div>
 
-        <div className="mt-0 grid grid-cols-1 border-t border-border-faint pt-8 md:grid-cols-3 md:pt-10">
+        <div className="mt-0 grid grid-cols-1 border-t border-border-faint pt-8 md:grid-cols-2 lg:grid-cols-3 md:pt-10">
           {FEATURES.slice(3, 6).map((f, i) => (
             <div
               key={f.n}

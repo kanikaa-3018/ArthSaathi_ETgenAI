@@ -230,35 +230,66 @@ export function MentorChat({
         {messages.map((m, i) => (
           <div
             key={`${i}-${m.role}-${m.content.slice(0, 12)}`}
-            className={`rounded-lg px-3 py-2 max-w-[95%] ${m.role === "user" ? "ml-auto text-right" : "mr-auto"}`}
+            className={
+              m.role === "user"
+                ? "ml-auto max-w-[85%] rounded-xl rounded-br-sm px-3 py-2"
+                : "max-w-[90%] rounded-xl rounded-bl-sm px-3 py-2"
+            }
             style={{
               background:
                 m.role === "user"
-                  ? "rgba(74, 144, 217, 0.25)"
+                  ? "hsl(213 60% 56% / 0.15)"
                   : "hsl(var(--bg-tertiary))",
-              color: "hsl(var(--text-secondary))",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {renderChatMessageContent(m.content)}
+            <div
+              className={
+                m.role === "user"
+                  ? "font-syne text-sm text-text-primary text-left"
+                  : "font-syne text-sm text-text-secondary text-left"
+              }
+            >
+              {renderChatMessageContent(m.content)}
+            </div>
           </div>
         ))}
         {streaming && loading ? (
           <div
-            className="mr-auto rounded-lg px-3 py-2 max-w-[95%]"
+            className="max-w-[90%] rounded-xl rounded-bl-sm px-3 py-2"
             style={{
               background: "hsl(var(--bg-tertiary))",
-              color: "hsl(var(--text-secondary))",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {renderChatMessageContent(streaming)}
+            <div className="font-syne text-sm text-text-secondary text-left">
+              {renderChatMessageContent(streaming)}
+            </div>
           </div>
         ) : null}
         {loading && !streaming ? (
-          <p className="text-xs" style={{ color: "hsl(var(--text-tertiary))" }}>
-            Thinking…
-          </p>
+          <div
+            className="max-w-[90%] rounded-xl px-3 py-2"
+            style={{ background: "hsl(var(--bg-tertiary))" }}
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="font-syne text-sm text-text-muted">Thinking</span>
+              <span className="flex gap-0.5">
+                <span
+                  className="h-1 w-1 rounded-full bg-text-muted animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="h-1 w-1 rounded-full bg-text-muted animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="h-1 w-1 rounded-full bg-text-muted animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
+              </span>
+            </div>
+          </div>
         ) : null}
         {error ? <p className="text-xs text-red-400">{error}</p> : null}
         <div ref={bottomRef} />
@@ -284,14 +315,14 @@ export function MentorChat({
         </div>
       ) : null}
 
-      <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+      <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto scrollbar-none">
         {QUICK_PROMPTS.map((q) => (
           <button
             key={q}
             type="button"
             disabled={loading || guestChatLocked}
             onClick={() => void send(q)}
-            className="font-body text-xs px-2 py-1 rounded-full border border-white/10 hover:bg-white/5 transition-colors"
+            className="font-syne shrink-0 whitespace-nowrap rounded-full border border-white/10 px-3 py-1.5 text-xs transition-colors hover:bg-white/5"
             style={{ color: "hsl(var(--text-secondary))" }}
           >
             {q}
@@ -300,7 +331,8 @@ export function MentorChat({
       </div>
 
       <form
-        className="p-3 pt-0 flex gap-2 border-t border-white/10"
+        className="sticky bottom-0 z-10 flex gap-2 border-t border-white/10 px-3 pb-3 pb-safe pt-0"
+        style={{ background: "hsl(var(--bg-secondary))" }}
         onSubmit={(e) => {
           e.preventDefault();
           void send(isListening ? transcript : input);

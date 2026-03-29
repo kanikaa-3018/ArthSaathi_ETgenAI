@@ -73,8 +73,14 @@ export function SummaryCards({
     {
       label: "PORTFOLIO XIRR",
       value: xirrVal.toFixed(2) + "%",
-      valueColor: "hsl(var(--positive))",
-      icon: <TrendingUp size={16} style={{ color: "hsl(var(--positive))" }} />,
+      valueColor:
+        xirr.rate >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))",
+      icon:
+        xirr.rate >= 0 ? (
+          <TrendingUp size={16} style={{ color: "hsl(var(--positive))" }} />
+        ) : (
+          <TrendingDown size={16} style={{ color: "hsl(var(--negative))" }} />
+        ),
       sub1: "Annualized since Jan 2020",
     },
     {
@@ -104,7 +110,7 @@ export function SummaryCards({
   return (
     <div
       ref={ref}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
     >
       {cards.map((card, i) => (
         <div
@@ -120,7 +126,7 @@ export function SummaryCards({
           <div className="flex items-center gap-2 mt-2">
             {card.icon}
             <span
-              className="font-mono-dm text-[32px] font-medium tabular-nums"
+              className="font-mono text-[32px] font-medium tabular-nums"
               style={{ color: card.valueColor || "hsl(var(--text-primary))" }}
             >
               {card.value}
@@ -136,8 +142,13 @@ export function SummaryCards({
           )}
           {card.sub2 && (
             <p
-              className="font-mono-dm mt-0.5 text-[13px] tabular-nums"
-              style={{ color: card.sub2Color }}
+              className="font-mono mt-0.5 text-[13px] tabular-nums"
+              style={{
+                color:
+                  card.sub2Color ??
+                  sub2Color ??
+                  "hsl(var(--text-secondary))",
+              }}
             >
               {card.sub2}
             </p>
