@@ -196,6 +196,106 @@ def auth_me(current_user=Depends(get_current_user)):
 
 
 # ---------------------------------------------------------------------------
+# User Settings & Profile Management
+# ---------------------------------------------------------------------------
+
+from app.settings import (
+    UserProfile,
+    UserSettings,
+    UserPreferences,
+    UpdateProfileRequest,
+    UpdatePreferencesRequest,
+    ChangePasswordRequest,
+    get_user_profile,
+    update_user_profile,
+    change_password,
+    get_user_preferences,
+    update_user_preferences,
+)
+
+
+@app.get("/api/settings/profile")
+def get_profile(current_user=Depends(get_current_user)) -> UserProfile:
+    """Get current user's profile."""
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        return get_user_profile(username, email)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.put("/api/settings/profile")
+def update_profile(
+    body: UpdateProfileRequest,
+    current_user=Depends(get_current_user),
+) -> UserProfile:
+    """Update user profile."""
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        return update_user_profile(username, body, email)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/settings/password")
+def change_pwd(
+    body: ChangePasswordRequest,
+    current_user=Depends(get_current_user),
+):
+    """Change user password."""
+    if body.new_password != body.confirm_password:
+        raise HTTPException(status_code=400, detail="New passwords do not match")
+
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        change_password(username, body.current_password, body.new_password, email)
+        return {"message": "Password changed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/settings/preferences")
+def get_preferences(current_user=Depends(get_current_user)) -> UserPreferences:
+    """Get user preferences."""
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        return get_user_preferences(username, email)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.put("/api/settings/preferences")
+def update_preferences(
+    body: UpdatePreferencesRequest,
+    current_user=Depends(get_current_user),
+) -> UserPreferences:
+    """Update user preferences."""
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        return update_user_preferences(username, body, email)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/settings")
+def get_all_settings(current_user=Depends(get_current_user)) -> UserSettings:
+    """Get all settings (profile + preferences)."""
+    try:
+        username = current_user.get("username", "")
+        email = current_user.get("email", "")
+        profile = get_user_profile(username, email)
+        preferences = get_user_preferences(username, email)
+        return UserSettings(profile=profile, preferences=preferences)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ---------------------------------------------------------------------------
 # Mentor chat, goals, tax (EXECUTION_PLAN Part 9)
 # ---------------------------------------------------------------------------
 

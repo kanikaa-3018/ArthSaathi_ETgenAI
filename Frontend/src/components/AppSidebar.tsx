@@ -5,18 +5,19 @@ import {
   ChevronRight,
   LayoutDashboard,
   LogIn,
-  LogOut,
   MessageCircle,
   Play,
   Scale,
   Search,
+  Settings,
   Target,
   ToggleRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compactINR } from "@/lib/format";
-import { fetchMe, signOut } from "@/lib/auth";
+import { fetchMe } from "@/lib/auth";
 import { useAnalysis } from "@/context/analysis-context";
+import { UserSettingsDropdown } from "@/components/UserSettingsDropdown";
 import {
   Tooltip,
   TooltipContent,
@@ -158,10 +159,8 @@ export function AppSidebar({
     };
   }, [guestMode]);
 
-  const handleSignOut = async () => {
-    await signOut();
+  const handleMobileMenuClose = () => {
     onMobileOpenChange(false);
-    navigate("/login");
   };
 
   const showExpanded = isMobile ? true : expanded;
@@ -298,6 +297,15 @@ export function AppSidebar({
           Other
         </p>
         <div className="space-y-0.5">
+          {!guestMode ? (
+            <NavItem
+              to="/settings"
+              icon={Settings}
+              label="Settings"
+              expanded={showExpanded}
+              onAfterNavigate={() => isMobile && onMobileOpenChange(false)}
+            />
+          ) : null}
           <NavItem
             to="/demo"
             icon={Play}
@@ -370,48 +378,11 @@ export function AppSidebar({
             )}
           </div>
         ) : (
-          <div
-            className={cn(
-              "flex items-center gap-2 px-1",
-              !showExpanded && "flex-col gap-2",
-            )}
-          >
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] font-syne text-xs font-medium text-text-primary"
-              title={email}
-            >
-              {initial}
-            </div>
-            {showExpanded ? (
-              <span className="min-w-0 flex-1 truncate font-syne text-xs text-text-muted">
-                {email || "—"}
-              </span>
-            ) : null}
-            {!showExpanded ? (
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => void handleSignOut()}
-                    className="rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-                    aria-label="Sign out"
-                  >
-                    <LogOut size={18} strokeWidth={1.5} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Sign out</TooltipContent>
-              </Tooltip>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void handleSignOut()}
-                className="shrink-0 rounded-md p-2 text-text-muted hover:text-[hsl(var(--negative))]"
-                aria-label="Sign out"
-              >
-                <LogOut size={18} strokeWidth={1.5} />
-              </button>
-            )}
-          </div>
+          <UserSettingsDropdown
+            email={email}
+            initial={initial}
+            expanded={showExpanded}
+          />
         )}
       </div>
     </aside>

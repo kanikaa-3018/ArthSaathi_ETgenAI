@@ -24,6 +24,7 @@ import AnalyzeError from "./pages/AnalyzeError";
 import TaxWizard from "./pages/TaxWizard";
 import FirePlanner from "./pages/FirePlanner";
 import MentorPage from "./pages/MentorPage";
+import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import { scrollDocumentToTop, setAppLenis } from "@/lib/appLenis";
@@ -179,6 +180,16 @@ const App = () => {
                       <AuthGuard>
                         <AppLayout>
                           <MentorPage />
+                        </AppLayout>
+                      </AuthGuard>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <AuthGuard>
+                        <AppLayout>
+                          <Settings />
                         </AppLayout>
                       </AuthGuard>
                     }
