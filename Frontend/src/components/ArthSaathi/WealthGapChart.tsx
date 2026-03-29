@@ -157,12 +157,12 @@ export function WealthGapChart({
                 <stop
                   offset="0%"
                   stopColor="hsl(213, 60%, 56%)"
-                  stopOpacity={0.32}
+                  stopOpacity={0.25}
                 />
                 <stop
                   offset="100%"
                   stopColor="hsl(213, 60%, 56%)"
-                  stopOpacity={0}
+                  stopOpacity={0.02}
                 />
               </linearGradient>
               <linearGradient
@@ -175,12 +175,12 @@ export function WealthGapChart({
                 <stop
                   offset="0%"
                   stopColor="hsl(160, 60%, 50%)"
-                  stopOpacity={0.3}
+                  stopOpacity={0.25}
                 />
                 <stop
                   offset="100%"
                   stopColor="hsl(160, 60%, 50%)"
-                  stopOpacity={0}
+                  stopOpacity={0.02}
                 />
               </linearGradient>
             </defs>

@@ -123,7 +123,7 @@ export function ReportSections({
           </button>
         </div>
 
-        <div ref={reportRef}>
+        <div ref={reportRef} className="min-w-0">
           <ResultsHeader
             investorName={data.investor.name}
             fundCount={data.portfolio_summary.total_funds}

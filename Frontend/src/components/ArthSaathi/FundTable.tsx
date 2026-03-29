@@ -56,7 +56,7 @@ export function FundTable({ funds }: FundTableProps) {
       </div>
 
       {/* Mobile: cards + tap to expand */}
-      <div className="md:hidden space-y-3 p-4 pt-4">
+      <div className="md:hidden space-y-3 p-3 pt-3 sm:p-4 sm:pt-4">
         {funds.map((fund) => {
           const isOpen = mobileExpanded === fund.amfi_code;
           return (
@@ -66,7 +66,7 @@ export function FundTable({ funds }: FundTableProps) {
               onClick={() =>
                 setMobileExpanded(isOpen ? null : fund.amfi_code)
               }
-              className="card-arth w-full space-y-2 p-4 text-left transition-colors hover:bg-white/[0.02]"
+              className="card-arth w-full space-y-2 p-3 text-left transition-colors hover:bg-white/[0.02] sm:p-4"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
@@ -224,7 +224,12 @@ export function FundTable({ funds }: FundTableProps) {
                           )}
                           <div>
                             <p className="font-body text-sm font-medium text-primary-light">
-                              {displaySchemeName(fund.scheme_name)}
+                              <span
+                                className="truncate max-w-[280px] inline-block align-bottom"
+                                title={fund.scheme_name}
+                              >
+                                {displaySchemeName(fund.scheme_name)}
+                              </span>
                             </p>
                             <p
                               className="font-body text-xs"

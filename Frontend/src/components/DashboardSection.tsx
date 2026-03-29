@@ -100,31 +100,31 @@ export default function DashboardSection() {
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr_1fr] gap-4 p-5">
           {/* Health ring */}
           <div className="flex flex-col items-center justify-center md:row-span-2">
-            <div className="relative">
-              <RadialBarChart
-                width={200}
-                height={160}
-                innerRadius="70%"
-                outerRadius="100%"
-                data={healthData}
-                startAngle={90}
-                endAngle={-270}
-                barSize={8}
-              >
-                <RadialBar
-                  dataKey="value"
-                  cornerRadius={4}
-                  background={{ fill: "hsl(220 15% 14%)" }}
-                />
-              </RadialBarChart>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="font-mono text-[28px] font-bold tabular-nums text-warning">
+            <div className="relative h-[120px] w-[120px] sm:h-[140px] sm:w-[140px] md:h-[180px] md:w-[180px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                  innerRadius="70%"
+                  outerRadius="100%"
+                  data={healthData}
+                  startAngle={90}
+                  endAngle={-270}
+                  barSize={8}
+                >
+                  <RadialBar
+                    dataKey="value"
+                    cornerRadius={4}
+                    background={{ fill: "hsl(220 15% 14%)" }}
+                  />
+                </RadialBarChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="font-mono text-[22px] font-bold tabular-nums text-warning sm:text-[26px] md:text-[28px]">
                   41
                 </span>
-                <span className="font-mono text-[13px] tabular-nums text-text-muted">
+                <span className="font-mono text-[11px] tabular-nums text-text-muted sm:text-[13px]">
                   / 100
                 </span>
-                <span className="font-syne font-semibold text-xs text-warning tracking-wider mt-1">
+                <span className="font-syne font-semibold text-[10px] text-warning tracking-wider mt-1 sm:text-xs">
                   C
                 </span>
               </div>

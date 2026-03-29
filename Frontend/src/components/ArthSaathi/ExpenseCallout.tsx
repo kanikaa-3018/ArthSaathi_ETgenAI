@@ -34,7 +34,7 @@ export function ExpenseCallout({
       >
         Your portfolio is losing
       </p>
-      <p className="font-mono-dm text-[56px] font-bold tabular-nums text-negative negative-glow mt-2">
+      <p className="font-mono text-4xl sm:text-5xl lg:text-[56px] font-bold tabular-nums text-negative negative-glow mt-2">
         {compactINR(lossVal)}
       </p>
       <p

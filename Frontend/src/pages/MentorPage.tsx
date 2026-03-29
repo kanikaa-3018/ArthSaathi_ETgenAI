@@ -12,17 +12,20 @@ export default function MentorPage() {
   const data = state.result;
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-48px)] max-w-[720px] flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-[calc(100vh-48px)] max-w-[800px] flex-col px-4 py-6 sm:px-6">
       <div className="mb-6 shrink-0">
+        <p className="section-label mb-3">Tool</p>
         <h1
-          className="font-fraunces text-[22px] text-text-primary"
+          className="font-fraunces text-[22px] text-text-primary sm:text-[26px]"
           style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
         >
           Mentor
         </h1>
-        <p className="font-syne mt-1 text-sm text-text-secondary">Portfolio-aware financial guidance</p>
+        <p className="font-syne mt-2 max-w-lg text-sm text-text-secondary">
+          Portfolio-aware financial guidance
+        </p>
         {data ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             <div
               className="card-arth border border-white/[0.06] px-3 py-2"
               style={{ borderRadius: "4px" }}

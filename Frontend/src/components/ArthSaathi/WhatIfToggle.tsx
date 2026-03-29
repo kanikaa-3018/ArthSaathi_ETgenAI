@@ -13,13 +13,12 @@ export function WhatIfToggle({ enabled, onToggle, regularCount, savingsAnnual }:
 
   return (
     <div
-      className="card-arth p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-12 z-30"
+      className="card-arth p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-12 z-20"
       style={{
         borderLeft: enabled ? '3px solid hsl(var(--positive))' : '3px solid hsl(var(--bg-tertiary))',
         background: enabled
           ? 'linear-gradient(135deg, rgba(52,211,153,0.08), rgba(52,211,153,0.02))'
-          : 'hsla(220, 20%, 10%, 0.95)',
-        backdropFilter: 'blur(12px)',
+          : 'hsl(var(--bg-primary))',
         transition: 'all 0.3s ease',
       }}
     >
