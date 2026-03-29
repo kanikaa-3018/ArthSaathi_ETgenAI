@@ -46,6 +46,9 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
   const [s80d, setS80d] = useState("25000");
   const [ccd1b, setCcd1b] = useState("50000");
   const [homeLoan, setHomeLoan] = useState("0");
+  const [ltaAnnual, setLtaAnnual] = useState("0");
+  const [eduLoan80e, setEduLoan80e] = useState("0");
+  const [otherOldDed, setOtherOldDed] = useState("0");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [result, setResult] = useState<TaxRegimeCompareResponse | null>(null);
@@ -66,6 +69,9 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
         section_80ccd1b: parseAmountField(ccd1b),
         home_loan_interest: parseAmountField(homeLoan),
         elss_from_portfolio: elss,
+        lta_exemption_annual: parseAmountField(ltaAnnual),
+        education_loan_interest_80e: parseAmountField(eduLoan80e),
+        other_old_regime_deductions: parseAmountField(otherOldDed),
       };
       const res = await fetch(api.taxRegimeCompare, {
         method: "POST",
@@ -158,6 +164,16 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                   className={inputClass}
                 />
               </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">LTA exemption (annual, old regime)</span>
+                <Input
+                  value={ltaAnnual}
+                  onChange={(e) => setLtaAnnual(e.target.value)}
+                  placeholder="₹0"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
               <div className="flex items-center gap-2 pt-1">
                 <Switch checked={isMetro} onCheckedChange={setIsMetro} id="metro" />
                 <label htmlFor="metro" className="font-syne text-xs text-text-secondary">
@@ -207,6 +223,26 @@ export function TaxRegimeCompare({ data }: TaxRegimeCompareProps) {
                 <Input
                   value={homeLoan}
                   onChange={(e) => setHomeLoan(e.target.value)}
+                  placeholder="₹0"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">Education loan interest (80E, old regime)</span>
+                <Input
+                  value={eduLoan80e}
+                  onChange={(e) => setEduLoan80e(e.target.value)}
+                  placeholder="₹0"
+                  inputMode="numeric"
+                  className={inputClass}
+                />
+              </label>
+              <label className="font-syne block space-y-1 text-xs">
+                <span className="text-text-tertiary">Other old-regime deductions (capped)</span>
+                <Input
+                  value={otherOldDed}
+                  onChange={(e) => setOtherOldDed(e.target.value)}
                   placeholder="₹0"
                   inputMode="numeric"
                   className={inputClass}

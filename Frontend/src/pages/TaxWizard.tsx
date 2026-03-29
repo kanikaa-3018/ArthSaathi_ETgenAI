@@ -104,7 +104,7 @@ export default function TaxWizard() {
           }}
         >
           <p className="font-syne text-xs text-text-secondary">
-            Showing sample context only.{" "}
+            Showing sample data.{" "}
             <Link to="/analyze" className="text-accent hover:underline">
               Upload a CAS
             </Link>{" "}

@@ -74,6 +74,7 @@ export function ReportView({ topBar, footerNote }: ReportViewProps) {
             debtPct={data.portfolio_summary.debt_allocation_pct}
             regularCount={data.portfolio_summary.regular_plan_count}
             directCount={data.portfolio_summary.direct_plan_count}
+            totalCurrentValue={data.portfolio_summary.total_current_value}
           />
 
           <RebalancingPlan

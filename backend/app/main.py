@@ -185,6 +185,9 @@ class TaxRegimeBody(BaseModel):
     section_80ccd1b: float = Field(0, ge=0)
     home_loan_interest: float = Field(0, ge=0)
     elss_from_portfolio: float = Field(0, ge=0)
+    lta_exemption_annual: float = Field(0, ge=0)
+    education_loan_interest_80e: float = Field(0, ge=0)
+    other_old_regime_deductions: float = Field(0, ge=0)
 
 
 @app.post("/api/tax/regime-compare")
@@ -200,6 +203,9 @@ def tax_regime_compare(body: TaxRegimeBody):
         section_80ccd1b=body.section_80ccd1b,
         home_loan_interest=body.home_loan_interest,
         elss_from_portfolio=body.elss_from_portfolio,
+        lta_exemption_annual=body.lta_exemption_annual,
+        education_loan_interest_80e=body.education_loan_interest_80e,
+        other_old_regime_deductions=body.other_old_regime_deductions,
     )
     return JSONResponse(content=result)
 

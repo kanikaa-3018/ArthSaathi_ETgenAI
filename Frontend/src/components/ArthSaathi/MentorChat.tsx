@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { renderChatMessageContent } from "@/lib/chatMessageFormat";
 
 type Role = "user" | "assistant";
 
@@ -235,7 +236,7 @@ export function MentorChat({
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {m.content}
+            {renderChatMessageContent(m.content)}
           </div>
         ))}
         {streaming && loading ? (
@@ -247,7 +248,7 @@ export function MentorChat({
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {streaming}
+            {renderChatMessageContent(streaming)}
           </div>
         ) : null}
         {loading && !streaming ? (

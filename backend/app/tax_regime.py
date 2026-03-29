@@ -66,8 +66,15 @@ def compare_regimes(
     section_80ccd1b: float = 0,
     home_loan_interest: float = 0,
     elss_from_portfolio: float = 0,
+    lta_exemption_annual: float = 0,
+    education_loan_interest_80e: float = 0,
+    other_old_regime_deductions: float = 0,
 ) -> Dict[str, Any]:
     basic = gross_salary * 0.40
+
+    # Section 10(5) LTA — illustrative: reduce gross for Old Regime only (capped)
+    lta_ex = min(max(0.0, lta_exemption_annual), 200000.0)
+    gross_old_base = max(0.0, gross_salary - lta_ex)
 
     old_std = 50000.0
     hra_exempt = _hra_exemption(basic, hra_received_annual, rent_paid_annual, is_metro)
@@ -75,15 +82,27 @@ def compare_regimes(
     total_80d = min(section_80d, 100000)
     total_80ccd = min(section_80ccd1b, 50000)
     total_24b = min(home_loan_interest, 200000)
+    total_80e = min(max(0.0, education_loan_interest_80e), 500000.0)
+    other_old = min(max(0.0, other_old_regime_deductions), 150000.0)
 
-    old_deductions = old_std + hra_exempt + total_80c + total_80d + total_80ccd + total_24b
-    old_taxable = max(0.0, gross_salary - old_deductions)
+    old_deductions = (
+        old_std
+        + hra_exempt
+        + total_80c
+        + total_80d
+        + total_80ccd
+        + total_24b
+        + total_80e
+        + other_old
+    )
+    old_taxable = max(0.0, gross_old_base - old_deductions)
     old_tax = _old_regime_tax(old_taxable)
     old_cess = old_tax * 0.04
     old_total = round(old_tax + old_cess)
 
     new_std = 75000.0
     new_deductions = new_std
+    # New regime: no LTA/80E/other chapter VI-A (illustrative model)
     new_taxable = max(0.0, gross_salary - new_deductions)
     new_tax = _new_regime_tax(new_taxable)
     new_cess = new_tax * 0.04
@@ -105,18 +124,28 @@ def compare_regimes(
         tips.append("NPS additional ₹50K deduction (80CCD1B) is valuable in Old Regime")
     if hra_exempt > 0:
         tips.append(f"HRA exemption of {format_inr(round(hra_exempt))} reduces your Old Regime tax")
+    if lta_ex > 0:
+        tips.append(f"LTA exemption of {format_inr(round(lta_ex))} reduces Old Regime gross (illustrative)")
+    if total_80e > 0:
+        tips.append("Education loan interest (80E) reduces Old Regime taxable income")
+    if other_old > 0:
+        tips.append("Other chapter VI-A style deductions applied in Old Regime only (capped)")
     if gross_salary <= 1275000:
         tips.append("At your income, New Regime may give zero tax (rebate u/s 87A up to ₹12.75L gross)")
 
     return {
         "old_regime": {
             "gross_income": gross_salary,
+            "lta_exemption": round(lta_ex),
+            "gross_after_lta": round(gross_old_base),
             "standard_deduction": old_std,
             "hra_exemption": round(hra_exempt),
             "section_80c": total_80c,
             "section_80d": total_80d,
             "section_80ccd1b": total_80ccd,
             "home_loan_24b": total_24b,
+            "education_loan_80e": round(total_80e),
+            "other_deductions": round(other_old),
             "total_deductions": round(old_deductions),
             "taxable_income": round(old_taxable),
             "tax_before_cess": round(old_tax),

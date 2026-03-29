@@ -1,12 +1,16 @@
+import { useMemo } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { NoDataCard } from "@/components/ArthSaathi/NoDataCard";
+import { compactINR } from "@/lib/format";
 
 interface AssetAllocationProps {
   equityPct: number;
   debtPct: number;
   regularCount: number;
   directCount: number;
+  /** When set, donut center shows total portfolio value; % breakdown as subtitle. */
+  totalCurrentValue?: number;
 }
 
 /** ~60% inner radius vs outer 80 */
@@ -18,6 +22,7 @@ export function AssetAllocation({
   debtPct,
   regularCount,
   directCount,
+  totalCurrentValue,
 }: AssetAllocationProps) {
   const { ref, visible } = useScrollReveal();
 
@@ -30,18 +35,23 @@ export function AssetAllocation({
     );
   }
 
-  const allocationData = [
-    {
-      name: "Equity",
-      value: equityPct,
-      color: "hsl(var(--accent))",
-    },
-    {
-      name: "Debt",
-      value: debtPct,
-      color: "hsl(220, 8%, 42%)",
-    },
-  ];
+  const hybridPct = Math.max(0, 100 - equityPct - debtPct);
+  const showHybrid = hybridPct >= 0.5;
+
+  const allocationData = useMemo(() => {
+    const base = [
+      { name: "Equity", value: equityPct, color: "hsl(var(--accent))" },
+      { name: "Debt", value: debtPct, color: "hsl(220, 8%, 42%)" },
+    ];
+    if (showHybrid) {
+      base.push({
+        name: "Other",
+        value: hybridPct,
+        color: "hsl(38, 85%, 52%)",
+      });
+    }
+    return base;
+  }, [equityPct, debtPct, hybridPct, showHybrid]);
 
   const planData = [
     {
@@ -56,8 +66,15 @@ export function AssetAllocation({
     },
   ];
 
-  const totalPct = Math.round(equityPct + debtPct);
+  const totalPct = Math.round(equityPct + debtPct + (showHybrid ? hybridPct : 0));
   const planTotal = regularCount + directCount;
+  const showTotalValue =
+    totalCurrentValue != null && Number.isFinite(totalCurrentValue) && totalCurrentValue > 0;
+  const sublineParts = [
+    `Equity ${equityPct}%`,
+    `Debt ${debtPct}%`,
+    ...(showHybrid ? [`Other ${Math.round(hybridPct)}%`] : []),
+  ];
 
   return (
     <div
@@ -98,12 +115,12 @@ export function AssetAllocation({
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="font-mono-dm text-2xl font-medium tabular-nums text-primary-light">
-                {totalPct}%
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-1 text-center">
+              <span className="font-mono-dm text-xl font-medium tabular-nums leading-tight text-primary-light md:text-2xl">
+                {showTotalValue ? compactINR(totalCurrentValue) : `${totalPct}%`}
               </span>
-              <span className="font-syne mt-0.5 text-[10px] uppercase tracking-wider text-text-muted">
-                Net allocated
+              <span className="font-syne mt-1 max-w-[9rem] text-[9px] uppercase leading-snug tracking-wider text-text-muted md:max-w-none md:text-[10px]">
+                {showTotalValue ? sublineParts.join(" · ") : "Net allocated"}
               </span>
             </div>
           </div>

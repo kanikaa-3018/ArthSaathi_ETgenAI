@@ -183,6 +183,7 @@ export function ReportSections({
                 debtPct={data.portfolio_summary.debt_allocation_pct}
                 regularCount={data.portfolio_summary.regular_plan_count}
                 directCount={data.portfolio_summary.direct_plan_count}
+                totalCurrentValue={data.portfolio_summary.total_current_value}
               />
               <RebalancingPlan
                 content={data.rebalancing_plan.content}
@@ -310,6 +311,7 @@ export function ReportSections({
                     debtPct={data.portfolio_summary.debt_allocation_pct}
                     regularCount={data.portfolio_summary.regular_plan_count}
                     directCount={data.portfolio_summary.direct_plan_count}
+                    totalCurrentValue={data.portfolio_summary.total_current_value}
                   />
                 </TabsContent>
 
