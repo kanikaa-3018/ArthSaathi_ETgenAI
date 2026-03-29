@@ -45,32 +45,27 @@ export default function HowItWorksSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-14 md:py-20">
-      <div className="max-w-[1080px] mx-auto px-6 md:px-10">
+    <section ref={sectionRef} className="landing-section-pad">
+      <div className="max-w-6xl mx-auto px-6 md:px-10">
         {/* Header */}
-        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 md:gap-10 mb-14 md:mb-20">
           <div className="hidden md:block">
             <span
-              className="font-syne font-medium text-xs text-text-muted uppercase tracking-[4px]"
+              className="section-label !text-[12px] !tracking-[0.2em]"
               style={{
                 writingMode: "vertical-rl",
                 transform: "rotate(180deg)",
               }}
             >
-              THE PROCESS
+              The process
             </span>
           </div>
           <div>
-            <p className="md:hidden font-syne font-medium text-xs text-text-muted uppercase tracking-[4px] mb-2">
-              THE PROCESS
-            </p>
-            <h2
-              className="font-fraunces text-text-primary text-[26px] md:text-[36px] leading-tight"
-              style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
-            >
+            <p className="section-label md:hidden mb-3">The process</p>
+            <h2 className="landing-headline max-w-[18ch]">
               Nine agents. One verdict.
             </h2>
-            <p className="font-syne text-[15px] text-text-secondary max-w-[480px] mt-2 leading-relaxed">
+            <p className="font-syne text-[15px] md:text-base text-text-secondary max-w-[32rem] mt-4 md:mt-5 leading-relaxed">
               You upload one PDF. Nine specialized AI agents run concurrently.
               In 30 seconds, you have a complete financial diagnosis.
             </p>
@@ -82,7 +77,7 @@ export default function HowItWorksSection() {
           {/* Column 1 */}
           <div className="news-col pr-0 md:pr-5 pb-8 md:pb-0 border-b md:border-b-0 md:border-r border-border-faint">
             <div className="h-0.5 w-full bg-accent mb-4" />
-            <p className="font-mono text-xs text-text-muted tracking-[2px]">
+            <p className="font-mono text-sm text-text-muted tracking-[2px]">
               01
             </p>
             <h3
@@ -96,7 +91,7 @@ export default function HowItWorksSection() {
               Password-protected files are decrypted entirely in-browser —
               nothing leaves your device before analysis begins.
             </p>
-            <p className="font-syne text-[12px] text-text-muted mt-3">
+            <p className="font-syne text-[14px] text-text-muted mt-3">
               Supports CAMS · KFintech · MF Central
             </p>
           </div>
@@ -150,7 +145,7 @@ export default function HowItWorksSection() {
                 Advisor
               </span>
             </p>
-            <p className="font-syne text-[13px] text-text-tertiary mt-3">
+            <p className="font-syne text-[15px] text-text-tertiary mt-3">
               Every finding surfaces in real-time.
             </p>
           </div>
@@ -171,7 +166,7 @@ export default function HowItWorksSection() {
               Health score. Fund-by-fund cost breakdown. Overlap map. Fee
               trajectory. Wealth gap projection. AI rebalancing plan.
             </p>
-            <span className="inline-block mt-3 font-syne font-medium text-xs text-positive border border-positive rounded px-1.5 py-0.5">
+            <span className="inline-block mt-3 font-syne font-medium text-sm text-positive border border-positive rounded px-2 py-0.5">
               SEBI Data
             </span>
           </div>

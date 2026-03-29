@@ -6,9 +6,7 @@ import "./ProblemSection.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const PANEL_COUNT = 3;
-
-export default function ProblemSection() {
+function ProblemSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -33,24 +31,24 @@ export default function ProblemSection() {
     const track = trackRef.current;
 
     const ctx = gsap.context(() => {
-      const tween = gsap.to(track, {
-        x: () => -(track.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          pin: true,
-          scrub: 1.05,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          end: () =>
-            `+=${Math.max(1, track.scrollWidth - window.innerWidth)}`,
-          snap: {
-            snapTo: 1 / (PANEL_COUNT - 1),
-            duration: { min: 0.2, max: 0.4 },
-            ease: "power2.inOut",
+      const tween = gsap.fromTo(
+        track,
+        { x: 0 },
+        {
+          x: () => -(Math.max(0, track.scrollWidth - window.innerWidth)),
+          ease: "none",
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: section,
+            pin: true,
+            scrub: 1.05,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            end: () =>
+              `+=${Math.max(1, track.scrollWidth - window.innerWidth)}`,
           },
         },
-      });
+      );
 
       const p1Num = section.querySelector(".p1-num");
       if (p1Num) {
@@ -79,7 +77,20 @@ export default function ProblemSection() {
       };
     }, section);
 
-    return () => ctx.revert();
+    const ro = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    ro.observe(track);
+
+    const refreshId = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(refreshId);
+      ctx.revert();
+    };
   }, [isDesktop]);
 
   if (!isDesktop) {
@@ -100,8 +111,9 @@ export default function ProblemSection() {
       </div>
 
       <div className="relative h-[78vh] min-h-[560px] overflow-hidden">
-        <div ref={trackRef} className="problem-track flex w-[200vw] h-full items-center">
-          <div className="problem-panel flex-shrink-0 w-[calc(200vw/3)] h-full flex items-start relative pt-12 md:pt-14">
+        <div ref={trackRef} className="problem-track flex h-full w-max min-h-full items-stretch">
+          {/* One panel = 100vw so max-w-6xl aligns with the heading above (same as HackOrbit). */}
+          <div className="problem-panel flex h-full w-screen shrink-0 items-start relative pt-12 md:pt-14">
             <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
               <div className="max-w-[420px]">
               <p className="section-label mb-4">Finding 01</p>
@@ -121,25 +133,25 @@ export default function ProblemSection() {
                 per year on every{" "}
                 <span className="font-mono-dm tabular-nums">₹10 lakh</span>.
               </p>
-              <p className="font-syne text-[13px] text-text-tertiary mt-2">
+              <p className="font-syne text-[15px] text-text-tertiary mt-2">
                 Silently deducted. Not once shown on your statement.
               </p>
               <div className="mt-6 opacity-40">
-                <p className="font-mono text-[13px] text-text-muted">
+                <p className="font-mono text-[15px] text-text-muted">
                   ████████████████
                 </p>
-                <p className="font-mono text-[13px] text-text-muted">
+                <p className="font-mono text-[15px] text-text-muted">
                   ████████████████
                 </p>
               </div>
-              <p className="font-syne text-xs text-text-muted mt-2">
+              <p className="font-syne text-sm text-text-muted mt-2">
                 [Fee disclosure. Redacted by default.]
               </p>
             </div>
             </div>
           </div>
 
-          <div className="problem-panel flex h-full w-[calc(200vw/3)] flex-shrink-0 items-start relative pt-12 md:pt-14">
+          <div className="problem-panel flex h-full w-screen shrink-0 items-start relative pt-12 md:pt-14">
             <div className="mx-auto w-full max-w-6xl px-6 md:px-10 flex justify-center">
               <div className="text-center">
               <p className="section-label mb-6">Finding 02</p>
@@ -177,7 +189,7 @@ export default function ProblemSection() {
                   y="95"
                   className="font-syne"
                   fill="hsl(220 5% 62%)"
-                  fontSize="12"
+                  fontSize="14"
                   fontFamily="Syne"
                 >
                   Fund A
@@ -187,7 +199,7 @@ export default function ProblemSection() {
                   y="95"
                   className="font-syne"
                   fill="hsl(220 5% 62%)"
-                  fontSize="12"
+                  fontSize="14"
                   fontFamily="Syne"
                 >
                   Fund B
@@ -214,7 +226,7 @@ export default function ProblemSection() {
             </div>
           </div>
 
-          <div className="problem-panel flex-shrink-0 w-[calc(200vw/3)] h-full flex items-start relative pt-12 md:pt-14">
+          <div className="problem-panel flex h-full w-screen shrink-0 items-start relative pt-12 md:pt-14">
             <div className="mx-auto w-full max-w-6xl px-6 md:px-10 flex justify-end">
               <div className="text-right max-w-[400px]">
               <p className="section-label mb-4">Finding 03</p>
@@ -224,7 +236,7 @@ export default function ProblemSection() {
               >
                 ₹6.45L
               </p>
-              <p className="font-syne text-xs text-text-muted mt-1 tracking-wide">
+              <p className="font-syne text-sm text-text-muted mt-1 tracking-wide">
                 lost to fees over 10 years
               </p>
               <div className="mb-7" />
@@ -234,7 +246,7 @@ export default function ProblemSection() {
               >
                 ₹22.6L
               </p>
-              <p className="font-syne text-xs text-text-muted mt-1 tracking-wide">
+              <p className="font-syne text-sm text-text-muted mt-1 tracking-wide">
                 wealth gap vs optimised portfolio
               </p>
               <div className="w-10 h-px bg-border-subtle mt-6 mb-5 ml-auto" />
@@ -310,3 +322,5 @@ function MobileProblem() {
     </section>
   );
 }
+
+export default ProblemSection;

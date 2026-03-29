@@ -57,13 +57,11 @@ export default function Index() {
       <div id="problem" className="scroll-mt-[52px]">
         <ProblemSection />
       </div>
-      <DataStrip />
       <div id="how-it-works" className="scroll-mt-[52px]">
         <HowItWorksSection />
       </div>
       <DataStrip />
       <DashboardSection />
-      <DataStrip />
       <div id="features" className="scroll-mt-[52px]">
         <FeaturesSection />
       </div>
@@ -71,7 +69,6 @@ export default function Index() {
       <div id="impact" className="scroll-mt-[52px]">
         <NumbersSection />
       </div>
-      <DataStrip />
       <CredibilitySection />
       <DataStrip />
       <FinalCTASection />

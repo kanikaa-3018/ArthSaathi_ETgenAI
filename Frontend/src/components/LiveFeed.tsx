@@ -47,10 +47,12 @@ export default function LiveFeed() {
     <div className="fixed bottom-6 right-6 z-50 pointer-events-none max-w-[240px] hidden md:block">
       <div
         ref={elRef}
-        className="rounded-md px-3 py-2"
+        className="rounded-sm px-3 py-2.5 backdrop-blur-sm"
         style={{
-          background: "hsl(220 18% 12%)",
-          border: "1px solid hsl(220 10% 20%)",
+          background: "hsl(220 20% 9% / 0.88)",
+          border: "1px solid hsl(220 12% 18%)",
+          boxShadow:
+            "inset 0 1px 0 hsl(0 0% 100% / 0.04), 0 12px 40px -24px hsl(0 0% 0% / 0.55)",
         }}
       >
         <p className="font-syne font-medium text-[8px] text-text-muted uppercase tracking-[2px] mb-1">

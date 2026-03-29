@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
-import { ChevronDown, Download } from "lucide-react";
+import { ChevronDown, Download, Loader2 } from "lucide-react";
 import { ResultsHeader } from "@/components/ArthSaathi/ResultsHeader";
 import { FeeCounter } from "@/components/ArthSaathi/FeeCounter";
 import { EmergencyFundCheck } from "@/components/ArthSaathi/EmergencyFundCheck";
@@ -19,10 +19,14 @@ import { TaxRegimeCompare } from "@/components/ArthSaathi/TaxRegimeCompare";
 import { AgentDAG } from "@/components/ArthSaathi/AgentDAG";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { AnalysisData } from "@/types/analysis";
+import type { AnalysisData, TaxInsightsResponse } from "@/types/analysis";
+import { api } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
 import { normalizeWealthProjectionForChart } from "@/lib/wealthProjection";
 import { useWhatIfDirect } from "@/hooks/useWhatIfDirect";
-import { exportReportPdf } from "@/lib/exportPdf";
+import { buildReportMarkdown, downloadMarkdownFile } from "@/lib/exportMarkdown";
+import { downloadPdfFromMarkdown } from "@/lib/exportPdfFromMarkdown";
+import { toast } from "sonner";
 
 interface ReportSectionsProps {
   /** Live analysis payload or explicit demo dataset — no implicit mock fallback */
@@ -85,30 +89,78 @@ export function ReportSections({
   showFallbacks,
 }: ReportSectionsProps) {
   const [whatIfEnabled, setWhatIfEnabled] = useState(false);
-  const [pdfBusy, setPdfBusy] = useState(false);
-  const pdfBusyRef = useRef(false);
+  const [exportBusy, setExportBusy] = useState(false);
+  const exportBusyRef = useRef(false);
   const [pipelineOpen, setPipelineOpen] = useState(false);
-  /** Radix Collapsible unmounts closed content; expand during PDF capture so html2canvas sees it. */
-  const [pdfExpandCollapsibles, setPdfExpandCollapsibles] = useState(false);
-  const reportRef = useRef<HTMLDivElement>(null);
   const data = useWhatIfDirect(originalData, whatIfEnabled);
   const wealthChart = normalizeWealthProjectionForChart(data.wealth_projection);
 
-  const handleExportPdf = useCallback(async () => {
-    const el = reportRef.current;
-    if (!el || pdfBusyRef.current) return;
-    pdfBusyRef.current = true;
-    setPdfBusy(true);
-    setPdfExpandCollapsibles(true);
-    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-    try {
-      await exportReportPdf(el, data.investor.name);
-    } finally {
-      setPdfExpandCollapsibles(false);
-      pdfBusyRef.current = false;
-      setPdfBusy(false);
+  const defaultFooter = "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026";
+
+  const buildMarkdownForExport = useCallback(async (): Promise<string> => {
+    let taxInsights: TaxInsightsResponse | null = null;
+    if (showPlannerAndTax) {
+      try {
+        const token = await getAccessToken();
+        if (token) {
+          const res = await fetch(api.taxInsights, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ analysis: data }),
+          });
+          if (res.ok) {
+            taxInsights = (await res.json()) as TaxInsightsResponse;
+          }
+        }
+      } catch {
+        taxInsights = null;
+      }
     }
-  }, [data.investor.name]);
+    return buildReportMarkdown(data, {
+      whatIfEnabled,
+      showPlannerAndTax,
+      footerLabel: footerLabel ?? defaultFooter,
+      taxInsights,
+      complianceDisclaimer: data.compliance_disclaimer ?? null,
+    });
+  }, [data, footerLabel, showPlannerAndTax, whatIfEnabled]);
+
+  const handleExportPdf = useCallback(async () => {
+    if (exportBusyRef.current) return;
+    exportBusyRef.current = true;
+    setExportBusy(true);
+    try {
+      const md = await buildMarkdownForExport();
+      await downloadPdfFromMarkdown(md, data.investor.name);
+      toast.success("PDF report downloaded");
+    } catch (e) {
+      console.error(e);
+      toast.error("Could not generate PDF. Try Markdown export instead.");
+    } finally {
+      exportBusyRef.current = false;
+      setExportBusy(false);
+    }
+  }, [buildMarkdownForExport, data.investor.name]);
+
+  const handleExportMarkdown = useCallback(async () => {
+    if (exportBusyRef.current) return;
+    exportBusyRef.current = true;
+    setExportBusy(true);
+    try {
+      const md = await buildMarkdownForExport();
+      downloadMarkdownFile(md, data.investor.name);
+      toast.success("Markdown report downloaded");
+    } catch (e) {
+      console.error(e);
+      toast.error("Could not build Markdown export");
+    } finally {
+      exportBusyRef.current = false;
+      setExportBusy(false);
+    }
+  }, [buildMarkdownForExport, data.investor.name]);
 
   return (
     <div className="animate-reveal">
@@ -129,20 +181,32 @@ export function ReportSections({
       </div>
 
       <div className="max-w-[1120px] mx-auto px-4">
-        <div className="flex justify-end pb-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 pb-2">
           <button
             type="button"
-            disabled={pdfBusy}
+            disabled={exportBusy}
+            onClick={() => void handleExportMarkdown()}
+            className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/10 transition-colors disabled:opacity-50"
+            style={{ color: "hsl(var(--text-secondary))", background: "rgba(255,255,255,0.04)" }}
+            title="Structured Markdown (.md) — portable tables and sections"
+          >
+            {exportBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            {exportBusy ? "Export…" : "Download Markdown"}
+          </button>
+          <button
+            type="button"
+            disabled={exportBusy}
             onClick={() => void handleExportPdf()}
             className="font-body text-xs px-3 py-1.5 rounded-md flex items-center gap-2 border border-white/10 transition-colors disabled:opacity-50"
-            style={{ color: "hsl(var(--text-secondary))", background: "rgba(74, 144, 217, 0.08)" }}
+            style={{ color: "hsl(var(--accent))", background: "rgba(74, 144, 217, 0.16)" }}
+            title="Print-style PDF — same content as Markdown, Notion-like typography (light paper)"
           >
-            <Download className="h-3.5 w-3.5" />
-            {pdfBusy ? "PDF…" : "Download PDF"}
+            {exportBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            {exportBusy ? "Export…" : "Download PDF"}
           </button>
         </div>
 
-        <div ref={reportRef} className="min-w-0">
+        <div className="min-w-0">
           <ResultsHeader
             investorName={data.investor.name}
             fundCount={data.portfolio_summary.total_funds}
@@ -156,103 +220,6 @@ export function ReportSections({
             savingsAnnual={originalData.expense_summary.total_potential_annual_savings}
           />
 
-          {pdfExpandCollapsibles ? (
-            <div className="mt-8 space-y-12 pb-16">
-              <SummaryCards
-                summary={data.portfolio_summary}
-                xirr={data.portfolio_xirr}
-                annualDrag={data.expense_summary.total_annual_drag}
-                projected10yr={data.expense_summary.total_projected_10yr_drag}
-              />
-              <FeeCounter annualDrag={data.expense_summary.total_annual_drag} variant="banner" />
-              <HealthScore data={data.health_score} />
-              <FundTable funds={data.funds} />
-              <ExpenseCallout
-                projected10yr={data.expense_summary.total_projected_10yr_drag}
-                potentialSavings10yr={data.expense_summary.total_potential_10yr_savings}
-              />
-              {showFallbacks?.projectionUnavailable ? (
-                <UnavailableBlock
-                  title="Wealth Projection Unavailable"
-                  description="Projection data is currently unavailable for this report. Other analysis sections remain available."
-                />
-              ) : (
-                <WealthGapChart
-                  currentPath={wealthChart.currentPath}
-                  optimizedPath={wealthChart.optimizedPath}
-                  assumptions={wealthChart.assumptions}
-                />
-              )}
-              {showFallbacks?.overlapUnavailable ? (
-                <UnavailableBlock
-                  title="Overlap Analysis Unavailable"
-                  description="Holdings data is not available for one or more selected funds."
-                />
-              ) : (
-                <OverlapMatrix data={data.overlap_analysis} funds={data.funds} />
-              )}
-              {showFallbacks?.benchmarkUnavailable ? (
-                <UnavailableBlock
-                  title="Benchmark Comparison Unavailable"
-                  description="Benchmark comparison is currently available for equity categories only."
-                />
-              ) : null}
-              <AssetAllocation
-                equityPct={data.portfolio_summary.equity_allocation_pct}
-                debtPct={data.portfolio_summary.debt_allocation_pct}
-                regularCount={data.portfolio_summary.regular_plan_count}
-                directCount={data.portfolio_summary.direct_plan_count}
-                totalCurrentValue={data.portfolio_summary.total_current_value}
-              />
-              <RebalancingPlan
-                content={data.rebalancing_plan.content}
-                aiGenerated={data.rebalancing_plan.ai_generated}
-                llmProvider={
-                  data.rebalancing_plan.llm_provider ?? data.rebalancing_plan.ai_provider
-                }
-                llmModel={data.rebalancing_plan.llm_model}
-              />
-              <Collapsible
-                open={pdfExpandCollapsibles || pipelineOpen}
-                onOpenChange={(o) => {
-                  if (!pdfExpandCollapsibles) setPipelineOpen(o);
-                }}
-                className="group card-arth border border-white/10 overflow-hidden"
-              >
-                <CollapsibleTrigger
-                  type="button"
-                  className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
-                >
-                  <div>
-                    <p className="section-label mb-0">Analysis pipeline</p>
-                    <p className="font-body text-xs mt-1" style={{ color: "hsl(var(--text-tertiary))" }}>
-                      How your CAS moved through the 9 agents (completed run)
-                    </p>
-                  </div>
-                  <ChevronDown className="h-5 w-5 shrink-0 text-[hsl(var(--text-tertiary))] transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent forceMount>
-                  <div className="border-t border-white/10 px-2 pb-4 pt-2">
-                    <AgentDAG mode="static" events={[]} className="h-[480px] rounded-lg" />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              <EmergencyFundCheck funds={originalData.funds} />
-              {showPlannerAndTax ? (
-                <>
-                  <GoalPlanner data={data} />
-                  <TaxInsights data={data} />
-                  <TaxRegimeCompare data={originalData} />
-                </>
-              ) : null}
-              <SebiReportDisclaimer />
-              <footer className="py-16 text-center">
-                <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-                  {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
-                </p>
-              </footer>
-            </div>
-          ) : (
             <>
               <div className="mt-8 space-y-8">
                 <SummaryCards
@@ -348,13 +315,7 @@ export function ReportSections({
                     }
                     llmModel={data.rebalancing_plan.llm_model}
                   />
-                  <Collapsible
-                    open={pdfExpandCollapsibles || pipelineOpen}
-                    onOpenChange={(o) => {
-                      if (!pdfExpandCollapsibles) setPipelineOpen(o);
-                    }}
-                    className="group card-arth overflow-hidden border border-white/10"
-                  >
+                  <Collapsible open={pipelineOpen} onOpenChange={setPipelineOpen} className="group card-arth overflow-hidden border border-white/10">
                     <CollapsibleTrigger
                       type="button"
                       className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
@@ -390,11 +351,10 @@ export function ReportSections({
               <SebiReportDisclaimer />
               <footer className="py-16 text-center">
                 <p className="font-body text-[13px]" style={{ color: "hsl(var(--text-tertiary))" }}>
-                  {footerLabel ?? "ArthSaathi (अर्थसाथी) — Built for ET AI Hackathon 2026"}
+                  {footerLabel ?? defaultFooter}
                 </p>
               </footer>
             </>
-          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,120 @@
+/* Market-style ticker — dense, readable, TER + indices mix */
+
+.ticker-strip {
+  position: relative;
+  height: 40px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    hsl(220 24% 7%) 0%,
+    hsl(220 26% 6%) 100%
+  );
+  border-top: 1px solid hsl(220 10% 16%);
+  border-bottom: 1px solid hsl(0 0% 0% / 0.35);
+  box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.04);
+}
+
+.ticker-strip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    hsl(220 26% 6%) 0%,
+    transparent 8%,
+    transparent 92%,
+    hsl(220 26% 6%) 100%
+  );
+  z-index: 1;
+}
+
+.ticker-track {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  height: 100%;
+  padding-left: 0;
+}
+
+.ticker-divider {
+  color: hsl(var(--text-muted));
+  opacity: 0.35;
+  margin: 0 0.85rem;
+  font-weight: 300;
+  user-select: none;
+}
+
+.ticker-label {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: hsl(var(--accent));
+  margin-right: 0.75rem;
+  opacity: 0.95;
+}
+
+.ticker-symbol {
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: hsl(var(--text-primary));
+}
+
+.ticker-meta {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: hsl(var(--text-tertiary));
+  margin-left: 0.45rem;
+}
+
+.ticker-num {
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--text-secondary));
+  margin-left: 0.45rem;
+}
+
+.ticker-change-up {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--positive));
+  margin-left: 0.35rem;
+}
+
+.ticker-change-down {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--negative));
+  margin-left: 0.35rem;
+}
+
+.ticker-ter-label {
+  font-family: "Syne", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--text-muted));
+  margin-left: 0.35rem;
+}
+
+.ticker-ter-val {
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--warning));
+  margin-left: 0.25rem;
+}

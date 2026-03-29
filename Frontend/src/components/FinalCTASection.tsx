@@ -1,6 +1,7 @@
 import { useRef, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "gsap";
+import { Button } from "@/components/ui/button";
 
 export default function FinalCTASection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -25,37 +26,26 @@ export default function FinalCTASection() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-[68vh] flex flex-col items-center justify-center px-6"
+      className="landing-section-pad min-h-[58vh] flex flex-col items-center justify-center px-6 md:px-10"
       style={{
         backgroundImage:
           "radial-gradient(ellipse 55% 45% at 50% 50%, hsla(213,60%,56%,0.035) 0%, transparent 70%)",
       }}
     >
-      <p className="cta-reveal font-syne text-[17px] text-text-secondary text-center">
+      <p className="cta-reveal font-syne text-base md:text-[17px] text-text-secondary text-center max-w-md">
         Your portfolio is bleeding money right now.
       </p>
-      <h2
-        className="cta-reveal font-fraunces text-text-primary text-[30px] md:text-[46px] text-center mt-3 leading-tight"
-        style={{
-          fontVariationSettings: "'opsz' 144, 'wght' 800",
-          letterSpacing: "-0.02em",
-        }}
-      >
+      <h2 className="cta-reveal landing-cta-headline text-center mt-4 md:mt-5 max-w-[14ch]">
         Find out exactly how much.
       </h2>
-      <div className="cta-reveal mt-9">
-        <Link
-          to="/dashboard"
-          className="font-syne font-semibold text-[14px] text-white h-[46px] px-[26px] rounded-[9px] transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.97] inline-flex items-center justify-center no-underline"
-          style={{
-            background: "hsl(213 60% 56%)",
-            border: "1px solid hsla(213,60%,56%,0.35)",
-          }}
-        >
-          Analyze My Portfolio — Free
-        </Link>
+      <div className="cta-reveal mt-10 md:mt-12">
+        <Button asChild variant="cta" size="cta">
+          <Link to="/dashboard" className="no-underline">
+            Analyze My Portfolio — Free
+          </Link>
+        </Button>
       </div>
-      <p className="cta-reveal font-syne text-[12px] text-text-muted mt-4">
+      <p className="cta-reveal font-syne text-[14px] md:text-[15px] text-text-muted mt-5">
         Free · No credit card · Results in 30 seconds
       </p>
     </section>
